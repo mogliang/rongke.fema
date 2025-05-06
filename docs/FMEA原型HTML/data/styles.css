@@ -1,0 +1,187 @@
+﻿.ax_default {
+  font-family:'Arial Normal', 'Arial', sans-serif;
+  font-weight:400;
+  font-style:normal;
+  font-size:13px;
+  letter-spacing:normal;
+  color:#333333;
+  vertical-align:none;
+  text-align:center;
+  line-height:normal;
+  text-transform:none;
+}
+._形状 {
+}
+._图像 {
+}
+.button {
+}
+.primary_button {
+  color:#FFFFFF;
+}
+._标题_1 {
+  font-family:'Arial Normal', 'Arial', sans-serif;
+  font-weight:bold;
+  font-style:normal;
+  font-size:32px;
+  text-align:left;
+}
+._标题_2 {
+  font-family:'Arial Normal', 'Arial', sans-serif;
+  font-weight:bold;
+  font-style:normal;
+  font-size:24px;
+  text-align:left;
+}
+._标题_3 {
+  font-family:'Arial Normal', 'Arial', sans-serif;
+  font-weight:bold;
+  font-style:normal;
+  font-size:18px;
+  text-align:left;
+}
+._标题_4 {
+  font-family:'Arial Normal', 'Arial', sans-serif;
+  font-weight:bold;
+  font-style:normal;
+  font-size:14px;
+  text-align:left;
+}
+._标题_5 {
+  font-family:'Arial Normal', 'Arial', sans-serif;
+  font-weight:bold;
+  font-style:normal;
+  text-align:left;
+}
+._标题_6 {
+  font-family:'Arial Normal', 'Arial', sans-serif;
+  font-weight:bold;
+  font-style:normal;
+  font-size:10px;
+  text-align:left;
+}
+._文本 {
+  text-align:left;
+}
+._文本链接 {
+  color:#0000FF;
+}
+._表单提示 {
+  color:#999999;
+}
+._表单禁用 {
+}
+._流程形状 {
+}
+._直线___行距 {
+}
+._连接符 {
+}
+._默认样式 {
+}
+.image {
+}
+._文本链接1 {
+  color:#409EFF;
+}
+._链接悬停 {
+  color:#66B1FF;
+}
+._链接按下 {
+}
+._链接按下1 {
+}
+.heading_3 {
+  font-family:'Arial Normal', 'Arial', sans-serif;
+  font-weight:bold;
+  font-style:normal;
+  font-size:18px;
+  text-align:left;
+}
+.form_hint {
+  color:#999999;
+}
+.form_disabled {
+}
+.box_3 {
+}
+.ellipse {
+}
+.box_2 {
+}
+.shape {
+}
+.icon {
+}
+.line {
+}
+.text_field {
+  color:#000000;
+  text-align:left;
+}
+.droplist {
+  color:#000000;
+  text-align:left;
+}
+.flow_shape {
+}
+.box_1 {
+}
+.checkbox {
+  text-align:left;
+}
+.radio_button {
+  text-align:left;
+}
+.label {
+  font-size:14px;
+  text-align:left;
+}
+._链接悬停1 {
+}
+._表格 {
+}
+.line1 {
+}
+.arrow {
+}
+.list_box {
+  color:#000000;
+  text-align:left;
+}
+.tree_node {
+  text-align:left;
+}
+.table_cell {
+}
+.menu_item {
+}
+.sticky_1 {
+  text-align:left;
+}
+.sticky_2 {
+  text-align:left;
+}
+.sticky_3 {
+  text-align:left;
+}
+.sticky_4 {
+  text-align:left;
+}
+.marker {
+  color:#FFFFFF;
+}
+._默认样式1 {
+}
+._形状1 {
+  font-family:'Arial Negreta', 'Arial Normal', 'Arial', sans-serif;
+  font-weight:700;
+  font-style:normal;
+  color:#FF0066;
+}
+.flow_shape1 {
+}
+.radio_button1 {
+  text-align:left;
+}
+textarea, select, input, button { outline: none; }
