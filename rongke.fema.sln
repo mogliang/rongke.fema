@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rongke.fema", "rongke.fema.csproj", "{858E5506-9863-9ED2-E949-38A1B5958834}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{858E5506-9863-9ED2-E949-38A1B5958834}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{858E5506-9863-9ED2-E949-38A1B5958834}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{858E5506-9863-9ED2-E949-38A1B5958834}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{858E5506-9863-9ED2-E949-38A1B5958834}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0F1A8F9C-0C38-4253-B5C1-FB60E4E6F6EB}
+	EndGlobalSection
+EndGlobal
