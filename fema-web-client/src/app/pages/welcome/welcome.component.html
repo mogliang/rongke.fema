@@ -1,1 +1,34 @@
-<p>welcome works!</p>
+<nz-layout>
+    <nz-header>
+        <div class="header-row" nz-flex nzJustify="space-between" nzAlign="center">
+            <div class="title">FMEAID编号/版本</div>
+            <div>
+                <button class="header-btn" nz-button>暂存</button>
+                <button class="header-btn" nz-button nzType="primary">保存</button>
+                <button class="header-btn" nz-button nzType="primary">提交</button>
+            </div>
+        </div>
+        <div class="header-row" nz-flex>
+            <div class="title-attribute">FMEA编号： 213123123123132</div>
+            <div class="title-attribute">名称：FMEA名称</div>
+            <div class="title-attribute">状态：草稿</div>
+            <div class="title-attribute">截止时间：2024/12/12</div>
+        </div>
+        <div class="header-row">
+            <nz-card>
+                <nz-steps [nzCurrent]="1">
+                    <nz-step nzTitle="步骤一" nzDescription="规划与准备"></nz-step>
+                    <nz-step nzTitle="步骤二" nzDescription="结构分析"></nz-step>
+                    <nz-step nzTitle="步骤三" nzDescription="功能分析"></nz-step>
+                    <nz-step nzTitle="步骤四" nzDescription="失效分析"></nz-step>
+                    <nz-step nzTitle="步骤五" nzDescription="风险分析"></nz-step>
+                    <nz-step nzTitle="步骤六" nzDescription="优化"></nz-step>
+                    <nz-step nzTitle="步骤七" nzDescription="结果文件化"></nz-step>
+                </nz-steps>
+            </nz-card>
+        </div>
+
+    </nz-header>
+    <nz-content>Content</nz-content>
+    <nz-footer>Footer</nz-footer>
+</nz-layout>

@@ -1,0 +1,40 @@
+nz-layout {
+    background: white;
+}
+
+nz-header,
+nz-footer {
+    padding: 12px;
+    background: white;
+    color: #fff;
+    height: auto;
+    line-height: 1.5;
+    color: black;
+}
+
+.header-row {
+    margin: 0px 0px 12px 0px;
+}
+
+.header-btn {
+    margin-left: 12px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #000;
+}
+
+.title-attribute {
+    font-size: 14px;
+    color: #000;
+    margin-right: 64px;
+}
+
+nz-content {
+    background: rgba(16, 142, 233, 1);
+    color: #fff;
+    min-height: 120px;
+    line-height: 120px;
+}

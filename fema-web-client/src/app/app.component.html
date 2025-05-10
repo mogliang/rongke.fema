@@ -12,10 +12,20 @@
       </span>
     </div>
     <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
+      <li nz-submenu nzOpen nzTitle="FMEA" nzIcon="appstore">
+        <ul>
+          <li nz-menu-item nzMatchRouter>
+            <a routerLink="/welcome">DFMEA</a>
+          </li>
+          <li nz-menu-item nzMatchRouter>
+            <a>PFMEA</a>
+          </li>
+        </ul>
+      </li>
       <li nz-submenu nzOpen nzTitle="基础数据" nzIcon="form">
         <ul>
           <li nz-menu-item nzMatchRouter>
-            <a routerLink="/welcome">小组</a>
+            <a>小组</a>
           </li>
           <li nz-menu-item nzMatchRouter>
             <a>角色</a>
@@ -41,16 +51,6 @@
           </li>
           <li nz-menu-item nzMatchRouter>
             <a>审批流程</a>
-          </li>
-        </ul>
-      </li>
-      <li nz-submenu nzOpen nzTitle="基础配置" nzIcon="appstore">
-        <ul>
-          <li nz-menu-item nzMatchRouter>
-            <a>DFMEA</a>
-          </li>
-          <li nz-menu-item nzMatchRouter>
-            <a>PFMEA</a>
           </li>
         </ul>
       </li>
