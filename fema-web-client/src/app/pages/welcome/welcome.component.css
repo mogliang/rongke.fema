@@ -4,8 +4,8 @@ nz-layout {
 
 nz-header,
 nz-footer {
-    padding: 12px;
-    background: white;
+    padding: 12px 12px 0px 12px;
+    background: rgb(244, 246, 247);
     color: #fff;
     height: auto;
     line-height: 1.5;
@@ -33,8 +33,10 @@ nz-footer {
 }
 
 nz-content {
-    background: rgba(16, 142, 233, 1);
-    color: #fff;
-    min-height: 120px;
-    line-height: 120px;
+    padding: 12px 12px 0px 12px;
+    flex: 1;
+    overflow: auto;
+    background: rgb(244, 246, 247);
+    color: #000;
+    line-height: 1.5;
 }

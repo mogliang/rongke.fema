@@ -14,21 +14,41 @@
             <div class="title-attribute">状态：草稿</div>
             <div class="title-attribute">截止时间：2024/12/12</div>
         </div>
-        <div class="header-row">
+        <div>
             <nz-card>
                 <nz-steps [nzCurrent]="1">
-                    <nz-step nzTitle="步骤一" nzDescription="规划与准备"></nz-step>
-                    <nz-step nzTitle="步骤二" nzDescription="结构分析"></nz-step>
-                    <nz-step nzTitle="步骤三" nzDescription="功能分析"></nz-step>
-                    <nz-step nzTitle="步骤四" nzDescription="失效分析"></nz-step>
-                    <nz-step nzTitle="步骤五" nzDescription="风险分析"></nz-step>
-                    <nz-step nzTitle="步骤六" nzDescription="优化"></nz-step>
-                    <nz-step nzTitle="步骤七" nzDescription="结果文件化"></nz-step>
+                    <nz-step nzTitle="步骤一" nzSubtitle="规划与准备"></nz-step>
+                    <nz-step nzTitle="步骤二" nzSubtitle="结构分析"></nz-step>
+                    <nz-step nzTitle="步骤三" nzSubtitle="功能分析"></nz-step>
+                    <nz-step nzTitle="步骤四" nzSubtitle="失效分析"></nz-step>
+                    <nz-step nzTitle="步骤五" nzSubtitle="风险分析"></nz-step>
+                    <nz-step nzTitle="步骤六" nzSubtitle="优化"></nz-step>
+                    <nz-step nzTitle="步骤七" nzSubtitle="结果文件化"></nz-step>
                 </nz-steps>
             </nz-card>
         </div>
 
     </nz-header>
-    <nz-content>Content</nz-content>
-    <nz-footer>Footer</nz-footer>
+    <nz-content >
+        <nz-tabset>
+            <nz-tab nzTitle="功能">
+                <div class="header-row" nz-row>
+                    <nz-card nz-col nzSpan="8" nzTitle="功能分析" nzSize="small">
+                        <nz-tree [nzData]="nodes">
+                        </nz-tree>
+                    </nz-card>
+                    <nz-card nz-col nzSpan="16" nzTitle="功能网" nzSize="small">
+                        right side content
+                    </nz-card>
+                </div>
+            </nz-tab>
+            <nz-tab nzTitle="表单">
+            </nz-tab>
+            <nz-tab nzTitle="功能网">
+            </nz-tab>
+            <nz-tab nzTitle="参数图">
+            </nz-tab>
+        </nz-tabset>
+    </nz-content>
+    <nz-footer>footer</nz-footer>
 </nz-layout>
