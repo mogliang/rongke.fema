@@ -35,7 +35,6 @@ nz-footer {
 nz-content {
     padding: 12px 12px 0px 12px;
     flex: 1;
-    overflow: auto;
     background: rgb(244, 246, 247);
     color: #000;
     line-height: 1.5;

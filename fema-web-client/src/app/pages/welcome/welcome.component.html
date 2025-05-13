@@ -31,22 +31,45 @@
     </nz-header>
     <nz-content >
         <nz-tabset>
-            <nz-tab nzTitle="功能">
+            <nz-tab nzTitle="结构">
                 <div class="header-row" nz-row>
-                    <nz-card nz-col nzSpan="8" nzTitle="功能分析" nzSize="small">
-                        <nz-tree [nzData]="nodes">
+                    <nz-card nz-col nzFlex="400px" nzTitle="结构分析" nzSize="small">
+                        <nz-tree [nzData]="nodes" nzShowIcon>
                         </nz-tree>
                     </nz-card>
-                    <nz-card nz-col nzSpan="16" nzTitle="功能网" nzSize="small">
-                        right side content
+                    <nz-card nz-col nzFlex="auto" nzTitle="表单" nzSize="small">
+                        <nz-table #basicTable nzSize="small" [nzData]="listOfData">
+                            <thead>
+                              <tr>
+                                <th nzWidth="100px">层级</th>
+                                <th nzWidth="100px">结构编号</th>
+                                <th>结构名称</th>
+                                <th nzWidth="120px">操作</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (data of basicTable.data; track data) {
+                                <tr>
+                                  <td>{{ data.name }}</td>
+                                  <td>{{ data.age }}</td>
+                                  <td>{{ data.address }}</td>
+                                  <td>
+                                    <a>编辑</a>
+                                    <nz-divider nzType="vertical"></nz-divider>
+                                    <a>删除</a>
+                                  </td>
+                                </tr>
+                              }
+                            </tbody>
+                          </nz-table>
                     </nz-card>
                 </div>
             </nz-tab>
             <nz-tab nzTitle="表单">
             </nz-tab>
-            <nz-tab nzTitle="功能网">
+            <nz-tab nzTitle="结构树">
             </nz-tab>
-            <nz-tab nzTitle="参数图">
+            <nz-tab nzTitle="边界图">
             </nz-tab>
         </nz-tabset>
     </nz-content>
