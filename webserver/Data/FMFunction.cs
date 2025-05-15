@@ -21,7 +21,7 @@ namespace Rongke.Fema.Data
         public int Level { get; set; }
 
         [ForeignKey(nameof(FMStructureRef))]
-        public int FMStructureId { get; set; }
+        public int? FMStructureId { get; set; }
         public virtual FMStructure FMStructureRef { get; set; }
 
         [ForeignKey(nameof(ParentFMFunctionRef))]

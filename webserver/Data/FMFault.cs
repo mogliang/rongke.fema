@@ -23,7 +23,7 @@ namespace Rongke.Fema.Data
         public int RiskPriorityFactor { get; set; }
 
         [ForeignKey(nameof(FMFunctionRef))]
-        public int FMFunctionId { get; set; }
+        public int? FMFunctionId { get; set; }
         public virtual FMFunction FMFunctionRef { get; set; }
 
         [ForeignKey(nameof(ParentFaultRef))]

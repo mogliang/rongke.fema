@@ -10,8 +10,8 @@ using Rongke.Fema.Data;
 namespace rongke.fema.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250514134121_add_fema_structure_function_fault")]
-    partial class add_fema_structure_function_fault
+    [Migration("20250515132601_add_fm_entities")]
+    partial class add_fm_entities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -29,7 +29,7 @@ namespace rongke.fema.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("FMFunctionId")
+                    b.Property<int?>("FMFunctionId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Level")
@@ -68,7 +68,7 @@ namespace rongke.fema.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("FMStructureId")
+                    b.Property<int?>("FMStructureId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Level")
@@ -151,9 +151,7 @@ namespace rongke.fema.Migrations
                 {
                     b.HasOne("Rongke.Fema.Data.FMFunction", "FMFunctionRef")
                         .WithMany("FaultRefs")
-                        .HasForeignKey("FMFunctionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FMFunctionId");
 
                     b.HasOne("Rongke.Fema.Data.FMFault", "ParentFaultRef")
                         .WithMany("Causes")
@@ -168,9 +166,7 @@ namespace rongke.fema.Migrations
                 {
                     b.HasOne("Rongke.Fema.Data.FMStructure", "FMStructureRef")
                         .WithMany("SEFunctions")
-                        .HasForeignKey("FMStructureId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FMStructureId");
 
                     b.HasOne("Rongke.Fema.Data.FMFunction", "ParentFMFunctionRef")
                         .WithMany("Prerequisites")

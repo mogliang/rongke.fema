@@ -26,7 +26,7 @@ namespace rongke.fema.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("FMFunctionId")
+                    b.Property<int?>("FMFunctionId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Level")
@@ -65,7 +65,7 @@ namespace rongke.fema.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("FMStructureId")
+                    b.Property<int?>("FMStructureId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Level")
@@ -148,9 +148,7 @@ namespace rongke.fema.Migrations
                 {
                     b.HasOne("Rongke.Fema.Data.FMFunction", "FMFunctionRef")
                         .WithMany("FaultRefs")
-                        .HasForeignKey("FMFunctionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FMFunctionId");
 
                     b.HasOne("Rongke.Fema.Data.FMFault", "ParentFaultRef")
                         .WithMany("Causes")
@@ -165,9 +163,7 @@ namespace rongke.fema.Migrations
                 {
                     b.HasOne("Rongke.Fema.Data.FMStructure", "FMStructureRef")
                         .WithMany("SEFunctions")
-                        .HasForeignKey("FMStructureId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FMStructureId");
 
                     b.HasOne("Rongke.Fema.Data.FMFunction", "ParentFMFunctionRef")
                         .WithMany("Prerequisites")
