@@ -10,8 +10,8 @@ using Rongke.Fema.Data;
 namespace rongke.fema.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250515132601_add_fm_entities")]
-    partial class add_fm_entities
+    [Migration("20250516122113_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

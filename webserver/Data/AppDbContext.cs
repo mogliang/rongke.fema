@@ -7,28 +7,6 @@ namespace Rongke.Fema.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            // optionsBuilder.UseSeeding((ctx,_) =>
-            // {
-            //     var fmFaults=new List<FMFault>();
-            //     fmFaults.Add(new FMFault
-            //     {
-            //         Code = "F00001",
-            //         LongName = "Fault 1",
-            //         ShortName = "F1",
-            //         Level = 1,
-            //         RiskPriorityFactor = 5,
-            //     });
-                
-            //     foreach (var fmFault in fmFaults)
-            //     {
-            //         if (ctx.Set<FMFault>().Any(f => f.Code == fmFault.Code))
-            //         {
-            //             continue;
-            //         }
-            //         ctx.Set<FMFault>().Add(fmFault);
-            //         ctx.SaveChanges();
-            //     }
-            //});
         }
 
 

@@ -7,9 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
+
+// setup automapper
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
+// setup ef db context
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-
 
 var app = builder.Build();
 
