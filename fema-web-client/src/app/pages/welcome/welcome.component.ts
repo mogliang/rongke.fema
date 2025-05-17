@@ -7,7 +7,7 @@ import { NzFlexModule } from 'ng-zorro-antd/flex';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzRadioModule } from 'ng-zorro-antd/radio';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
-import { NzTreeModule } from 'ng-zorro-antd/tree';
+import { NzTreeNodeOptions, NzTreeModule } from 'ng-zorro-antd/tree';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { FMStructureDto, FMStructuresService } from '../../../libs/api-client';
@@ -28,76 +28,44 @@ export class WelcomeComponent {
   ngOnInit() {
     this.fmStructure = this.fmStructureService.apiFMStructuresTreeCodeGet("S901002");
     this.fmStructure.subscribe((data: FMStructureDto) => {
-      console.log(data);
-      
+      var node = this.generateTreeNodes(data);
+      this.nodes = node.children || [];
+      this.fmStructures = this.flattenFMStructures(data)
     });
   }
 
-  readonly nodes = [
-    {
-      icon: 'setting',
-      title: 'S0001/仓储',
-      key: '00',
-      expanded: true,
-      children: [
-        {
-          icon: 'setting',
-          title: 'S0002/入库',
-          key: '000',
-          expanded: true,
-          children: [
-            { icon: 'setting', title: 'S0003/仓储员', key: '0000', isLeaf: true },
-            { icon: 'setting', title: 'S0003/物料管控系统', key: '0000', isLeaf: true },
-          ]
-        },
-        {
-          icon: 'setting',
-          title: 'S0004/存储',
-          key: '001',
-          children: [
-            { icon: 'setting', title: 'S0005/环境', key: '0010', isLeaf: true },
-            { icon: 'setting', title: 'S0006/储位', key: '0011', isLeaf: true },
-            { icon: 'setting', title: 'S0006/堆叠高度', key: '0011', isLeaf: true },
-            { icon: 'setting', title: 'S0006/叉车', key: '0011', isLeaf: true },
-            { icon: 'setting', title: 'S0006/保质期', key: '0011', isLeaf: true },
-            { icon: 'setting', title: 'S0006/油漆仓温湿度管控', key: '0011', isLeaf: true },
-          ]
-        },
-        {
-          icon: 'setting',
-          title: '0-0-2',
-          key: '002'
-        }
-      ]
-    },
-  ];
-
-  listOfData: Person[] = [
-    {
-      key: '1',
-      name: '1',
-      age: 32,
-      address: '轴'
-    },
-    {
-      key: '2',
-      name: '2',
-      age: 42,
-      address: '轴承'
-    },
-    {
-      key: '3',
-      name: '2',
-      age: 32,
-      address: '结构名'
+  flattenFMStructures(fmStructure: FMStructureDto): FMStructureDto[] {
+    let flatList: FMStructureDto[] = [];
+    if (fmStructure.childFMStructures !=null) {
+      for (let i = 0; i < fmStructure.childFMStructures.length; i++) {
+        flatList.push(fmStructure.childFMStructures[i]);
+        flatList.push(...this.flattenFMStructures(fmStructure.childFMStructures[i]));
+      }
     }
-  ];
+    return flatList;
+  }
 
-}
+  generateTreeNodes(data: FMStructureDto): NzTreeNodeOptions {
+    var node: NzTreeNodeOptions = {
+      icon: 'setting',
+      title: `${data.code}/${data.longName}`,
+      key: String(data.code),
+      expanded: true,
+      child: null,
+      isLeaf: data.childFMStructures == null || data.childFMStructures.length == 0
+    };
 
-interface Person {
-  key: string;
-  name: string;
-  age: number;
-  address: string;
+    if (data.childFMStructures != null) {
+      node.children = [];
+      for (let i = 0; i < data.childFMStructures?.length; i++) {
+        var childNode = this.generateTreeNodes(data.childFMStructures[i]);
+        node.children.push(childNode);
+      }
+    }
+
+    return node
+  }
+
+  public fmStructures: FMStructureDto[] = [];
+  public nodes: NzTreeNodeOptions[] = [];
 }
