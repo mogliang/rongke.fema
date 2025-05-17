@@ -13,11 +13,11 @@ namespace Rongke.Fema.Dto
 
     public class FMStructureDto
     {
-        public string Name { get; set; } = string.Empty;
         public string Code { get; set; } = string.Empty;
+        public string LongName { get; set; } = string.Empty;
         public string ShortName { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
         public int Level { get; set; }
-        public int RiskPriorityFactor { get; set; }
-        public List<FMStructureDto> SubStructures { get; set; } = new List<FMStructureDto>();
+        public List<FMStructureDto> ChildFMStructures { get; set; } = new List<FMStructureDto>();
     }
 }

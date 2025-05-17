@@ -25,19 +25,32 @@ namespace Rongke.Fema.Controllers
             var fMStructure = _mapper.Map<FMStructure>(fMStructureDto);
             _dbContext.FMStructures.Add(fMStructure);
             await _dbContext.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = fMStructure.Id }, fMStructure);
+            return CreatedAtAction(nameof(GetTree), new { id = fMStructure.Code }, fMStructure);
         }
 
-        [HttpGet("{id}")]
-        public async  Task<IActionResult> GetById(int id)
+        [HttpGet("tree/{code}")]
+        public async Task<IActionResult> GetTree(string code)
         {
-            var fMStructure = await _dbContext.FMStructures.Where(p => p.Id == id).FirstOrDefaultAsync();
+            var fMStructure = await _dbContext.FMStructures.FirstOrDefaultAsync(s => s.Code == code);
             if (fMStructure == null)
             {
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<FMStructureDto>(fMStructure));
+            var loadQueue = new Queue<FMStructure>();
+            loadQueue.Enqueue(fMStructure);
+            while (loadQueue.Count > 0)
+            {
+                var current = loadQueue.Dequeue();
+                await _dbContext.Entry(current).Collection(s => s.ChildFMStructures).LoadAsync();
+                foreach (var child in current.ChildFMStructures)
+                {
+                    loadQueue.Enqueue(child);
+                }
+            }
+
+            var fMStructureDto = _mapper.Map<FMStructureDto>(fMStructure);
+            return Ok(fMStructureDto);
         }
     }
 }
