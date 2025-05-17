@@ -16,7 +16,7 @@
         </div>
         <div>
             <nz-card>
-                <nz-steps [nzCurrent]="1">
+                <nz-steps [nzCurrent]="step" (nzIndexChange)="onIndexChange($event)">
                     <nz-step nzTitle="步骤一" nzSubtitle="规划与准备"></nz-step>
                     <nz-step nzTitle="步骤二" nzSubtitle="结构分析"></nz-step>
                     <nz-step nzTitle="步骤三" nzSubtitle="功能分析"></nz-step>
@@ -29,49 +29,27 @@
         </div>
 
     </nz-header>
-    <nz-content >
-        <nz-tabset>
-            <nz-tab nzTitle="结构">
-                <div class="header-row" nz-row>
-                    <nz-card nz-col nzFlex="400px" nzTitle="结构分析" nzSize="small">
-                        <nz-tree [nzData]="nodes" nzShowIcon>
-                        </nz-tree>
-                    </nz-card>
-                    <nz-card nz-col nzFlex="auto" nzTitle="表单" nzSize="small">
-                        <nz-table #basicTable nzSize="small" [nzData]="fmStructures" [nzPageSize]="50">
-                            <thead>
-                              <tr>
-                                <th nzWidth="100px">层级</th>
-                                <th nzWidth="100px">结构编号</th>
-                                <th>结构名称</th>
-                                <th nzWidth="120px">操作</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              @for (data of basicTable.data; track data) {
-                                <tr>
-                                  <td>{{ data.level }}</td>
-                                  <td>{{ data.code }}</td>
-                                  <td>{{ data.longName }}</td>
-                                  <td>
-                                    <a>编辑</a>
-                                    <nz-divider nzType="vertical"></nz-divider>
-                                    <a>删除</a>
-                                  </td>
-                                </tr>
-                              }
-                            </tbody>
-                          </nz-table>
-                    </nz-card>
-                </div>
-            </nz-tab>
-            <nz-tab nzTitle="表单">
-            </nz-tab>
-            <nz-tab nzTitle="结构树">
-            </nz-tab>
-            <nz-tab nzTitle="边界图">
-            </nz-tab>
-        </nz-tabset>
+    <nz-content>
+        <div id="fmStructure" *ngIf="step === 1">
+            <app-fmea-step2></app-fmea-step2>
+        </div>
+        <div id="fmFunction" *ngIf="step === 2">
+            <nz-tabset>
+                <nz-tab nzTitle="功能">
+                   
+                </nz-tab>
+                <nz-tab nzTitle="表单">
+                </nz-tab>
+                <nz-tab nzTitle="功能网">
+                </nz-tab>
+                <nz-tab nzTitle="参数图">
+                </nz-tab>
+                <nz-tab nzTitle="功能矩阵">
+                </nz-tab>
+                <nz-tab nzTitle="特性清单">
+                </nz-tab>
+            </nz-tabset>
+        </div>
     </nz-content>
     <nz-footer>footer</nz-footer>
 </nz-layout>
