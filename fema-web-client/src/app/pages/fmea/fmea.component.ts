@@ -14,10 +14,11 @@ import { FMStructuresService } from '../../../libs/api-client';
 import { CommonModule } from '@angular/common';
 
 import { FmeaStep2Component } from '../../fmea-step2/fmea-step2.component';
+import { FmeaStep3Component } from '../../fmea-step3/fmea-step3.component';
 
 @Component({
   selector: 'app-fema',
-  imports: [CommonModule, NzLayoutModule, NzGridModule, NzStepsModule, NzCardModule, NzFlexModule, NzButtonModule, NzTabsModule, NzRadioModule, NzTreeModule, NzTableModule, NzDividerModule, FmeaStep2Component],
+  imports: [CommonModule, NzLayoutModule, NzGridModule, NzStepsModule, NzCardModule, NzFlexModule, NzButtonModule, NzTabsModule, NzRadioModule, NzTreeModule, NzTableModule, NzDividerModule, FmeaStep2Component, FmeaStep3Component],
   providers: [FMStructuresService],
   templateUrl: './fmea.component.html',
   styleUrl: './fmea.component.css'
