@@ -10,15 +10,28 @@ import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTreeModule } from 'ng-zorro-antd/tree';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { FMStructureDto, FMStructuresService } from '../../../libs/api-client';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-welcome',
   imports: [NzLayoutModule, NzGridModule, NzStepsModule, NzCardModule, NzFlexModule, NzButtonModule, NzTabsModule, NzRadioModule, NzTreeModule, NzTableModule, NzDividerModule],
+  providers: [FMStructuresService],
   templateUrl: './welcome.component.html',
   styleUrl: './welcome.component.css'
 })
 export class WelcomeComponent {
-  constructor() { }
+  fmStructure: Observable<FMStructureDto> = new Observable<FMStructureDto>();
+
+  constructor(private fmStructureService: FMStructuresService) { }
+
+  ngOnInit() {
+    this.fmStructure = this.fmStructureService.apiFMStructuresTreeCodeGet("S901002");
+    this.fmStructure.subscribe((data: FMStructureDto) => {
+      console.log(data);
+      
+    });
+  }
 
   readonly nodes = [
     {
