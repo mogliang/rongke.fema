@@ -16,13 +16,13 @@ import { CommonModule } from '@angular/common';
 import { FmeaStep2Component } from '../../fmea-step2/fmea-step2.component';
 
 @Component({
-  selector: 'app-welcome',
+  selector: 'app-fema',
   imports: [CommonModule, NzLayoutModule, NzGridModule, NzStepsModule, NzCardModule, NzFlexModule, NzButtonModule, NzTabsModule, NzRadioModule, NzTreeModule, NzTableModule, NzDividerModule, FmeaStep2Component],
   providers: [FMStructuresService],
-  templateUrl: './welcome.component.html',
-  styleUrl: './welcome.component.css'
+  templateUrl: './fmea.component.html',
+  styleUrl: './fmea.component.css'
 })
-export class WelcomeComponent {
+export class FmeaComponent {
   constructor() { }
 
   ngOnInit() {
