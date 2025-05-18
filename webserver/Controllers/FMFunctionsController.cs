@@ -25,6 +25,32 @@ namespace Rongke.Fema.Controllers
             throw new NotImplementedException();
         }
 
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAll()
+        {
+            var fmFunctions = await _dbContext.FMFunctions.ToListAsync();
+            var fmFunctionDtos = _mapper.Map<List<FMFunctionDto>>(fmFunctions);
+
+            var level1List = fmFunctionDtos.Where(s => s.Level == 1).ToList();
+            var result = new List<FMFunctionDto>();
+            foreach (var level1 in level1List)
+            {
+                result.AddRange(DeepTraverse(level1));
+            }
+
+            return Ok(result);
+        }
+
+        List<FMFunctionDto> DeepTraverse(FMFunctionDto fmFunctionDto)
+        {
+            var result = new List<FMFunctionDto> { fmFunctionDto };
+            foreach (var child in fmFunctionDto.Prerequisites)
+            {
+                result.AddRange(DeepTraverse(child));
+            }
+            return result;
+        }
+
         [HttpGet("tree/{code}")]
         public async Task<IActionResult> GetTree(string code)
         {

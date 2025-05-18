@@ -18,16 +18,14 @@ import { HelperService } from '../helper.service';
   styleUrl: './fmea-step2.component.css'
 })
 export class FmeaStep2Component {
-  fmStructure: Observable<FMStructureDto> = new Observable<FMStructureDto>();
-
   constructor(private fmStructureService: FMStructuresService, private helper: HelperService) { }
 
   ngOnInit() {
-    this.fmStructure = this.fmStructureService.apiFMStructuresTreeCodeGet("S901002", TreeType.NUMBER_0);
-    this.fmStructure.subscribe((data: FMStructureDto) => {
+    var fmStructure = this.fmStructureService.apiFMStructuresTreeCodeGet("S901002", TreeType.NUMBER_0);
+    fmStructure.subscribe((data: FMStructureDto) => {
       var node = this.helper.generateTreeNodes(data);
       this.nodes = node.children || [];
-      this.fmStructures = this.helper.flattenFMStructures(data);
+      this.fmStructures = this.helper.flattenFMStructures(data.childFMStructures || []);
     });
   }
 

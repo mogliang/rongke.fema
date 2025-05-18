@@ -9,14 +9,18 @@ export class HelperService {
 
   constructor() { }
 
-  public flattenFMStructures(fmStructure: FMStructureDto): FMStructureDto[] {
+  public flattenFMStructures(fmStructures: FMStructureDto[]): FMStructureDto[] {
     let flatList: FMStructureDto[] = [];
-    if (fmStructure.childFMStructures != null) {
-      for (let i = 0; i < fmStructure.childFMStructures.length; i++) {
-        flatList.push(fmStructure.childFMStructures[i]);
-        flatList.push(...this.flattenFMStructures(fmStructure.childFMStructures[i]));
-      }
+
+    if (fmStructures == null) {
+      return flatList;
     }
+
+    for (let i = 0; i < fmStructures.length; i++) {
+      flatList.push(fmStructures[i]);
+      flatList.push(...this.flattenFunctions(fmStructures[i].childFMStructures || []));
+    }
+
     return flatList;
   }
 
@@ -29,7 +33,7 @@ export class HelperService {
 
     for (let i = 0; i < fmFunctions.length; i++) {
       flatList.push(fmFunctions[i]);
-      flatList.push(...this.flattenFunctions(fmFunctions[i].prerequisites));
+      flatList.push(...this.flattenFunctions(fmFunctions[i].prerequisites || []));
     }
 
     return flatList;
