@@ -43,6 +43,7 @@ namespace Rongke.Fema.Controllers
             {
                 var current = loadQueue.Dequeue();
                 await _dbContext.Entry(current).Collection(s => s.ChildFMStructures).LoadAsync();
+                await _dbContext.Entry(current).Collection(s => s.SEFunctions).LoadAsync();
                 foreach (var child in current.ChildFMStructures)
                 {
                     loadQueue.Enqueue(child);
