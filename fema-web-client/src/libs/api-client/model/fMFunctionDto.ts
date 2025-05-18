@@ -7,16 +7,13 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { FMFunctionDto } from './fMFunctionDto';
 
 
-export interface FMStructureDto { 
+export interface FMFunctionDto { 
     code?: string | null;
     longName?: string | null;
     shortName?: string | null;
-    category?: string | null;
     level?: number;
-    childFMStructures?: Array<FMStructureDto> | null;
-    seFunctions?: Array<FMFunctionDto> | null;
+    prerequisites?: Array<FMFunctionDto> | null;
 }
 

@@ -32,6 +32,6 @@ namespace Rongke.Fema.Dto
         public string LongName { get; set; } = string.Empty;
         public string ShortName { get; set; } = string.Empty;
         public int Level { get; set; }
-        public List<FMFunctionDto> ChildFMFunctions { get; set; } = new List<FMFunctionDto>();
+        public List<FMFunctionDto> Prerequisites { get; set; } = new List<FMFunctionDto>();
     }
 }

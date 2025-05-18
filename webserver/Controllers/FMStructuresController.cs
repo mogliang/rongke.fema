@@ -29,7 +29,7 @@ namespace Rongke.Fema.Controllers
         }
 
         [HttpGet("tree/{code}")]
-        public async Task<IActionResult> GetTree(string code)
+        public async Task<IActionResult> GetTree(string code, TreeType type)
         {
             var fMStructure = await _dbContext.FMStructures.FirstOrDefaultAsync(s => s.Code == code);
             if (fMStructure == null)
@@ -43,15 +43,25 @@ namespace Rongke.Fema.Controllers
             {
                 var current = loadQueue.Dequeue();
                 await _dbContext.Entry(current).Collection(s => s.ChildFMStructures).LoadAsync();
-                await _dbContext.Entry(current).Collection(s => s.SEFunctions).LoadAsync();
                 foreach (var child in current.ChildFMStructures)
                 {
                     loadQueue.Enqueue(child);
+                }
+
+                if (type == TreeType.StructureAndFunction)
+                {
+                    await _dbContext.Entry(current).Collection(s => s.SEFunctions).LoadAsync();
                 }
             }
 
             var fMStructureDto = _mapper.Map<FMStructureDto>(fMStructure);
             return Ok(fMStructureDto);
         }
+    }
+
+    public enum TreeType
+    {
+        Structure,
+        StructureAndFunction,
     }
 }
