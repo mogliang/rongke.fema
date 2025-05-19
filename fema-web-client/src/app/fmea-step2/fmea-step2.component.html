@@ -4,7 +4,13 @@
             <nz-splitter-panel nzDefaultSize="30%" nzMin="20%" nzMax="70%">
                 <div class="box">
                     <nz-card nzTitle="结构分析" nzSize="small">
-                        <nz-tree [nzData]="nodes" nzShowIcon>
+                        <nz-tree [nzData]="nodes" nzShowIcon [nzTreeTemplate]="nzTreeNodeTemplate">
+                            <ng-template #nzTreeNodeTemplate let-node>
+                                <div (contextmenu)="contextMenu($event, menu)">
+                                    <nz-icon [nzType]="node.icon" nzTheme="outline" class="tree-icon" />
+                                    <span>{{ node.title }}</span>
+                                </div>
+                            </ng-template>
                         </nz-tree>
                     </nz-card>
                 </div>
@@ -48,3 +54,10 @@
     <nz-tab nzTitle="边界图">
     </nz-tab>
 </nz-tabset>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+    <ul nz-menu>
+        <li nz-menu-item (click)="selectDropdown()">编辑节点</li>
+        <li nz-menu-item (click)="selectDropdown()">添加子节点</li>
+        <li nz-menu-item (click)="selectDropdown()">删除节点</li>
+    </ul>
+</nz-dropdown-menu>
