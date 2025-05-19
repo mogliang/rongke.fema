@@ -18,7 +18,7 @@ export class HelperService {
 
     for (let i = 0; i < fmStructures.length; i++) {
       flatList.push(fmStructures[i]);
-      flatList.push(...this.flattenFunctions(fmStructures[i].childFMStructures || []));
+      flatList.push(...this.flattenFMStructures(fmStructures[i].childFMStructures || []));
     }
 
     return flatList;
