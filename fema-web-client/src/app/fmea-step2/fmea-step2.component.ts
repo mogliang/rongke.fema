@@ -33,15 +33,31 @@ export class FmeaStep2Component {
   }
 
   contextMenu($event: MouseEvent , menu: NzDropdownMenuComponent): void {
-    console.log($event);
+   // console.log($event);
+    const target = $event.target as HTMLSpanElement;
+    const code = target.innerText.split('/')[0].trim();
+    console.log(code);
+    this.selectedCode = code;
     this.nzContextMenuService.create($event, menu);
   }
 
-  selectDropdown($event: MouseEvent): void {
-    console.log($event);
-    // do something
+  addSubNode($event: MouseEvent): void {
+    console.log(this.selectedCode);
   }
 
+  editNode($event: MouseEvent): void {
+    console.log(this.selectedCode);
+  }
+
+  deleteNode($event: MouseEvent): void {
+    console.log(this.selectedCode);
+  }
+
+  deleteSubTree($event: MouseEvent): void {
+    console.log(this.selectedCode);
+  }
+
+  private selectedCode: string = '';
   public fmStructures: FMStructureDto[] = [];
   public nodes: NzTreeNodeOptions[] = [];
 }
