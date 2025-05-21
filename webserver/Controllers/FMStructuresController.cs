@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Rongke.Fema.Data;
+using Rongke.Fema.Domain;
 using Rongke.Fema.Dto;
 
 namespace Rongke.Fema.Controllers
@@ -20,12 +21,35 @@ namespace Rongke.Fema.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create(FMStructureDto fMStructureDto)
+        public async Task<IActionResult> Create(FMStructureCreateDto fMStructureCreateDto)
         {
-            var fMStructure = _mapper.Map<FMStructure>(fMStructureDto);
+            var codeGenerator = new FmeaCodeGenerator(_dbContext);
+
+            var fMStructure = _mapper.Map<FMStructure>(fMStructureCreateDto);
+            if (fMStructureCreateDto.ParentCode != null)
+            {
+                var parent = await _dbContext.FMStructures.FirstOrDefaultAsync(s => s.Code == fMStructureCreateDto.ParentCode);
+                if (parent == null)
+                {
+                    throw new InvalidDataException($"Parent FMStructure with code {fMStructureCreateDto.ParentCode} not found.");
+                }
+
+                var (id, code) = codeGenerator.GenerateFmStructureCode();
+                fMStructure.Id = id;
+                fMStructure.Code = code;
+                fMStructure.ParentFMStructureId = parent.Id;
+            }
+            else if (_dbContext.FMStructures.Any(s => s.ParentFMStructureId == null))
+            {
+                throw new InvalidDataException("Root FMStructure already exists. Please specify a parent code.");
+            }
+
             _dbContext.FMStructures.Add(fMStructure);
             await _dbContext.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetTree), new { id = fMStructure.Code }, fMStructure);
+
+            _dbContext.FMStructures.Add(fMStructure);
+            var dto = _mapper.Map<FMStructureDto>(fMStructure);
+            return Ok(dto);
         }
 
         [HttpGet("tree/{code}")]

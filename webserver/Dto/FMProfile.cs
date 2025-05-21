@@ -1,5 +1,6 @@
 namespace Rongke.Fema.Dto
 {
+    using System.ComponentModel.DataAnnotations;
     using AutoMapper;
     using Data;
 
@@ -8,11 +9,23 @@ namespace Rongke.Fema.Dto
         public FMProfile()
         {
             CreateMap<FMStructure, FMStructureDto>();
-            CreateMap<FMStructureDto, FMStructure>();
+            CreateMap<FMStructureCreateDto, FMStructure>();
 
             CreateMap<FMFunction, FMFunctionDto>();
             CreateMap<FMFunctionDto, FMFunction>();
         }
+    }
+
+    public class FMStructureCreateDto
+    {
+        public string ParentCode { get; set; } = string.Empty;
+
+        [Required]
+        public string LongName { get; set; } = string.Empty;
+        [Required]
+        public string ShortName { get; set; } = string.Empty;
+        [Required]
+        public string Category { get; set; } = string.Empty;
     }
 
     public class FMStructureDto

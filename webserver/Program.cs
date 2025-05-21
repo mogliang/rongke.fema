@@ -1,12 +1,17 @@
 using Rongke.Fema.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 // setup automapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
@@ -42,13 +47,23 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
 });
 
-app.UseCors(b=>
+app.UseCors(b =>
 {
     b.AllowAnyOrigin()
         .WithOrigins("http://localhost:4200")
         .AllowAnyMethod()
         .AllowAnyHeader();
 });
+
+// https://learn.microsoft.com/en-us/aspnet/core/web-api/handle-errors?view=aspnetcore-9.0
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/error");
+}
+else
+{
+    app.UseExceptionHandler("/error");
+}
 
 app.Run();
 
