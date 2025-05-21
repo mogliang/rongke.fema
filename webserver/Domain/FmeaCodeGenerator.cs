@@ -11,13 +11,13 @@ namespace Rongke.Fema.Domain
     // Fmea Action code: {FemaCode}A{id}
     public class FmeaCodeGenerator
     {
-        private string fmeaCode;
+        private int fmeaCode;
         private int fmeaStructureStartCode;
         private int fmeaFunctionStartCode;
         private int fmeaFaultStartCode;
         public FmeaCodeGenerator(AppDbContext dbContext)
         {
-            fmeaCode = "F1";
+            fmeaCode = 1;
             fmeaStructureStartCode = dbContext.FMStructures.Any() ? dbContext.FMStructures.Max(s => s.Id) : 0;
             fmeaFunctionStartCode = dbContext.FMFunctions.Any() ? dbContext.FMFunctions.Max(s => s.Id) : 0;
             fmeaFaultStartCode = dbContext.FMFaults.Any() ? dbContext.FMFaults.Max(s => s.Id) : 0;
@@ -27,19 +27,19 @@ namespace Rongke.Fema.Domain
         public (int, string) GenerateFmStructureCode()
         {
             fmeaStructureStartCode++;
-            return (fmeaStructureStartCode, $"{fmeaCode}S{fmeaStructureStartCode}");
+            return (fmeaStructureStartCode, $"S{fmeaCode:000}-{fmeaStructureStartCode:000}");
         }
 
         public (int, string) GenerateFmFunctionCode()
         {
             fmeaFunctionStartCode++;
-            return (fmeaFunctionStartCode, $"{fmeaCode}F{fmeaFunctionStartCode}");
+            return (fmeaFunctionStartCode, $"F{fmeaCode:000}-{fmeaFunctionStartCode:000}");
         }
 
         public (int, string) GenerateFmFaultCode()
         {
             fmeaFaultStartCode++;
-            return (fmeaFaultStartCode, $"{fmeaCode}T{fmeaFaultStartCode}");
+            return (fmeaFaultStartCode, $"T{fmeaCode:000}-{fmeaFaultStartCode:000}");
         }
     }
 

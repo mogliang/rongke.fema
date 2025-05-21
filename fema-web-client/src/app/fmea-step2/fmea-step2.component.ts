@@ -24,7 +24,7 @@ export class FmeaStep2Component {
   constructor(private nzContextMenuService: NzContextMenuService, private fmStructureService: FMStructuresService, private helper: HelperService) { }
 
   ngOnInit() {
-    var fmStructure = this.fmStructureService.apiFMStructuresTreeCodeGet("S901002", TreeType.NUMBER_0);
+    var fmStructure = this.fmStructureService.apiFMStructuresTreeCodeGet("S001-001", TreeType.NUMBER_0);
     fmStructure.subscribe((data: FMStructureDto) => {
       var node = this.helper.generateTreeNodes(data);
       this.nodes = node.children || [];
