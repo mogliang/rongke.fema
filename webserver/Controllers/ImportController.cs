@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Abstractions;
 using Rongke.Fema.Data;
+using Rongke.Fema.Domain;
 using Rongke.Fema.Dto;
 
 namespace Rongke.Fema.Controllers
@@ -28,36 +29,34 @@ namespace Rongke.Fema.Controllers
         public async Task<IActionResult> FmeaXml([FromForm] string fmeaXml)
         {
 
-            try
-            {
-                var femaXml = XElement.Parse(fmeaXml);
+            var femaXml = XElement.Parse(fmeaXml);
 
-                var fmFaultEles = femaXml.XPathSelectElements("//FM-FAULT");
-                importFMFaults(_dbContext, fmFaultEles.ToList());
+            var fmFaultEles = femaXml.XPathSelectElements("//FM-FAULT");
+            importFMFaults(_dbContext, fmFaultEles.ToList());
 
-                var fmFunctionEles = femaXml.XPathSelectElements("//FM-FUNCTION");
-                importFMFunctions(_dbContext, fmFunctionEles.ToList());
+            var fmFunctionEles = femaXml.XPathSelectElements("//FM-FUNCTION");
+            importFMFunctions(_dbContext, fmFunctionEles.ToList());
 
-                var fmStructureEles = femaXml.XPathSelectElements("//FM-STRUCTURE-ELEMENT");
-                importFMStructures(_dbContext, fmStructureEles.ToList());
+            var fmStructureEles = femaXml.XPathSelectElements("//FM-STRUCTURE-ELEMENT");
+            importFMStructures(_dbContext, fmStructureEles.ToList());
 
-                return Ok("FMEA imported successfully.");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Invalid FEMA: {ex.Message}");
-            }
+            return Ok("FMEA imported successfully.");
         }
 
         void importFMFaults(AppDbContext dbContext, IList<XElement> fmFaultEles)
         {
+            var codeGenerator = new FmeaCodeGenerator(dbContext);
             // add FM-FAULT to database if not exist
             foreach (var fmFaultEle in fmFaultEles)
             {
+
+                var (id,code) = codeGenerator.GenerateFmFaultCode();
                 var fMFault = new FMFault
                 {
+                    Id = id,
+                    Code = code,
+                    ImportCode = fmFaultEle.Attribute("ID").Value,
                     LongName = fmFaultEle.Element("LONG-NAME").Element("L-4").Value,
-                    Code = fmFaultEle.Attribute("ID").Value,
                     ShortName = fmFaultEle.Element("SHORT-NAME").Value,
                 };
 
@@ -67,7 +66,7 @@ namespace Rongke.Fema.Controllers
                     fMFault.RiskPriorityFactor = int.Parse(riskFactorStr);
                 }
 
-                var existingFMFault = dbContext.FMFaults.FirstOrDefault(p => p.Code == fMFault.Code);
+                var existingFMFault = dbContext.FMFaults.FirstOrDefault(p => p.ImportCode == fMFault.Code);
                 if (existingFMFault != null)
                 {
                     existingFMFault.LongName = fMFault.LongName;
@@ -86,7 +85,7 @@ namespace Rongke.Fema.Controllers
             foreach (var fmFaultEle in fmFaultEles)
             {
                 var code = fmFaultEle.Attribute("ID").Value;
-                var curFault = _dbContext.FMFaults.FirstOrDefault(p => p.Code == code);
+                var curFault = _dbContext.FMFaults.FirstOrDefault(p => p.ImportCode == code);
                 importedFMFaults.Add(curFault);
 
                 var children = fmFaultEle.Element("FM-CAUSES")?.Elements("FM-FAULT-REF");
@@ -95,7 +94,7 @@ namespace Rongke.Fema.Controllers
                     foreach (var child in children)
                     {
                         var childCode = child.Attribute("ID-REF").Value;
-                        var childFault = _dbContext.FMFaults.FirstOrDefault(p => p.Code == childCode);
+                        var childFault = _dbContext.FMFaults.FirstOrDefault(p => p.ImportCode == childCode);
                         if (childFault != null)
                         {
                             childFault.ParentFaultId = curFault.Id;
@@ -124,22 +123,29 @@ namespace Rongke.Fema.Controllers
                     }
                 }
             }
+
             dbContext.SaveChanges();
         }
 
         void importFMFunctions(AppDbContext dbContext, IList<XElement> fmFunctionEles)
         {
+            var codeGenerator = new FmeaCodeGenerator(dbContext);
+
             // add FM-FUNCTION to database if not exist
             foreach (var fmFunctionEle in fmFunctionEles)
             {
+                var (id,code)  = codeGenerator.GenerateFmFunctionCode();
+
                 var fMFunction = new FMFunction
                 {
+                    Id = id,
+                    Code = code,
+                    ImportCode = fmFunctionEle.Attribute("ID").Value,
                     LongName = fmFunctionEle.Element("LONG-NAME").Element("L-4").Value,
-                    Code = fmFunctionEle.Attribute("ID").Value,
                     ShortName = fmFunctionEle.Element("SHORT-NAME").Value,
                 };
 
-                var existingFMFunction = dbContext.FMFunctions.FirstOrDefault(p => p.Code == fMFunction.Code);
+                var existingFMFunction = dbContext.FMFunctions.FirstOrDefault(p => p.ImportCode == fMFunction.Code);
                 if (existingFMFunction != null)
                 {
                     existingFMFunction.LongName = fMFunction.LongName;
@@ -157,7 +163,7 @@ namespace Rongke.Fema.Controllers
             foreach (var fmFunctionEle in fmFunctionEles)
             {
                 var code = fmFunctionEle.Attribute("ID").Value;
-                var curFunction = _dbContext.FMFunctions.FirstOrDefault(p => p.Code == code);
+                var curFunction = _dbContext.FMFunctions.FirstOrDefault(p => p.ImportCode == code);
                 importedFMFunctions.Add(curFunction);
 
                 var children = fmFunctionEle.Element("FM-PREREQUISITES")?.Elements("FM-FUNCTION-REF");
@@ -166,7 +172,7 @@ namespace Rongke.Fema.Controllers
                     foreach (var child in children)
                     {
                         var childCode = child.Attribute("ID-REF").Value;
-                        var childFunction = _dbContext.FMFunctions.FirstOrDefault(p => p.Code == childCode);
+                        var childFunction = _dbContext.FMFunctions.FirstOrDefault(p => p.ImportCode == childCode);
                         if (childFunction != null)
                         {
                             childFunction.ParentFMFunctionId = curFunction.Id;
@@ -200,14 +206,14 @@ namespace Rongke.Fema.Controllers
             foreach (var fmFunctionEle in fmFunctionEles)
             {
                 var code = fmFunctionEle.Attribute("ID").Value;
-                var curFunction = importedFMFunctions.First(p => p.Code == code);
+                var curFunction = importedFMFunctions.First(p => p.ImportCode == code);
                 var faultRefs = fmFunctionEle.Element("FM-FAULT-REFS")?.Elements("FM-FAULT-REF");
                 if (faultRefs != null)
                 {
                     foreach (var faultRef in faultRefs)
                     {
                         var faultCode = faultRef.Attribute("ID-REF").Value;
-                        var childFault = _dbContext.FMFaults.First(p => p.Code == faultCode);
+                        var childFault = _dbContext.FMFaults.First(p => p.ImportCode == faultCode);
                         childFault.FMFunctionId = curFunction.Id;
                     }
                 }
@@ -218,18 +224,24 @@ namespace Rongke.Fema.Controllers
 
         void importFMStructures(AppDbContext dbContext, IList<XElement> fmStructureEles)
         {
+            var codeGenerator = new FmeaCodeGenerator(dbContext);
+
             // add FM-STRUCTURE-ELEMENT to database if not exist
             foreach (var fmStructureEle in fmStructureEles)
             {
+                var (id,code) = codeGenerator.GenerateFmStructureCode();
+
                 var fMStructure = new FMStructure
                 {
+                    Id = id,
+                    Code = code,
+                    ImportCode = fmStructureEle.Attribute("ID").Value,
                     LongName = fmStructureEle.Element("LONG-NAME").Element("L-4").Value,
-                    Code = fmStructureEle.Attribute("ID").Value,
                     ShortName = fmStructureEle.Element("SHORT-NAME").Value,
                     Category = fmStructureEle.Element("CATEGORY").Value,
                 };
 
-                var existingFMStructure = dbContext.FMStructures.FirstOrDefault(p => p.Code == fMStructure.Code);
+                var existingFMStructure = dbContext.FMStructures.FirstOrDefault(p => p.ImportCode == fMStructure.Code);
                 if (existingFMStructure != null)
                 {
                     existingFMStructure.LongName = fMStructure.LongName;
@@ -248,7 +260,7 @@ namespace Rongke.Fema.Controllers
             foreach (var fmStructureEle in fmStructureEles)
             {
                 var code = fmStructureEle.Attribute("ID").Value;
-                var curStructure = _dbContext.FMStructures.FirstOrDefault(p => p.Code == code);
+                var curStructure = _dbContext.FMStructures.FirstOrDefault(p => p.ImportCode == code);
                 importedFMStructures.Add(curStructure);
 
                 var children = fmStructureEle.Element("FM-SE-DECOMPOSITION")?.Elements("FM-STRUCTURE-ELEMENT-REF");
@@ -257,7 +269,7 @@ namespace Rongke.Fema.Controllers
                     foreach (var child in children)
                     {
                         var childCode = child.Attribute("ID-REF").Value;
-                        var childStructure = _dbContext.FMStructures.FirstOrDefault(p => p.Code == childCode);
+                        var childStructure = _dbContext.FMStructures.FirstOrDefault(p => p.ImportCode == childCode);
                         if (childStructure != null)
                         {
                             childStructure.ParentFMStructureId = curStructure.Id;
@@ -298,14 +310,14 @@ namespace Rongke.Fema.Controllers
             foreach (var fmStructureEle in fmStructureEles)
             {
                 var code = fmStructureEle.Attribute("ID").Value;
-                var curStructure = importedFMStructures.First(p => p.Code == code);
+                var curStructure = importedFMStructures.First(p => p.ImportCode == code);
                 var functionRefs = fmStructureEle.Element("FM-SE-FUNCTIONS")?.Elements("FM-FUNCTION-REF");
                 if (functionRefs != null)
                 {
                     foreach (var functionRef in functionRefs)
                     {
                         var functionCode = functionRef.Attribute("ID-REF").Value;
-                        var childFunction = _dbContext.FMFunctions.First(p => p.Code == functionCode);
+                        var childFunction = _dbContext.FMFunctions.First(p => p.ImportCode == functionCode);
                         childFunction.FMStructureId = curStructure.Id;
                     }
                 }
@@ -315,8 +327,9 @@ namespace Rongke.Fema.Controllers
         }
     }
 
-    public class VisitChecker {
-        private Hashtable  _visited = new Hashtable();
+    public class VisitChecker
+    {
+        private Hashtable _visited = new Hashtable();
 
         public void Visit(string code, string type)
         {

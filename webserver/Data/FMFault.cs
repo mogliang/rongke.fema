@@ -6,7 +6,10 @@ namespace Rongke.Fema.Data
 {
     public class FMFault
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
+
+        public string ImportCode { get; set; } = string.Empty;
 
         [Required]
         public string Code { get; set; }

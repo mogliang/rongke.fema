@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Rongke.Fema.Data;
+using Rongke.Fema.Domain;
 using Rongke.Fema.Dto;
 
 namespace Rongke.Fema.Controllers
@@ -22,6 +23,8 @@ namespace Rongke.Fema.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create(FMStructureCreateDto fMStructureCreateDto)
         {
+            var codeGenerator = new FmeaCodeGenerator(_dbContext);
+
             var fMStructure = _mapper.Map<FMStructure>(fMStructureCreateDto);
             if (fMStructureCreateDto.ParentCode != null)
             {
@@ -31,6 +34,9 @@ namespace Rongke.Fema.Controllers
                     throw new InvalidDataException($"Parent FMStructure with code {fMStructureCreateDto.ParentCode} not found.");
                 }
 
+                var (id, code) = codeGenerator.GenerateFmStructureCode();
+                fMStructure.Id = id;
+                fMStructure.Code = code;
                 fMStructure.ParentFMStructureId = parent.Id;
             }
             else if (_dbContext.FMStructures.Any(s => s.ParentFMStructureId == null))

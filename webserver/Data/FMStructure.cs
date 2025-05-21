@@ -8,11 +8,14 @@ namespace Rongke.Fema.Data
     [Index(nameof(Code), IsUnique = true)]
     public class FMStructure
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         [Required]
         public string Code { get; set; }
 
+        public string ImportCode { get; set; } = string.Empty;
+        
         [Required]
         public string LongName { get; set; }
 
