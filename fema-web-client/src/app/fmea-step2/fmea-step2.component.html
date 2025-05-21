@@ -3,10 +3,13 @@
         <nz-splitter>
             <nz-splitter-panel nzDefaultSize="30%" nzMin="20%" nzMax="70%">
                 <div class="box">
-                    <nz-card nzTitle="结构分析" nzSize="small">
-                        <nz-tree [nzData]="nodes" nzShowIcon [nzTreeTemplate]="nzTreeNodeTemplate">
+                    <nz-card nzTitle="结构分析" nzSize="small" [nzExtra]="extraTemplate">
+                        <ng-template #extraTemplate>
+                            <button nz-button nzSize="small" nzType="default">添加根节点</button>
+                        </ng-template>
+                        <nz-tree [nzData]="nodes" nzShowIcon [nzTreeTemplate]="nzTreeNodeTemplate"  (contextmenu)="contextMenu($event, menu)"nzMultiple="false">
                             <ng-template #nzTreeNodeTemplate let-node>
-                                <div (contextmenu)="contextMenu($event, menu)">
+                                <div>
                                     <nz-icon [nzType]="node.icon" nzTheme="outline" class="tree-icon" />
                                     <span>{{ node.title }}</span>
                                 </div>
@@ -56,8 +59,13 @@
 </nz-tabset>
 <nz-dropdown-menu #menu="nzDropdownMenu">
     <ul nz-menu>
-        <li nz-menu-item (click)="selectDropdown()">编辑节点</li>
-        <li nz-menu-item (click)="selectDropdown()">添加子节点</li>
-        <li nz-menu-item (click)="selectDropdown()">删除节点</li>
+        <li nz-menu-item (click)="selectDropdown($event)">编辑节点</li>
+        <li nz-menu-item (click)="selectDropdown($event)">添加子节点</li>
+        <li nz-submenu nzTitle="删除">
+            <ul>
+              <li nz-menu-item>删除当前节点</li>
+              <li nz-menu-item>删除当前节点和子节点</li>
+            </ul>
+          </li>
     </ul>
 </nz-dropdown-menu>
