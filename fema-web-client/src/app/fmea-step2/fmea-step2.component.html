@@ -7,11 +7,11 @@
                         <ng-template #extraTemplate>
                             <button nz-button nzSize="small" nzType="default">添加根节点</button>
                         </ng-template>
-                        <nz-tree [nzData]="nodes" nzShowIcon [nzTreeTemplate]="nzTreeNodeTemplate" nzMultiple="false">
+                        <nz-tree [nzData]="nodes" nzShowIcon [nzTreeTemplate]="nzTreeNodeTemplate" nzMultiple="false" (nzContextMenu)="contextMenu2($event, menu)">
                             <ng-template #nzTreeNodeTemplate let-node>
                                 <div>
                                     <nz-icon [nzType]="node.icon" nzTheme="outline" class="tree-icon" />
-                                    <span (contextmenu)="contextMenu($event, menu)">{{ node.title }}</span>
+                                    <span >{{ node.title }}</span>
                                 </div>
                             </ng-template>
                         </nz-tree>
@@ -57,15 +57,47 @@
     <nz-tab nzTitle="边界图">
     </nz-tab>
 </nz-tabset>
+
 <nz-dropdown-menu #menu="nzDropdownMenu">
     <ul nz-menu>
         <li nz-menu-item (click)="editNode($event)">编辑节点</li>
         <li nz-menu-item (click)="addSubNode($event)">添加子节点</li>
         <li nz-submenu nzTitle="删除">
             <ul>
-              <li nz-menu-item (click)="deleteNode($event)">删除当前节点</li>
-              <li nz-menu-item (click)="deleteSubTree($event)">删除当前节点和子节点</li>
+                <li nz-menu-item (click)="deleteNode($event)">删除当前节点</li>
+                <li nz-menu-item (click)="deleteSubTree($event)">删除当前节点和子节点</li>
             </ul>
-          </li>
+        </li>
     </ul>
 </nz-dropdown-menu>
+
+<nz-modal [(nzVisible)]="isEditMode" nzTitle="编辑 {{selectedStructure.code}}/{{selectedStructure.longName}}" nzClosable="false" nzMaskClosable="false" (nzOnCancel)="handleEditCancel()" (nzOnOk)="handleEditOk()">
+    <ng-container *nzModalContent>
+        <form nz-form [formGroup]="editForm">
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>结构编号</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input value="{{selectedStructure.code}}" readonly name="code" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>结构名称</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input formControlName="longName" name="longName" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>短名</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input formControlName="shortName" name="shortName" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>分类</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input formControlName="category" name="category" />
+                </nz-form-control>
+            </nz-form-item>
+        </form>
+    </ng-container>
+</nz-modal>
