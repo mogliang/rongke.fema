@@ -9,9 +9,10 @@
  */
 
 
-export const TreeType = {
-    Structure: 'Structure',
-    StructureAndFunction: 'StructureAndFunction'
-} as const;
-export type TreeType = typeof TreeType[keyof typeof TreeType];
+export interface FMStructureCreateDto { 
+    parentCode?: string | null;
+    longName: string;
+    shortName: string;
+    category: string;
+}
 

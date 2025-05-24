@@ -21,7 +21,7 @@ namespace Rongke.Fema.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create(FMStructureCreateDto fMStructureCreateDto)
+        public async Task<ActionResult> Create(FMStructureCreateDto fMStructureCreateDto)
         {
             var codeGenerator = new FmeaCodeGenerator(_dbContext);
 
@@ -53,7 +53,7 @@ namespace Rongke.Fema.Controllers
         }
 
         [HttpGet("tree/{code}")]
-        public async Task<IActionResult> GetTree(string code, TreeType type)
+        public async Task<ActionResult<FMFunctionDto>> GetTree(string code, TreeType type)
         {
             var fMStructure = await _dbContext.FMStructures.FirstOrDefaultAsync(s => s.Code == code);
             if (fMStructure == null)

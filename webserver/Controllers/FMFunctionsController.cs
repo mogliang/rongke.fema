@@ -20,13 +20,13 @@ namespace Rongke.Fema.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create(FMFunctionDto fMFunctionDto)
+        public async Task Create(FMFunctionDto fMFunctionDto)
         {
             throw new NotImplementedException();
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<List<FMFunctionDto>>> GetAll()
         {
             var fmFunctions = await _dbContext.FMFunctions.ToListAsync();
             var fmFunctionDtos = _mapper.Map<List<FMFunctionDto>>(fmFunctions);
@@ -38,21 +38,11 @@ namespace Rongke.Fema.Controllers
                 result.AddRange(DeepTraverse(level1));
             }
 
-            return Ok(result);
-        }
-
-        List<FMFunctionDto> DeepTraverse(FMFunctionDto fmFunctionDto)
-        {
-            var result = new List<FMFunctionDto> { fmFunctionDto };
-            foreach (var child in fmFunctionDto.Prerequisites)
-            {
-                result.AddRange(DeepTraverse(child));
-            }
             return result;
         }
 
         [HttpGet("tree/{code}")]
-        public async Task<IActionResult> GetTree(string code)
+        public async Task<ActionResult<FMStructureDto>> GetTree(string code)
         {
             var fmFunction = await _dbContext.FMFunctions.FirstOrDefaultAsync(s => s.Code == code);
             if (fmFunction == null)
@@ -73,7 +63,17 @@ namespace Rongke.Fema.Controllers
             }
 
             var fmFunctionDto = _mapper.Map<FMStructureDto>(fmFunction);
-            return Ok(fmFunctionDto);
+            return fmFunctionDto;
+        }
+        
+        List<FMFunctionDto> DeepTraverse(FMFunctionDto fmFunctionDto)
+        {
+            var result = new List<FMFunctionDto> { fmFunctionDto };
+            foreach (var child in fmFunctionDto.Prerequisites)
+            {
+                result.AddRange(DeepTraverse(child));
+            }
+            return result;
         }
     }
 }

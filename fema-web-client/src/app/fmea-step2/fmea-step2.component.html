@@ -24,18 +24,20 @@
                         <nz-table #basicTable nzSize="small" [nzData]="fmStructures" [nzPageSize]="50">
                             <thead>
                                 <tr>
-                                    <th nzWidth="100px">层级</th>
                                     <th nzWidth="100px">结构编号</th>
+                                    <th nzWidth="100px">短名</th>
                                     <th>结构名称</th>
+                                    <th nzWidth="100px">分类</th>
                                     <th nzWidth="120px">操作</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @for (data of basicTable.data; track data) {
                                 <tr>
-                                    <td>{{ data.level }}</td>
                                     <td>{{ data.code }}</td>
+                                    <td>{{ data.shortName }}</td>
                                     <td>{{ data.longName }}</td>
+                                    <td>{{ data.category }}</td>
                                     <td>
                                         <a>编辑</a>
                                         <nz-divider nzType="vertical"></nz-divider>

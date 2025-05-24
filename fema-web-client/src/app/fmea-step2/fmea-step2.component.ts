@@ -6,7 +6,7 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { FMStructureDto, FMStructuresService, TreeType } from '../../libs/api-client';
+import { FMEADto2, FMEAService, FMStructuresService, FMStructureDto2, TreeType } from '../../libs/api-client';
 import { NzSplitterModule } from 'ng-zorro-antd/splitter';
 import { NzFormModule, NzFormTooltipIcon } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -16,7 +16,7 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import {
   AbstractControl,
   NonNullableFormBuilder,
-  ReactiveFormsModule ,
+  ReactiveFormsModule,
   ValidationErrors,
   Validators
 } from '@angular/forms';
@@ -29,14 +29,18 @@ import {
   styleUrl: './fmea-step2.component.css'
 })
 export class FmeaStep2Component {
-  constructor(private nzContextMenuService: NzContextMenuService, private fmStructureService: FMStructuresService, private helper: HelperService) { }
+  constructor(private nzContextMenuService: NzContextMenuService, private fmeaService: FMEAService, private helper: HelperService) { }
 
   ngOnInit() {
-    var fmStructure = this.fmStructureService.apiFMStructuresTreeCodeGet("S001-001", TreeType.NUMBER_0);
-    fmStructure.subscribe((data: FMStructureDto) => {
-      var node = this.helper.generateTreeNodes(data);
-      this.nodes = node.children || [];
-      this.fmStructures = this.helper.flattenFMStructures(data.childFMStructures || []);
+    var doc = this.fmeaService.apiFMEADocGet();
+    doc.subscribe((data: FMEADto2) => {
+      this.femaDoc = this.helper.fillTreeLinks(data);
+
+      if (this.femaDoc.rootFMStructure) {
+        this.fmStructures = this.helper.flattenFMStructures(this.femaDoc.rootFMStructure.childFMStructures);
+        var rootNode = this.helper.generateTreeNodes(this.femaDoc.rootFMStructure, false);
+        this.nodes = rootNode.children || [];
+      }
     });
   }
 
@@ -50,14 +54,17 @@ export class FmeaStep2Component {
   contextMenu2($event: NzFormatEmitEvent, menu: NzDropdownMenuComponent): void {
     if ($event.node) {
       this.selectedCode = $event.node?.key!;
-      this.selectedStructure = this.fmStructures.find((item) => item.code === this.selectedCode) || {};
-      this.nzContextMenuService.create($event.event!, menu);
-      this.editForm.setValue({
-        code: this.selectedStructure.code!,
-        longName: this.selectedStructure.longName!,
-        shortName: this.selectedStructure.shortName!,
-        category: this.selectedStructure.category!,
-      });
+      var selectedNode = this.fmStructures.find((item) => item.code === this.selectedCode);
+      if (selectedNode) {
+        this.selectedStructure = selectedNode;
+        this.nzContextMenuService.create($event.event!, menu);
+        this.editForm.setValue({
+          code: this.selectedStructure.code,
+          longName: this.selectedStructure.longName,
+          shortName: this.selectedStructure.shortName,
+          category: this.selectedStructure.category,
+        });
+      }
     }
   }
 
@@ -75,6 +82,11 @@ export class FmeaStep2Component {
     this.isEditMode = false;
   }
   handleEditOk(): void {
+    if (this.editForm.valid) {
+      this.selectedStructure.longName = this.editForm.value.longName!;
+      this.selectedStructure.shortName = this.editForm.value.shortName!;
+      this.selectedStructure.category = this.editForm.value.category!;
+    }
     this.isEditMode = false;
   }
 
@@ -87,8 +99,17 @@ export class FmeaStep2Component {
   }
 
 
-  public selectedStructure: FMStructureDto = {}
+  public femaDoc: FMEADto2 | null = null;
+  public selectedStructure: FMStructureDto2 = {
+    code: '',
+    longName: '',
+    shortName: '',
+    category: '',
+    parentFMStructureCode: '',
+    childFMStructures: [],
+    seFunctions: [],
+  }
   public selectedCode: string = '';
-  public fmStructures: FMStructureDto[] = [];
+  public fmStructures: FMStructureDto2[] = [];
   public nodes: NzTreeNodeOptions[] = [];
 }

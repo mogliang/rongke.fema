@@ -1,3 +1,5 @@
+export * from './fMEA.service';
+import { FMEAService } from './fMEA.service';
 export * from './fMFunctions.service';
 import { FMFunctionsService } from './fMFunctions.service';
 export * from './fMStructures.service';
@@ -6,4 +8,4 @@ export * from './import.service';
 import { ImportService } from './import.service';
 export * from './products.service';
 import { ProductsService } from './products.service';
-export const APIS = [FMFunctionsService, FMStructuresService, ImportService, ProductsService];
+export const APIS = [FMEAService, FMFunctionsService, FMStructuresService, ImportService, ProductsService];
