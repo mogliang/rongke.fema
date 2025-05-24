@@ -35,20 +35,15 @@ export class FmeaStep2Component {
     var doc = this.fmeaService.apiFMEADocGet();
     doc.subscribe((data: FMEADto2) => {
       this.femaDoc = this.helper.fillTreeLinks(data);
-
-      if (this.femaDoc.rootFMStructure) {
-        this.fmStructures = this.helper.flattenFMStructures(this.femaDoc.rootFMStructure.childFMStructures);
-        var rootNode = this.helper.generateTreeNodes(this.femaDoc.rootFMStructure, false);
-        this.nodes = rootNode.children || [];
-      }
+      this.refreshView();
     });
   }
 
   private fb = inject(NonNullableFormBuilder);
   public editForm = this.fb.group({
     code: ['', [Validators.required]],
-    longName: ['', [Validators.required]],
-    shortName: ['', [Validators.required]],
+    longName: ['', [Validators.required, Validators.maxLength(100)]],
+    shortName: ['', [Validators.required, Validators.maxLength(10)]],
     category: ['', [Validators.required]],
   });
   contextMenu2($event: NzFormatEmitEvent, menu: NzDropdownMenuComponent): void {
@@ -56,16 +51,28 @@ export class FmeaStep2Component {
       this.selectedCode = $event.node?.key!;
       var selectedNode = this.fmStructures.find((item) => item.code === this.selectedCode);
       if (selectedNode) {
-        this.selectedStructure = selectedNode;
+        this.setSelectedNode(selectedNode);
         this.nzContextMenuService.create($event.event!, menu);
-        this.editForm.setValue({
-          code: this.selectedStructure.code,
-          longName: this.selectedStructure.longName,
-          shortName: this.selectedStructure.shortName,
-          category: this.selectedStructure.category,
-        });
       }
     }
+  }
+
+  refreshView() {
+    if (this.femaDoc?.rootFMStructure) {
+      var rootNode = this.helper.generateTreeNodes(this.femaDoc.rootFMStructure, false);
+      this.nodes = rootNode.children || [];
+      this.fmStructures = this.helper.flattenFMStructures(this.femaDoc.rootFMStructure.childFMStructures);
+    }
+  }
+
+  setSelectedNode(fmStructure: FMStructureDto2): void {
+    this.selectedStructure = fmStructure;
+    this.editForm.setValue({
+      code: this.selectedStructure.code,
+      longName: this.selectedStructure.longName,
+      shortName: this.selectedStructure.shortName,
+      category: this.selectedStructure.category,
+    });
   }
 
   addSubNode($event: MouseEvent): void {
@@ -74,7 +81,11 @@ export class FmeaStep2Component {
 
   // edit modal
   public isEditMode: boolean = false;
-  editNode($event: MouseEvent): void {
+  editNode($event: MouseEvent, fmStructure: FMStructureDto2 | null): void {
+    if (fmStructure != null) {
+      this.setSelectedNode(fmStructure);
+    }
+
     this.isEditMode = true;
     console.log(this.selectedCode);
   }
@@ -83,11 +94,12 @@ export class FmeaStep2Component {
   }
   handleEditOk(): void {
     if (this.editForm.valid) {
+      this.isEditMode = false;
       this.selectedStructure.longName = this.editForm.value.longName!;
       this.selectedStructure.shortName = this.editForm.value.shortName!;
       this.selectedStructure.category = this.editForm.value.category!;
+      this.refreshView();
     }
-    this.isEditMode = false;
   }
 
   deleteNode($event: MouseEvent): void {
