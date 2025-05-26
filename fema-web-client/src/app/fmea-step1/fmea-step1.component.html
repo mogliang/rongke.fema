@@ -1,0 +1,57 @@
+<nz-tabset>
+    <nz-tab nzTitle="概述">
+        <nz-card nzTitle="基本信息" nzSize="small" [nzExtra]="extraTemplate">
+            <ng-template #extraTemplate>
+                <button nz-button nzSize="small" nzType="primary">编辑</button>
+            </ng-template>
+            <form nz-form>
+                <div nz-row>
+                    <nz-col nzSpan="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="6" nzRequired>FMEA编号</nz-form-label>
+                            <nz-form-control [nzSpan]="14">
+                                <input nz-input value="test" readonly name="code" />
+                            </nz-form-control>
+                        </nz-form-item>
+                    </nz-col>
+                    <nz-col nzSpan="6">
+                        <div class="info-item">
+                            <span class="label">名称：</span>
+                            <span class="value">FMEA名称</span>
+                        </div>
+                    </nz-col>
+                    <nz-col nzSpan="6">
+                        <div class="info-item">
+                            <span class="label">状态：</span>
+                            <span class="value">草稿</span>
+                        </div>
+                    </nz-col>
+                    <nz-col nzSpan="6">
+                        <div class="info-item">
+                            <span class="label">截止时间：</span>
+                            <span class="value">2024/12/12</span>
+                        </div>
+                    </nz-col>
+                </div>
+            </form>
+        </nz-card>
+
+        <nz-card nzTitle="规划和准备" nzSize="small" [nzExtra]="extraTemplate">
+            <ng-template #extraTemplate>
+                <button nz-button nzSize="small" nzType="primary">编辑</button>
+            </ng-template>
+        </nz-card>
+
+        <nz-card nzTitle="职能团队成员" nzSize="small" [nzExtra]="extraTemplate">
+            <ng-template #extraTemplate>
+                <button nz-button nzSize="small" nzType="primary">编辑</button>
+            </ng-template>
+        </nz-card>
+    </nz-tab>
+    <nz-tab nzTitle="关联FMEA">
+    </nz-tab>
+    <nz-tab nzTitle="历史记录">
+    </nz-tab>
+    <nz-tab nzTitle="附件">
+    </nz-tab>
+</nz-tabset>

@@ -30,6 +30,9 @@
 
     </nz-header>
     <nz-content>
+        <div *ngIf="step === 0">
+            <app-fmea-step1></app-fmea-step1>
+        </div>
         <div id="fmStructure" *ngIf="step === 1">
             <app-fmea-step2></app-fmea-step2>
         </div>
