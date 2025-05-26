@@ -13,6 +13,14 @@ namespace Rongke.Fema.Dto
 
             CreateMap<FMFunction, FMFunctionDto>();
             CreateMap<FMFunctionDto, FMFunction>();
+            
+            // FMEA mapping
+            CreateMap<FMEA, FMEADto>()
+                .ForMember(dest => dest.CoreMembers, opt => opt.MapFrom(src => src.CoreMembers))
+                .ForMember(dest => dest.ExtendedMembers, opt => opt.MapFrom(src => src.ExtendedMembers));
+            
+            // TeamMember mapping
+            CreateMap<TeamMember, TeamMemberDto>();
         }
     }
 
