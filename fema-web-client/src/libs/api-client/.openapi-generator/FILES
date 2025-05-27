@@ -13,6 +13,7 @@ encoder.ts
 git_push.sh
 index.ts
 model/fMEADto2.ts
+model/fMEAType.ts
 model/fMFaultDto2.ts
 model/fMFunctionDto.ts
 model/fMFunctionDto2.ts
@@ -20,6 +21,7 @@ model/fMStructureCreateDto.ts
 model/fMStructureDto.ts
 model/fMStructureDto2.ts
 model/models.ts
+model/teamMemberDto.ts
 model/treeType.ts
 param.ts
 variables.ts

@@ -7,15 +7,43 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { FMEAType } from './fMEAType';
 import { FMStructureDto2 } from './fMStructureDto2';
 import { FMFunctionDto2 } from './fMFunctionDto2';
+import { TeamMemberDto } from './teamMemberDto';
 import { FMFaultDto2 } from './fMFaultDto2';
 
 
 export interface FMEADto2 { 
+    code?: string | null;
+    type?: FMEAType;
+    name?: string | null;
+    version?: string | null;
+    fmeaVersion?: string | null;
+    description?: string | null;
+    stage?: string | null;
+    createdAt?: string;
+    updatedAt?: string;
+    customerName?: string | null;
+    companyName?: string | null;
+    productType?: string | null;
+    material?: string | null;
+    project?: string | null;
+    projectLocation?: string | null;
+    planKickOff?: string | null;
+    planDeadline?: string | null;
+    secretLevel?: string | null;
+    accessLevel?: string | null;
+    designDepartment?: string | null;
+    designOwner?: string | null;
+    coreMembers?: Array<TeamMemberDto> | null;
+    extendedMembers?: Array<TeamMemberDto> | null;
     rootFMStructure?: FMStructureDto2;
     fmStructures: Array<FMStructureDto2>;
     fmFunctions: Array<FMFunctionDto2>;
     fmFaults: Array<FMFaultDto2>;
 }
+export namespace FMEADto2 {
+}
+
 

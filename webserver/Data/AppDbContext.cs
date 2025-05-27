@@ -34,12 +34,12 @@ namespace Rongke.Fema.Data
                 };
                 fmea.CoreMembers = new List<TeamMember>
                 {
-                    new TeamMember { Name = "Alice", EmployeeNo = "E001", Role = "Lead Engineer" },
-                    new TeamMember { Name = "Bob", EmployeeNo = "E002", Role = "Quality Manager" }
+                    new TeamMember { Name = "Alice", EmployeeNo = "E001", Role = "Lead Engineer", Department = "Engineering", Email = "alice@cotoso.com", Note = "Primary contact for design issues" },
+                    new TeamMember { Name = "Bob", EmployeeNo = "E002", Role = "Quality Manager",Department = "Engineering", Email = "Bob@cotoso.com", Note = "Secondary contact for design issues" }
                 };
                 fmea.ExtendedMembers = new List<TeamMember>
                 {
-                    new TeamMember { Name = "Charlie", EmployeeNo = "E003", Role = "Supplier Representative" }
+                    new TeamMember { Name = "Charlie", EmployeeNo = "E003", Role = "Supplier Representative",Department = "Qos", Email = "Chre@cotoso.com", Note = "Marketing and Quality owner" }
                 };
                 ctx.Set<FMEA>().Add(fmea);
                 ctx.SaveChanges();

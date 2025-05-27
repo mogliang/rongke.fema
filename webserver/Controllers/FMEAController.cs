@@ -61,7 +61,7 @@ namespace Rongke.Fema.Controllers
         /// <param name="code">The unique code of the FMEA</param>
         /// <returns>The FMEA DTO if found, otherwise 404 Not Found</returns>
         [HttpGet("code/{code}")]
-        public async Task<ActionResult<FMEADto>> GetByCode(string code)
+        public async Task<ActionResult<FMEADto2>> GetByCode(string code)
         {
             if (string.IsNullOrEmpty(code))
             {
@@ -77,7 +77,29 @@ namespace Rongke.Fema.Controllers
                 return NotFound($"FMEA with code {code} not found");
             }
 
-            var fmeaDto = _mapper.Map<FMEADto>(fmea);
+            var fmeaDto = _mapper.Map<FMEADto2>(fmea);
+
+            // Get all structures with their relationships
+            var structures = await _context.FMStructures
+                .Include(s => s.ParentFMStructureRef)
+                .ToListAsync();
+            fmeaDto.FMStructures = _mapper.Map<List<FMStructureDto2>>(structures);
+            fmeaDto.RootFMStructure = fmeaDto.FMStructures.FirstOrDefault(s => s.ParentFMStructureCode == null);
+
+            // Get all functions with their relationships
+            var functions = await _context.FMFunctions
+                .Include(f => f.ParentFMFunctionRef)
+                .Include(f => f.FMStructureRef)
+                .ToListAsync();
+            fmeaDto.FMFunctions = _mapper.Map<List<FMFunctionDto2>>(functions);
+
+            // Get all faults with their relationships
+            var faults = await _context.FMFaults
+                .Include(f => f.ParentFaultRef)
+                .Include(f => f.FMFunctionRef)
+                .ToListAsync();
+            fmeaDto.FMFaults = _mapper.Map<List<FMFaultDto2>>(faults);
+
             return Ok(fmeaDto);
         }
 
@@ -86,32 +108,11 @@ namespace Rongke.Fema.Controllers
         /// </summary>
         /// <returns>List of all FMEAs as DTOs</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<FMEADto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<FMEADto2>>> GetAll()
         {
             var fmeas = await _context.FMEAs.ToListAsync();
-            var fmeaDtos = _mapper.Map<IEnumerable<FMEADto>>(fmeas);
+            var fmeaDtos = _mapper.Map<IEnumerable<FMEADto2>>(fmeas);
             return Ok(fmeaDtos);
-        }
-
-        /// <summary>
-        /// Get FMEA by ID
-        /// </summary>
-        /// <param name="id">The ID of the FMEA</param>
-        /// <returns>The FMEA DTO if found, otherwise 404 Not Found</returns>
-        [HttpGet("{id}")]
-        public async Task<ActionResult<FMEADto>> GetById(int id)
-        {
-            var fmea = await _context.FMEAs
-                .Where(f => f.Id == id)
-                .FirstOrDefaultAsync();
-
-            if (fmea == null)
-            {
-                return NotFound($"FMEA with ID {id} not found");
-            }
-
-            var fmeaDto = _mapper.Map<FMEADto>(fmea);
-            return Ok(fmeaDto);
         }
     }
 }
