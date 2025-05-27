@@ -1,51 +1,294 @@
 <nz-tabset>
     <nz-tab nzTitle="概述">
-        <nz-card nzTitle="基本信息" nzSize="small" [nzExtra]="extraTemplate">
-            <ng-template #extraTemplate>
+        <nz-card nzTitle="基本信息" nzSize="small" [nzExtra]="extraTemplate1">
+            <ng-template #extraTemplate1>
                 <button nz-button nzSize="small" nzType="primary">编辑</button>
             </ng-template>
-            <form nz-form>
-                <div nz-row>
-                    <nz-col nzSpan="6">
+            <form nz-form [formGroup]="fmeaForm">
+                <div nz-row [nzGutter]="24">
+                    <div nz-col [nzSpan]="6">
                         <nz-form-item>
-                            <nz-form-label [nzSpan]="6" nzRequired>FMEA编号</nz-form-label>
-                            <nz-form-control [nzSpan]="14">
-                                <input nz-input value="test" readonly name="code" />
+                            <nz-form-label [nzSpan]="8" nzRequired>FMEA编号</nz-form-label>
+                            <nz-form-control [nzSpan]="16" nzErrorTip="请输入FMEA编号">
+                                <input nz-input formControlName="code" />
                             </nz-form-control>
                         </nz-form-item>
-                    </nz-col>
-                    <nz-col nzSpan="6">
-                        <div class="info-item">
-                            <span class="label">名称：</span>
-                            <span class="value">FMEA名称</span>
-                        </div>
-                    </nz-col>
-                    <nz-col nzSpan="6">
-                        <div class="info-item">
-                            <span class="label">状态：</span>
-                            <span class="value">草稿</span>
-                        </div>
-                    </nz-col>
-                    <nz-col nzSpan="6">
-                        <div class="info-item">
-                            <span class="label">截止时间：</span>
-                            <span class="value">2024/12/12</span>
-                        </div>
-                    </nz-col>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8" nzRequired>FMEA类型</nz-form-label>
+                            <nz-form-control [nzSpan]="16" nzErrorTip="请选择FMEA类型">
+                                <nz-select formControlName="type">
+                                    <nz-option *ngFor="let type of fmeaTypes" [nzValue]="type.value"
+                                        [nzLabel]="type.label"></nz-option>
+                                </nz-select>
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8" nzRequired>名称</nz-form-label>
+                            <nz-form-control [nzSpan]="16" nzErrorTip="请输入名称">
+                                <input nz-input formControlName="name" />
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8" nzRequired>版本号</nz-form-label>
+                            <nz-form-control [nzSpan]="16" nzErrorTip="请输入版本号">
+                                <input nz-input formControlName="version" />
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                </div>
+
+                <div nz-row [nzGutter]="24">
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8" nzRequired>FMEA版本</nz-form-label>
+                            <nz-form-control [nzSpan]="16" nzErrorTip="请输入FMEA版本">
+                                <input nz-input formControlName="fmeaVersion" />
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8">阶段</nz-form-label>
+                            <nz-form-control [nzSpan]="16">
+                                <input nz-input formControlName="stage" />
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8">创建时间</nz-form-label>
+                            <nz-form-control [nzSpan]="16">
+                                <input nz-input [value]="fmeaDoc?.createdAt | date:'yyyy-MM-dd HH:mm:ss'" disabled />
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8">更新时间</nz-form-label>
+                            <nz-form-control [nzSpan]="16">
+                                <input nz-input [value]="fmeaDoc?.updatedAt | date:'yyyy-MM-dd HH:mm:ss'" disabled />
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                </div>
+
+                <div nz-row [nzGutter]="24">
+                    <div nz-col [nzSpan]="24">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="2">描述</nz-form-label>
+                            <nz-form-control [nzSpan]="22">
+                                <textarea nz-input formControlName="description"
+                                    [nzAutosize]="{ minRows: 3, maxRows: 6 }"></textarea>
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
                 </div>
             </form>
         </nz-card>
 
-        <nz-card nzTitle="规划和准备" nzSize="small" [nzExtra]="extraTemplate">
-            <ng-template #extraTemplate>
-                <button nz-button nzSize="small" nzType="primary">编辑</button>
-            </ng-template>
+        <nz-card nzTitle="规划和准备" nzSize="small">
+            <form nz-form [formGroup]="fmeaForm">
+                <div nz-row [nzGutter]="24">
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8">客户名称</nz-form-label>
+                            <nz-form-control [nzSpan]="16">
+                                <input nz-input formControlName="customerName" />
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8">公司名称</nz-form-label>
+                            <nz-form-control [nzSpan]="16">
+                                <input nz-input formControlName="companyName" />
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8">产品类型</nz-form-label>
+                            <nz-form-control [nzSpan]="16">
+                                <input nz-input formControlName="productType" />
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8">材料</nz-form-label>
+                            <nz-form-control [nzSpan]="16">
+                                <input nz-input formControlName="material" />
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                </div>
+
+                <div nz-row [nzGutter]="24">
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8">项目</nz-form-label>
+                            <nz-form-control [nzSpan]="16">
+                                <input nz-input formControlName="project" />
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8">项目地点</nz-form-label>
+                            <nz-form-control [nzSpan]="16">
+                                <input nz-input formControlName="projectLocation" />
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8">计划开始日期</nz-form-label>
+                            <nz-form-control [nzSpan]="16">
+                                <nz-date-picker formControlName="planKickOff" style="width: 100%;"></nz-date-picker>
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8">计划结束日期</nz-form-label>
+                            <nz-form-control [nzSpan]="16">
+                                <nz-date-picker formControlName="planDeadline" style="width: 100%;"></nz-date-picker>
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                </div>
+
+                <div nz-row [nzGutter]="24">
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8">保密级别</nz-form-label>
+                            <nz-form-control [nzSpan]="16">
+                                <nz-select formControlName="secretLevel" style="width: 100%;">
+                                    <nz-option *ngFor="let level of secretLevels" [nzValue]="level.value"
+                                        [nzLabel]="level.label"></nz-option>
+                                </nz-select>
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8">访问级别</nz-form-label>
+                            <nz-form-control [nzSpan]="16">
+                                <nz-select formControlName="accessLevel" style="width: 100%;">
+                                    <nz-option *ngFor="let level of accessLevels" [nzValue]="level.value"
+                                        [nzLabel]="level.label"></nz-option>
+                                </nz-select>
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8">设计部门</nz-form-label>
+                            <nz-form-control [nzSpan]="16">
+                                <input nz-input formControlName="designDepartment" />
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                        <nz-form-item>
+                            <nz-form-label [nzSpan]="8">设计负责人</nz-form-label>
+                            <nz-form-control [nzSpan]="16">
+                                <input nz-input formControlName="designOwner" />
+                            </nz-form-control>
+                        </nz-form-item>
+                    </div>
+                </div>
+            </form>
         </nz-card>
 
-        <nz-card nzTitle="职能团队成员" nzSize="small" [nzExtra]="extraTemplate">
-            <ng-template #extraTemplate>
-                <button nz-button nzSize="small" nzType="primary">编辑</button>
+        <nz-card nzTitle="核心团队" nzSize="small" [nzExtra]="extraTemplate3">
+            <ng-template #extraTemplate3>
+                <button nz-button nzSize="small" nzType="default">添加成员</button>
             </ng-template>
+            <nz-table #coreTeamTable [nzData]="fmeaDoc?.coreMembers || []" nzSize="small">
+                <thead>
+                    <tr>
+                        <th>姓名</th>
+                        <th>工号</th>
+                        <th>角色</th>
+                        <th>部门</th>
+                        <th>联系方式</th>
+                        <th>备注</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let member of coreTeamTable.data; let i = index">
+                        <td>{{ member.name }}</td>
+                        <td>{{ member.employeeNo }}</td>
+                        <td>{{ member.role }}</td>
+                        <td>{{ member.department }}</td>
+                        <td>
+                            <div *ngIf="member.email">Email: {{ member.email }}</div>
+                            <div *ngIf="member.phone">电话: {{ member.phone }}</div>
+                        </td>
+                        <td>{{ member.note }}</td>
+                        <td>
+                            <button nz-button nzType="link" nzDanger (click)="removeMember(true, i)"
+                                [disabled]="!isEditing">
+                                <span nz-icon nzType="edit" nzTheme="outline"></span>
+                            </button>
+                            <button nz-button nzType="link" nzDanger (click)="removeMember(true, i)"
+                                [disabled]="!isEditing">
+                                <span nz-icon nzType="delete" nzTheme="outline"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </nz-table>
+        </nz-card>
+
+        <nz-card nzTitle="扩展团队" nzSize="small" [nzExtra]="extraTemplate4">
+            <ng-template #extraTemplate4>
+                <button nz-button nzSize="small" nzType="default">添加成员</button>
+            </ng-template>
+            <nz-table #extendedTeamTable [nzData]="fmeaDoc?.extendedMembers || []" nzSize="small">
+                <thead>
+                    <tr>
+                        <th>姓名</th>
+                        <th>工号</th>
+                        <th>角色</th>
+                        <th>部门</th>
+                        <th>联系方式</th>
+                        <th>备注</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let member of extendedTeamTable.data; let i = index">
+                        <td>{{ member.name }}</td>
+                        <td>{{ member.employeeNo }}</td>
+                        <td>{{ member.role }}</td>
+                        <td>{{ member.department }}</td>
+                        <td>
+                            <div *ngIf="member.email">Email: {{ member.email }}</div>
+                            <div *ngIf="member.phone">电话: {{ member.phone }}</div>
+                        </td>
+                        <td>{{ member.note }}</td>
+                        <td>
+                            <button nz-button nzType="link" nzDanger (click)="removeMember(true, i)"
+                                [disabled]="!isEditing">
+                                <span nz-icon nzType="edit" nzTheme="outline"></span>
+                            </button>
+                            <button nz-button nzType="link" nzDanger (click)="removeMember(false, i)"
+                                [disabled]="!isEditing">
+                                <span nz-icon nzType="delete" nzTheme="outline"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </nz-table>
         </nz-card>
     </nz-tab>
     <nz-tab nzTitle="关联FMEA">
@@ -55,3 +298,61 @@
     <nz-tab nzTitle="附件">
     </nz-tab>
 </nz-tabset>
+
+<!-- 添加成员模态框 -->
+<nz-modal [(nzVisible)]="isAddingMember" [nzTitle]="isCoreTeamTab ? '添加核心团队成员' : '添加扩展团队成员'"
+    (nzOnCancel)="cancelAddMember()" (nzOnOk)="addMember()" [nzOkDisabled]="memberForm.invalid">
+    <ng-container *nzModalContent>
+        <form nz-form [formGroup]="memberForm">
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>姓名</nz-form-label>
+                <nz-form-control [nzSpan]="18" nzErrorTip="请输入成员姓名">
+                    <input nz-input formControlName="name" placeholder="请输入成员姓名" />
+                </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>工号</nz-form-label>
+                <nz-form-control [nzSpan]="18" nzErrorTip="请输入工号">
+                    <input nz-input formControlName="employeeNo" placeholder="请输入工号" />
+                </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>角色</nz-form-label>
+                <nz-form-control [nzSpan]="18" nzErrorTip="请输入角色">
+                    <input nz-input formControlName="role" placeholder="例如：设计师、质量工程师" />
+                </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6">部门</nz-form-label>
+                <nz-form-control [nzSpan]="18">
+                    <input nz-input formControlName="department" placeholder="请输入部门" />
+                </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6">电子邮件</nz-form-label>
+                <nz-form-control [nzSpan]="18">
+                    <input nz-input formControlName="email" placeholder="请输入电子邮件" />
+                </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6">电话</nz-form-label>
+                <nz-form-control [nzSpan]="18">
+                    <input nz-input formControlName="phone" placeholder="请输入电话号码" />
+                </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6">备注</nz-form-label>
+                <nz-form-control [nzSpan]="18">
+                    <textarea nz-input formControlName="note" placeholder="请输入备注信息"
+                        [nzAutosize]="{ minRows: 2, maxRows: 4 }"></textarea>
+                </nz-form-control>
+            </nz-form-item>
+        </form>
+    </ng-container>
+</nz-modal>
