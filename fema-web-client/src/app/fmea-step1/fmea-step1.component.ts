@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule ,FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -12,14 +12,18 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzListModule } from 'ng-zorro-antd/list';
 import { CommonModule } from '@angular/common';
 import { FMEADto2, FMEAService, TeamMemberDto, FMEAType } from '../../libs/api-client';
+import { HelperService } from '../helper.service';
+import { MockService, EmployeeModel } from '../mock.service';
 
 @Component({
   selector: 'app-fmea-step1',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     ReactiveFormsModule,
     NzFormModule,
     NzInputModule,
@@ -31,8 +35,10 @@ import { FMEADto2, FMEAService, TeamMemberDto, FMEAType } from '../../libs/api-c
     NzDividerModule,
     NzIconModule,
     NzTableModule,
-    NzModalModule
+    NzModalModule,
+    NzListModule
   ],
+  providers: [HelperService, MockService],
   templateUrl: './fmea-step1.component.html',
   styleUrls: ['./fmea-step1.component.css']
 })
@@ -41,11 +47,20 @@ export class FmeaStep1Component implements OnInit {
   fmeaDoc: FMEADto2 | null = null;
   isLoading = true;
   isEditing = false;
-  
+  selectedEmployee2: EmployeeModel | null = null;
+
   // Member management
   isAddingMember = false;
+  isEditingMember = false;
   isCoreTeamTab = true;
   memberForm!: FormGroup;
+  editNoteForm!: FormGroup;
+  selectedEmployee: EmployeeModel | null = null;
+  employees: EmployeeModel[] = [];
+  filteredEmployees: EmployeeModel[] = [];
+  searchValue = '';
+  currentEditIndex: number = -1;
+  currentMember: TeamMemberDto | null = null;
   
   fmeaTypes = [
     { label: 'DFMEA', value: FMEAType.Dfmea },
@@ -70,13 +85,43 @@ export class FmeaStep1Component implements OnInit {
   constructor(
     private fb: FormBuilder,
     private fmeaService: FMEAService,
-    private message: NzMessageService
+    private message: NzMessageService,
+    private helperService: HelperService,
+    private mockService: MockService
   ) {}
 
   ngOnInit() {
     this.initFmeaForm();
     this.initMemberForm();
+    this.initEditNoteForm();
     this.loadFmeaData();
+    this.loadEmployees();
+  }
+
+  loadEmployees() {
+    this.employees = this.mockService.getEmployees();
+    this.filteredEmployees = [...this.employees];
+  }
+
+  searchEmployees(value: string): void {
+    this.searchValue = value;
+    this.filteredEmployees = this.mockService.searchEmployees(value);
+  }
+
+  test(){
+    console.log('test');
+  }
+
+  selectEmployee(employee: EmployeeModel): void {
+    this.selectedEmployee = employee;
+    this.memberForm.patchValue({
+      name: employee.name,
+      employeeNo: employee.employeeNo,
+      role: employee.role,
+      department: employee.department,
+      email: employee.email,
+      phone: employee.phone
+    });
   }
 
   initFmeaForm() {
@@ -108,12 +153,18 @@ export class FmeaStep1Component implements OnInit {
 
   initMemberForm() {
     this.memberForm = this.fb.group({
-      name: ['', Validators.required],
-      employeeNo: ['', Validators.required],
-      role: ['', Validators.required],
-      department: [''],
-      email: [''],
-      phone: [''],
+      name: [{value: '', disabled: true}, Validators.required],
+      employeeNo: [{value: '', disabled: true}, Validators.required],
+      role: [{value: '', disabled: true}, Validators.required],
+      department: [{value: '', disabled: true}],
+      email: [{value: '', disabled: true}],
+      phone: [{value: '', disabled: true}],
+      note: ['']
+    });
+  }
+
+  initEditNoteForm() {
+    this.editNoteForm = this.fb.group({
       note: ['']
     });
   }
@@ -204,34 +255,81 @@ export class FmeaStep1Component implements OnInit {
   showAddMemberModal(isCoreTeam: boolean) {
     this.isCoreTeamTab = isCoreTeam;
     this.isAddingMember = true;
+    this.selectedEmployee = null;
     this.memberForm.reset();
+    
+    // Reset form fields to disabled state (they'll be filled from employee selection)
+    Object.keys(this.memberForm.controls).forEach(key => {
+      if (key !== 'note') {
+        this.memberForm.get(key)?.disable();
+      }
+    });
+  }
+
+  showEditMemberModal(isCoreTeam: boolean, index: number) {
+    this.isCoreTeamTab = isCoreTeam;
+    this.currentEditIndex = index;
+    
+    const membersList = isCoreTeam ? this.fmeaDoc?.coreMembers : this.fmeaDoc?.extendedMembers;
+    if (!membersList || index < 0 || index >= membersList.length) return;
+    
+    this.currentMember = membersList[index];
+    this.editNoteForm.setValue({
+      note: this.currentMember.note || ''
+    });
+    
+    this.isEditingMember = true;
   }
 
   cancelAddMember() {
     this.isAddingMember = false;
+    this.selectedEmployee = null;
+  }
+
+  cancelEditMember() {
+    this.isEditingMember = false;
+    this.currentMember = null;
+    this.currentEditIndex = -1;
   }
 
   addMember() {
-    if (this.memberForm.invalid) {
-      Object.values(this.memberForm.controls).forEach(control => {
-        if (control.invalid) {
-          control.markAsDirty();
-          control.updateValueAndValidity({ onlySelf: true });
-        }
-      });
+    if (this.memberForm.invalid || !this.selectedEmployee) {
+      if (!this.selectedEmployee) {
+        this.message.warning('请先选择一名员工');
+      } else {
+        Object.values(this.memberForm.controls).forEach(control => {
+          if (control.invalid) {
+            control.markAsDirty();
+            control.updateValueAndValidity({ onlySelf: true });
+          }
+        });
+      }
       return;
     }
 
-    const newMember: TeamMemberDto = this.memberForm.value;
+    const newMember = this.mockService.convertToTeamMember(
+      this.selectedEmployee, 
+      this.memberForm.value.note || ''
+    );
     
     if (!this.fmeaDoc) return;
     
     if (this.isCoreTeamTab) {
-      this.fmeaDoc.coreMembers!.push(newMember);
+      if (!this.fmeaDoc.coreMembers) {
+        this.fmeaDoc.coreMembers = [];
+      }
+      this.fmeaDoc.coreMembers.push(newMember);
     } else {
-      this.fmeaDoc.extendedMembers!.push(newMember);
+      if (!this.fmeaDoc.extendedMembers) {
+        this.fmeaDoc.extendedMembers = [];
+      }
+      this.fmeaDoc.extendedMembers.push(newMember);
     }
 
+    this.isAddingMember = false;
+    this.selectedEmployee = null;
+    this.message.success('成员已添加');
+    
     // // Update the FMEA with the new member
     // this.fmeaService.apiFMEADocPut(this.fmeaDoc).subscribe({
     //   next: (response) => {
@@ -245,14 +343,44 @@ export class FmeaStep1Component implements OnInit {
     // });
   }
 
+  updateMemberNote() {
+    if (this.editNoteForm.invalid || this.currentEditIndex < 0 || !this.currentMember) {
+      return;
+    }
+
+    if (!this.fmeaDoc) return;
+    
+    const membersList = this.isCoreTeamTab ? this.fmeaDoc.coreMembers : this.fmeaDoc.extendedMembers;
+    if (!membersList || this.currentEditIndex >= membersList.length) return;
+    
+    membersList[this.currentEditIndex].note = this.editNoteForm.value.note || '';
+    
+    this.isEditingMember = false;
+    this.currentMember = null;
+    this.currentEditIndex = -1;
+    this.message.success('成员备注已更新');
+    
+    // // Update the FMEA with the updated member
+    // this.fmeaService.apiFMEADocPut(this.fmeaDoc).subscribe({
+    //   next: (response) => {
+    //     this.fmeaDoc = response;
+    //     this.isEditingMember = false;
+    //     this.message.success('成员备注已更新');
+    //   },
+    //   error: (err) => {
+    //     this.message.error('更新成员备注失败');
+    //   }
+    // });
+  }
+
   removeMember(isCoreTeam: boolean, index: number) {
     if (!this.fmeaDoc) return;
     
-    if (isCoreTeam) {
-      this.fmeaDoc.coreMembers!.splice(index, 1);
-    } else {
-      this.fmeaDoc.extendedMembers!.splice(index, 1);
-    }
+    const membersList = isCoreTeam ? this.fmeaDoc.coreMembers : this.fmeaDoc.extendedMembers;
+    if (!membersList || index < 0 || index >= membersList.length) return;
+    
+    membersList.splice(index, 1);
+    this.message.success('成员已删除');
 
     // // Update the FMEA after removing the member
     // this.fmeaService.apiFMEADocPut(this.fmeaDoc).subscribe({

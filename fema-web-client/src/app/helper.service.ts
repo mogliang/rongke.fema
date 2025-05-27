@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NzTreeNodeOptions } from 'ng-zorro-antd/tree';
-import { FMStructureDto, FMFunctionDto, FMEADto2 ,FMStructureDto2, FMFunctionDto2, FMFaultDto2} from '../libs/api-client';
+import { FMStructureDto, FMFunctionDto, FMEADto2 ,FMStructureDto2, FMFunctionDto2, FMFaultDto2 } from '../libs/api-client';
 
 @Injectable({
   providedIn: 'root'
