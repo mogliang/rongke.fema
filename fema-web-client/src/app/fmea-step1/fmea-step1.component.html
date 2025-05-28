@@ -235,12 +235,10 @@
                         </td>
                         <td>{{ member.note }}</td>
                         <td>
-                            <button nz-button nzType="link" (click)="showEditMemberModal(true, i)"
-                                [disabled]="!isEditing">
+                            <button nz-button nzType="link" (click)="showEditMemberModal(true, i)">
                                 <span nz-icon nzType="edit" nzTheme="outline"></span>
                             </button>
-                            <button nz-button nzType="link" nzDanger (click)="removeMember(true, i)"
-                                [disabled]="!isEditing">
+                            <button nz-button nzType="link" nzDanger (click)="removeMember(true, i)">
                                 <span nz-icon nzType="delete" nzTheme="outline"></span>
                             </button>
                         </td>
@@ -277,12 +275,10 @@
                         </td>
                         <td>{{ member.note }}</td>
                         <td>
-                            <button nz-button nzType="link" (click)="showEditMemberModal(false, i)"
-                                [disabled]="!isEditing">
+                            <button nz-button nzType="link" (click)="showEditMemberModal(false, i)">
                                 <span nz-icon nzType="edit" nzTheme="outline"></span>
                             </button>
-                            <button nz-button nzType="link" nzDanger (click)="removeMember(false, i)"
-                                [disabled]="!isEditing">
+                            <button nz-button nzType="link" nzDanger (click)="removeMember(false, i)">
                                 <span nz-icon nzType="delete" nzTheme="outline"></span>
                             </button>
                         </td>
@@ -303,23 +299,23 @@
 <nz-modal [(nzVisible)]="isAddingMember" [nzTitle]="isCoreTeamTab ? '添加核心团队成员' : '添加扩展团队成员'"
     (nzOnCancel)="cancelAddMember()" (nzOnOk)="addMember()">
     <ng-container *nzModalContent>
+
+        <nz-form-item>
+            <nz-form-label [nzSpan]="6" nzRequired>员工</nz-form-label>
+            <nz-form-control [nzSpan]="18">
+                <nz-select nzPlaceHolder="选择员工" [(ngModel)]="selectedEmployee" (ngModelChange)="selectEmployee($event)">
+                    @for (p of employees; track p) {
+                    <nz-option [nzValue]="p" nzLabel="{{p.department}} - {{p.name}}"></nz-option>
+                    }
+                </nz-select>        
+            </nz-form-control>
+        </nz-form-item>
+        <nz-divider></nz-divider>
         <form nz-form [formGroup]="memberForm">
-            <nz-form-item>
-                <nz-form-label [nzSpan]="6" nzRequired>员工</nz-form-label>
-                <nz-form-control [nzSpan]="18">
-                    <nz-select nzShowSearch nzAllowClear nzPlaceHolder="Select a person" [ngModel]="selectedEmployee2">
-                        @for (o of filteredEmployees; track o) {
-                        <nz-option nzLabel="{{o.name}} - {{o.department}}" [nzValue]="o"></nz-option>
-                        }
-                    </nz-select>
-                </nz-form-control>
-            </nz-form-item>
-            <nz-divider></nz-divider>
-            <div>{{selectedEmployee2?.name}}</div>
             <nz-form-item>
                 <nz-form-label [nzSpan]="6" nzRequired>姓名</nz-form-label>
                 <nz-form-control [nzSpan]="18">
-                    <input nz-input formControlName="name" [disabled]="true" value="{{selectedEmployee2?.name}}" />
+                    <input nz-input formControlName="name" [disabled]="true" />
                 </nz-form-control>
             </nz-form-item>
 
@@ -373,7 +369,8 @@
 <nz-modal [(nzVisible)]="isEditingMember" [nzTitle]="isCoreTeamTab ? '编辑核心团队成员' : '编辑扩展团队成员'"
     (nzOnCancel)="cancelEditMember()" (nzOnOk)="updateMemberNote()">
     <ng-container *nzModalContent>
-        <div *ngIf="currentMember" class="member-info">
+        <div *ngIf="currentMember" class="member-info"
+            style="margin-bottom: 16px; padding: 16px; background-color: #f5f5f5; border-radius: 2px;">
             <p><strong>姓名:</strong> {{ currentMember.name }}</p>
             <p><strong>工号:</strong> {{ currentMember.employeeNo }}</p>
             <p><strong>角色:</strong> {{ currentMember.role }}</p>
