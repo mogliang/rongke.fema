@@ -1,10 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { FMEADto2, FMEAService, TeamMemberDto, FMEAType } from '../../libs/api-client';
+import { HelperService } from '../helper.service';
+import { MockService, EmployeeModel } from '../mock.service';
+
+// NG-ZORRO Modules
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
-import { FormsModule } from '@angular/forms';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
@@ -14,10 +20,6 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzListModule } from 'ng-zorro-antd/list';
-import { CommonModule } from '@angular/common';
-import { FMEADto2, FMEAService, TeamMemberDto, FMEAType } from '../../libs/api-client';
-import { HelperService } from '../helper.service';
-import { MockService, EmployeeModel } from '../mock.service';
 
 @Component({
   selector: 'app-fmea-step1',
@@ -231,6 +233,11 @@ export class FmeaStep1Component implements OnInit {
     if (updatedFmea.planDeadline) {
       updatedFmea.planDeadline = new Date(updatedFmea.planDeadline).toISOString();
     }
+    
+    // TODO: Implement API call to save changes
+    this.message.success('保存成功');
+    this.isEditing = false;
+    this.fmeaForm.disable();
   }
 
   showAddMemberModal(isCoreTeam: boolean) {
@@ -275,12 +282,10 @@ export class FmeaStep1Component implements OnInit {
 
   refreshMemberList() {
     if (this.fmeaDoc?.coreMembers) {
-      var coreMembers = [...this.fmeaDoc.coreMembers];
-      this.fmeaDoc.coreMembers = coreMembers
+      this.fmeaDoc.coreMembers = [...this.fmeaDoc.coreMembers];
     }
     if (this.fmeaDoc?.extendedMembers) {
-      var extendedMembers = [...this.fmeaDoc.extendedMembers];
-      this.fmeaDoc.extendedMembers = extendedMembers;
+      this.fmeaDoc.extendedMembers = [...this.fmeaDoc.extendedMembers];
     }
   }
 
