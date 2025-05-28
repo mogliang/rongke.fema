@@ -11,7 +11,7 @@ import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzTableModule } from 'ng-zorro-antd/table';
-import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { CommonModule } from '@angular/common';
@@ -85,6 +85,7 @@ export class FmeaStep1Component implements OnInit {
     private fb: FormBuilder,
     private fmeaService: FMEAService,
     private message: NzMessageService,
+    private modal: NzModalService,
     private helperService: HelperService,
     private mockService: MockService
   ) {}
@@ -196,14 +197,17 @@ export class FmeaStep1Component implements OnInit {
       designDepartment: data.designDepartment,
       designOwner: data.designOwner
     });
+    this.fmeaForm.disable();
   }
 
   startEditing() {
     this.isEditing = true;
+    this.fmeaForm.enable();
   }
 
   cancelEditing() {
     this.isEditing = false;
+    this.fmeaForm.disable();
     this.populateForm(this.fmeaDoc!);
   }
 
@@ -353,8 +357,21 @@ export class FmeaStep1Component implements OnInit {
     const membersList = isCoreTeam ? this.fmeaDoc.coreMembers : this.fmeaDoc.extendedMembers;
     if (!membersList || index < 0 || index >= membersList.length) return;
     
-    membersList.splice(index, 1);
-    this.message.success('成员已删除');
-    this.refreshMemberList();
+    const member = membersList[index];
+    const teamType = isCoreTeam ? '核心团队' : '扩展团队';
+    
+    this.modal.confirm({
+      nzTitle: '确认删除',
+      nzContent: `确定要从${teamType}中删除成员 "${member.name}" 吗？`,
+      nzOkText: '确定',
+      nzOkType: 'primary',
+      nzOkDanger: true,
+      nzCancelText: '取消',
+      nzOnOk: () => {
+        membersList.splice(index, 1);
+        this.message.success('成员已删除');
+        this.refreshMemberList();
+      }
+    });
   }
 }

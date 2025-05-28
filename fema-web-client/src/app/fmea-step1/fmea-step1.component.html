@@ -2,7 +2,7 @@
     <nz-tab nzTitle="概述">
         <nz-card nzTitle="基本信息" nzSize="small" [nzExtra]="extraTemplate1">
             <ng-template #extraTemplate1>
-                <button nz-button nzSize="small" nzType="primary">编辑</button>
+                <button nz-button nzSize="small" nzType="primary" (click)="startEditing()">编辑</button>
             </ng-template>
             <form nz-form [formGroup]="fmeaForm">
                 <div nz-row [nzGutter]="24">
