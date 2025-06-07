@@ -25,7 +25,10 @@ namespace Rongke.Fema.Dto
                 .ForMember(d => d.ParentFaultCode, opt => opt.MapFrom(s => s.ParentFaultRef.Code))
                 .ForMember(d => d.Causes, opt => opt.Ignore());
 
+            CreateMap<TeamMember, TeamMemberDto>();
+            CreateMap<TeamMemberDto, TeamMember>();
             CreateMap<FMEA, FMEADto2>();
+            CreateMap<FMEADto2,FMEA>();
         }
     }
 
@@ -40,8 +43,7 @@ namespace Rongke.Fema.Dto
         [Required]
         public string Category { get; set; }
 
-        [Required]
-        public string ParentFMStructureCode { get; set; }
+        public string? ParentFMStructureCode { get; set; }
 
         [Required]
         public List<FMStructureDto2> ChildFMStructures { get; set; } = new List<FMStructureDto2>();
@@ -58,11 +60,8 @@ namespace Rongke.Fema.Dto
         public string LongName { get; set; }
         [Required]
         public string ShortName { get; set; }
-
-        [Required]
-        public string FMStructureCode { get; set; }
-        [Required]
-        public string ParentFMFunctionCode { get; set; }
+        public string? FMStructureCode { get; set; }
+        public string? ParentFMFunctionCode { get; set; }
 
         [Required]
         public List<FMFunctionDto2> Prerequisites { get; set; } = new List<FMFunctionDto2>();
@@ -81,11 +80,8 @@ namespace Rongke.Fema.Dto
         public string ShortName { get; set; }
         [Required]
         public int RiskPriorityFactor { get; set; }
-
-        [Required]
-        public string FMFunctionCode { get; set; }
-        [Required]
-        public string ParentFaultCode { get; set; }
+        public string? FMFunctionCode { get; set; }
+        public string? ParentFaultCode { get; set; }
         [Required]
         public virtual List<FMFaultDto2> Causes { get; set; } = new List<FMFaultDto2>();
 

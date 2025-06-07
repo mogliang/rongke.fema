@@ -20,7 +20,7 @@ export class FmeaStep3Component {
   constructor(private fmeaService: FMEAService, private helper: HelperService) { }
 
   ngOnInit() {
-    var doc = this.fmeaService.apiFMEADocGet();
+    var doc = this.fmeaService.apiFMEACodeCodeGet("FMEA-0001");
     doc.subscribe((data: FMEADto2) => {
       this.femaDoc = this.helper.fillTreeLinks(data);
 

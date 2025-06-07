@@ -14,8 +14,8 @@ export interface FMFaultDto2 {
     longName: string;
     shortName: string;
     riskPriorityFactor: number;
-    fmFunctionCode: string;
-    parentFaultCode: string;
+    fmFunctionCode?: string | null;
+    parentFaultCode?: string | null;
     causes: Array<FMFaultDto2>;
 }
 

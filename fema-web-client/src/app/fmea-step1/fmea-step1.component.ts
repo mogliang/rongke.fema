@@ -234,10 +234,21 @@ export class FmeaStep1Component implements OnInit {
       updatedFmea.planDeadline = new Date(updatedFmea.planDeadline).toISOString();
     }
     
-    // TODO: Implement API call to save changes
-    this.message.success('保存成功');
-    this.isEditing = false;
-    this.fmeaForm.disable();
+    this.isLoading = true;
+    this.fmeaService.apiFMEACodeCodePut(updatedFmea.code!, updatedFmea).subscribe({
+      next: (data) => {
+        this.fmeaDoc = data;
+        this.message.success('保存成功');
+        this.isEditing = false;
+        this.fmeaForm.disable();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Failed to save FMEA', err);
+        this.message.error('保存失败: ' + (err.error || err.message || '未知错误'));
+        this.isLoading = false;
+      }
+    });
   }
 
   showAddMemberModal(isCoreTeam: boolean) {

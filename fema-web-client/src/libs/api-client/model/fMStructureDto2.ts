@@ -15,7 +15,7 @@ export interface FMStructureDto2 {
     longName: string;
     shortName: string;
     category: string;
-    parentFMStructureCode: string;
+    parentFMStructureCode?: string | null;
     childFMStructures: Array<FMStructureDto2>;
     seFunctions: Array<FMFunctionDto2>;
 }

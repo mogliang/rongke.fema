@@ -14,8 +14,8 @@ export interface FMFunctionDto2 {
     code: string;
     longName: string;
     shortName: string;
-    fmStructureCode: string;
-    parentFMFunctionCode: string;
+    fmStructureCode?: string | null;
+    parentFMFunctionCode?: string | null;
     prerequisites: Array<FMFunctionDto2>;
     faultRefs: Array<FMFaultDto2>;
 }
