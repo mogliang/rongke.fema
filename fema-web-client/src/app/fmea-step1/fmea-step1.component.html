@@ -66,7 +66,7 @@
                         <nz-form-item>
                             <nz-form-label [nzSpan]="8">创建时间</nz-form-label>
                             <nz-form-control [nzSpan]="16">
-                                <input nz-input [value]="fmeaDoc?.createdAt | date:'yyyy-MM-dd HH:mm:ss'" disabled />
+                                <input nz-input [value]="fmeaDoc()?.createdAt | date:'yyyy-MM-dd HH:mm:ss'" disabled />
                             </nz-form-control>
                         </nz-form-item>
                     </div>
@@ -74,7 +74,7 @@
                         <nz-form-item>
                             <nz-form-label [nzSpan]="8">更新时间</nz-form-label>
                             <nz-form-control [nzSpan]="16">
-                                <input nz-input [value]="fmeaDoc?.updatedAt | date:'yyyy-MM-dd HH:mm:ss'" disabled />
+                                <input nz-input [value]="fmeaDoc()?.updatedAt | date:'yyyy-MM-dd HH:mm:ss'" disabled />
                             </nz-form-control>
                         </nz-form-item>
                     </div>
@@ -213,7 +213,7 @@
             <ng-template #extraTemplate3>
                 <button nz-button nzSize="small" nzType="default" (click)="showAddMemberModal(true)">添加成员</button>
             </ng-template>
-            <nz-table #coreTeamTable [nzData]="fmeaDoc?.coreMembers || []" nzSize="small">
+            <nz-table #coreTeamTable [nzData]="coreMembers" nzSize="small">
                 <thead>
                     <tr>
                         <th>姓名</th>
@@ -253,7 +253,7 @@
             <ng-template #extraTemplate4>
                 <button nz-button nzSize="small" nzType="default" (click)="showAddMemberModal(false)">添加成员</button>
             </ng-template>
-            <nz-table #extendedTeamTable [nzData]="fmeaDoc?.extendedMembers || []" nzSize="small">
+            <nz-table #extendedTeamTable [nzData]="extendedMembers" nzSize="small">
                 <thead>
                     <tr>
                         <th>姓名</th>

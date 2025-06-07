@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
@@ -46,9 +46,10 @@ import { NzListModule } from 'ng-zorro-antd/list';
   styleUrls: ['./fmea-step1.component.css']
 })
 export class FmeaStep1Component implements OnInit {
+  fmeaDoc = input.required<FMEADto2 | null>();
+  coreMembers: TeamMemberDto[] = [];
+  extendedMembers: TeamMemberDto[] = [];
   fmeaForm!: FormGroup;
-  fmeaDoc: FMEADto2 | null = null;
-  isLoading = true;
   isEditing = false;
   
   // Member management
@@ -93,11 +94,17 @@ export class FmeaStep1Component implements OnInit {
   ) {}
 
   ngOnInit() {
+  }
+
+  ngOnChanges(){
     this.initFmeaForm();
     this.initMemberForm();
     this.initEditNoteForm();
-    this.loadFmeaData();
     this.loadEmployees();
+    if (this.fmeaDoc()) {
+      this.populateForm();
+      this.refreshMemberList();
+    }
   }
 
   loadEmployees() {
@@ -160,22 +167,9 @@ export class FmeaStep1Component implements OnInit {
     });
   }
 
-  loadFmeaData() {
-    this.isLoading = true;
-    this.fmeaService.apiFMEACodeCodeGet("FMEA-0001").subscribe({
-      next: (data) => {
-        this.fmeaDoc = data;
-        this.populateForm(data);
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.message.error('加载FMEA数据失败');
-        this.isLoading = false;
-      }
-    });
-  }
-
-  populateForm(data: FMEADto2) {
+  populateForm() {
+    console.log('Populating form with FMEA data');
+    var data = this.fmeaDoc();
     if (!data) return;
 
     this.fmeaForm.patchValue({
@@ -210,7 +204,7 @@ export class FmeaStep1Component implements OnInit {
   cancelEditing() {
     this.isEditing = false;
     this.fmeaForm.disable();
-    this.populateForm(this.fmeaDoc!);
+    this.populateForm();
   }
 
   saveChanges() {
@@ -234,21 +228,21 @@ export class FmeaStep1Component implements OnInit {
       updatedFmea.planDeadline = new Date(updatedFmea.planDeadline).toISOString();
     }
     
-    this.isLoading = true;
-    this.fmeaService.apiFMEACodeCodePut(updatedFmea.code!, updatedFmea).subscribe({
-      next: (data) => {
-        this.fmeaDoc = data;
-        this.message.success('保存成功');
-        this.isEditing = false;
-        this.fmeaForm.disable();
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Failed to save FMEA', err);
-        this.message.error('保存失败: ' + (err.error || err.message || '未知错误'));
-        this.isLoading = false;
-      }
-    });
+    // this.isLoading = true;
+    // this.fmeaService.apiFMEACodeCodePut(updatedFmea.code!, updatedFmea).subscribe({
+    //   next: (data) => {
+    //     this.fmeaDoc = data;
+    //     this.message.success('保存成功');
+    //     this.isEditing = false;
+    //     this.fmeaForm.disable();
+    //     this.isLoading = false;
+    //   },
+    //   error: (err) => {
+    //     console.error('Failed to save FMEA', err);
+    //     this.message.error('保存失败: ' + (err.error || err.message || '未知错误'));
+    //     this.isLoading = false;
+    //   }
+    // });
   }
 
   showAddMemberModal(isCoreTeam: boolean) {
@@ -269,7 +263,7 @@ export class FmeaStep1Component implements OnInit {
     this.isCoreTeamTab = isCoreTeam;
     this.currentEditIndex = index;
     
-    const membersList = isCoreTeam ? this.fmeaDoc?.coreMembers : this.fmeaDoc?.extendedMembers;
+    const membersList = isCoreTeam ? this.fmeaDoc()?.coreMembers : this.fmeaDoc()?.extendedMembers;
     if (!membersList || index < 0 || index >= membersList.length) return;
     
     this.currentMember = membersList[index];
@@ -292,12 +286,8 @@ export class FmeaStep1Component implements OnInit {
   }
 
   refreshMemberList() {
-    if (this.fmeaDoc?.coreMembers) {
-      this.fmeaDoc.coreMembers = [...this.fmeaDoc.coreMembers];
-    }
-    if (this.fmeaDoc?.extendedMembers) {
-      this.fmeaDoc.extendedMembers = [...this.fmeaDoc.extendedMembers];
-    }
+    this.coreMembers = [...this.fmeaDoc()?.coreMembers || []];
+    this.extendedMembers = [...this.fmeaDoc()?.extendedMembers || []];
   }
 
   addMember() {
@@ -320,27 +310,20 @@ export class FmeaStep1Component implements OnInit {
       this.memberForm.value.note || ''
     );
     
-    if (!this.fmeaDoc) return;
-    if (!this.fmeaDoc.coreMembers) {
-      this.fmeaDoc.coreMembers = [];
-    }
-    if (!this.fmeaDoc.extendedMembers) {
-      this.fmeaDoc.extendedMembers = [];
-    }
-
-    if (this.fmeaDoc.coreMembers.some(member => member.employeeNo === newMember.employeeNo)) {
+    if (!this.fmeaDoc()) return;
+    if (this.coreMembers.some(member => member.employeeNo === newMember.employeeNo)) {
       this.message.warning('该成员已存在于核心团队中');
       return;
     }
-    if (this.fmeaDoc.extendedMembers.some(member => member.employeeNo === newMember.employeeNo)) {
+    if (this.extendedMembers.some(member => member.employeeNo === newMember.employeeNo)) {
       this.message.warning('该成员已存在于扩展团队中');
       return;
     }
 
     if (this.isCoreTeamTab) {
-      this.fmeaDoc.coreMembers.push(newMember);
+      this.fmeaDoc()?.coreMembers?.push(newMember);
     } else {
-      this.fmeaDoc.extendedMembers.push(newMember);
+      this.fmeaDoc()?.extendedMembers?.push(newMember);
     }
 
     this.isAddingMember = false;
@@ -356,7 +339,7 @@ export class FmeaStep1Component implements OnInit {
 
     if (!this.fmeaDoc) return;
     
-    const membersList = this.isCoreTeamTab ? this.fmeaDoc.coreMembers : this.fmeaDoc.extendedMembers;
+    const membersList = this.isCoreTeamTab ? this.fmeaDoc()?.coreMembers : this.fmeaDoc()?.extendedMembers;
     if (!membersList || this.currentEditIndex >= membersList.length) return;
     
     membersList[this.currentEditIndex].note = this.editNoteForm.value.note || '';
@@ -370,7 +353,7 @@ export class FmeaStep1Component implements OnInit {
   removeMember(isCoreTeam: boolean, index: number) {
     if (!this.fmeaDoc) return;
     
-    const membersList = isCoreTeam ? this.fmeaDoc.coreMembers : this.fmeaDoc.extendedMembers;
+    const membersList = this.isCoreTeamTab ? this.fmeaDoc()?.coreMembers : this.fmeaDoc()?.extendedMembers;
     if (!membersList || index < 0 || index >= membersList.length) return;
     
     const member = membersList[index];

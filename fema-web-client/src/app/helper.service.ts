@@ -152,13 +152,16 @@ export class HelperService {
       }
     }
 
+    var hasChildrenStructures: boolean = data.childFMStructures != null && data.childFMStructures.length > 0;
+    var hasChildrenFunctions: boolean = includesFunc && data.seFunctions != null && data.seFunctions.length > 0;
+
     var node: NzTreeNodeOptions = {
       icon: 'setting',
       title: `${data.code}/${data.longName}`,
       key: String(data.code),
       expanded: true,
       child: null,
-      isLeaf: data.childFMStructures == null || data.childFMStructures.length == 0
+      isLeaf: !hasChildrenStructures && !hasChildrenFunctions,
     };
 
     if (data.childFMStructures != null) {

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component ,input} from '@angular/core';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTreeNodeOptions, NzTreeModule } from 'ng-zorro-antd/tree';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -20,21 +20,26 @@ export class FmeaStep3Component {
   constructor(private fmeaService: FMEAService, private helper: HelperService) { }
 
   ngOnInit() {
-    var doc = this.fmeaService.apiFMEACodeCodeGet("FMEA-0001");
-    doc.subscribe((data: FMEADto2) => {
-      this.femaDoc = this.helper.fillTreeLinks(data);
-
-      if (this.femaDoc.rootFMStructure) {
-        var roots= this.femaDoc.fmFunctions.filter(item => !item.parentFMFunctionCode);
-        this.fmFunctions = this.helper.flattenFunctions(roots);
-        
-        var rootNode = this.helper.generateTreeNodes(this.femaDoc.rootFMStructure, true);
-        this.nodes = rootNode.children || [];
-      }
-    });
   }
 
-    public femaDoc: FMEADto2|null = null;
+  ngOnChanges(){
+    this.refreshView();
+  }
+
+  refreshView() {
+    var rootFMStructure = this.fmeaDoc()?.rootFMStructure;
+    if (rootFMStructure) {
+      var rootNode = this.helper.generateTreeNodes(rootFMStructure, true);
+      this.nodes = rootNode.children || [];
+    }
+
+    var rootFMFunctions = this.fmeaDoc()?.fmFunctions.filter(item => !item.parentFMFunctionCode);
+    if (rootFMFunctions) {
+      this.fmFunctions = this.helper.flattenFunctions(rootFMFunctions);
+    }
+  }
+
+  fmeaDoc = input.required<FMEADto2 | null>();
   public fmFunctions: FMFunctionDto2[] = [];
   public nodes: NzTreeNodeOptions[] = [];
 }
