@@ -54,4 +54,28 @@ export class FmeaComponent {
   onIndexChange(index: number): void {
     this.step = index;
   }
+
+  onFemaDocUpdated($event: FMEADto2): void {
+    this.femaDoc = $event;
+    this.message.success('FMEA数据已更新'); 
+  }
+
+  onSaveFemaDoc(): void {
+    if (!this.femaDoc) {
+      this.message.error('FMEA数据未加载');
+      return;
+    }
+    this.isLoading = true;
+    this.fmeaService.apiFMEACodeCodePut(this.femaDoc.code!, this.femaDoc).subscribe({
+      next: (data) => {
+        this.femaDoc = data;
+        this.isLoading = false;
+        this.message.success('FMEA数据已保存');
+      },
+      error: (err) => {
+        this.message.error('保存FMEA数据失败');
+        this.isLoading = false;
+      }
+    });
+  }
 }

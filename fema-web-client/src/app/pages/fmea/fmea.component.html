@@ -4,8 +4,8 @@
             <div class="title">FMEAID编号/版本</div>
             <div>
                 <button class="header-btn" nz-button>暂存</button>
-                <button class="header-btn" nz-button nzType="primary">保存</button>
-                <button class="header-btn" nz-button nzType="primary">提交</button>
+                <button class="header-btn" nz-button nzType="primary" (click)="onSaveFemaDoc()">保存</button>
+                <button class="header-btn" nz-button nzType="primary" (click)="onSaveFemaDoc()">提交</button>
             </div>
         </div>
         <div class="header-row" nz-flex>
@@ -31,7 +31,7 @@
     </nz-header>
     <nz-content>
         <div *ngIf="step === 0">
-            <app-fmea-step1 [fmeaDoc]="femaDoc"></app-fmea-step1>
+            <app-fmea-step1 [fmeaDoc]="femaDoc" (femaDocUpdated)="onFemaDocUpdated($event)"></app-fmea-step1>
         </div>
         <div id="fmStructure" *ngIf="step === 1">
             <app-fmea-step2 [fmeaDoc]="femaDoc"></app-fmea-step2>
