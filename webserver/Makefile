@@ -5,7 +5,7 @@
 PROJECT_FILE = rongke.fema.csproj
 DB_CONTEXT = AppDbContext
 MIGRATION_NAME = AutoMigration_$(shell date +%Y%m%d_%H%M%S)
-PORT = 5000
+PORT = 5166
 
 # Default target
 .DEFAULT_GOAL := help
