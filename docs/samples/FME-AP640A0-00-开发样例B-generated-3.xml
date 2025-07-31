@@ -1,0 +1,694 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MSRFMEA PUBLIC "-//MSR//DTD MSR FMEA DTD:V2.1.2:LAI:IAI:XML:ML:MSRFMEA.DTD//EN" "MSRFMEA_2_1_2.ML.DTD">
+<MSRFMEA>
+  <ADMIN-DATA>
+    <LANGUAGE>
+    </LANGUAGE>
+    <USED-LANGUAGES>
+      <L-10 L=""></L-10>
+    </USED-LANGUAGES>
+  </ADMIN-DATA>
+  <FM-HEAD>
+    <COMPANIES>
+      <COMPANY ID="MSRFMEA" F-ID-CLASS="COMPANY">
+        <LONG-NAME>
+          <L-4 L="PRC">Siemens Industry Software GmbH</L-4>
+        </LONG-NAME>
+        <SHORT-NAME>Siemens Industry Software GmbH</SHORT-NAME>
+        <TEAM-MEMBERS>
+          <TEAM-MEMBER ID="PU1" F-ID-CLASS="TEAM-MEMBER">
+            <LONG-NAME>
+              <L-4 L="PRC">QMS-SERVICE</L-4>
+            </LONG-NAME>
+            <SHORT-NAME>Z9999</SHORT-NAME>
+            <CATEGORY>CAQUSER</CATEGORY>
+          </TEAM-MEMBER>
+        </TEAM-MEMBERS>
+      </COMPANY>
+    </COMPANIES>
+    <FM-TEAMS>
+      <FM-TEAM ID="T2002" F-ID-CLASS="FM-TEAM">
+        <LONG-NAME>
+          <L-4 L="PRC">QMS</L-4>
+        </LONG-NAME>
+        <SHORT-NAME>QMS</SHORT-NAME>
+        <TEAM-MEMBER-REFS>
+          <TEAM-MEMBER-REF F-ID-CLASS="TEAM-MEMBER" ID-REF="PU1"/>
+        </TEAM-MEMBER-REFS>
+        <MISC-DATA>
+          <MISC>
+            <MISC-VALUE FIELD-NAME="plantID">0001</MISC-VALUE>
+          </MISC>
+        </MISC-DATA>
+      </FM-TEAM>
+    </FM-TEAMS>
+  </FM-HEAD>
+  <FM-TOOL-DATA>
+    <FM-TOOL ID="QSYS-FMEA" F-ID-CLASS="FM-TOOL" T="2023.04.21 02:38:48">
+      <LONG-NAME>
+        <L-4 L="PRC">CAQ=QSYS FMEA Version 13.2.3.1</L-4>
+      </LONG-NAME>
+      <SHORT-NAME>QSYS-FMEA</SHORT-NAME>
+    </FM-TOOL>
+  </FM-TOOL-DATA>
+  <FM-STRUCTURES>
+    <FM-STRUCTURE ID="RS0000000" F-ID-CLASS="FM-STRUCTURE">
+      <LONG-NAME>
+        <L-4 L="PRC">领料Received material</L-4>
+      </LONG-NAME>
+      <CATEGORY>process</CATEGORY>
+      <FM-STRUCTURE-ROOT>
+        <FM-STRUCTURE-ELEMENT-REF ID-REF="S0000000" F-ID-CLASS="FM-STRUCTURE-ELEMENT" />
+      </FM-STRUCTURE-ROOT>
+    </FM-STRUCTURE>
+  </FM-STRUCTURES>
+  <FM-STRUCTURE-ELEMENTS>
+    <FM-STRUCTURE-ELEMENT ID="S0000000" T="2023.04.15 00:00:00" F-ID-CLASS="FM-STRUCTURE-ELEMENT">
+      <LONG-NAME>
+        <L-4 L="PRC">领料Received material</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">0</SHORT-NAME>
+      <CATEGORY>process</CATEGORY>
+      <FM-SE-DECOMPOSITION>
+        <FM-STRUCTURE-ELEMENT-REF ID-REF="S0000001" F-ID-CLASS="FM-STRUCTURE-ELEMENT" />
+      </FM-SE-DECOMPOSITION>
+      <FM-SE-FUNCTIONS>
+        <FM-FUNCTION-REF ID-REF="K0000000" F-ID-CLASS="FM-FUNCTION" />
+      </FM-SE-FUNCTIONS>
+      <SDGS>
+        <SDG GID="FMEAType">
+          <SDG-CAPTION>
+            <LONG-NAME>
+              <L-4 L="PRC">过程 FMEA</L-4>
+            </LONG-NAME>
+          </SDG-CAPTION>
+          <SD GID="FMEATypeIndex">4</SD>
+        </SDG>
+        <SDG SI="DICTIONARY" GID="root">
+          <SD SI="String" GID="plantID">AFTS</SD>
+          <SD GID="flags">68</SD>
+          <SD GID="teamID" ID-REF="T2002" ID-CLASS="FM-TEAM"/>
+        </SDG>
+      </SDGS>
+    </FM-STRUCTURE-ELEMENT>
+    <FM-STRUCTURE-ELEMENT ID="S0000001" T="2023.04.15 00:00:00" F-ID-CLASS="FM-STRUCTURE-ELEMENT">
+      <LONG-NAME>
+        <L-4 L="PRC">领料Received material</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">1</SHORT-NAME>
+      <CATEGORY>process</CATEGORY>
+      <FM-SE-DECOMPOSITION>
+        <FM-STRUCTURE-ELEMENT-REF ID-REF="S0000002" F-ID-CLASS="FM-STRUCTURE-ELEMENT" />
+        <FM-STRUCTURE-ELEMENT-REF ID-REF="S0000003" F-ID-CLASS="FM-STRUCTURE-ELEMENT" />
+      </FM-SE-DECOMPOSITION>
+      <FM-SE-FUNCTIONS>
+        <FM-FUNCTION-REF ID-REF="K0000001" F-ID-CLASS="FM-FUNCTION" />
+        <FM-FUNCTION-REF ID-REF="K0000002" F-ID-CLASS="FM-FUNCTION" />
+        <FM-FUNCTION-REF ID-REF="K0000003" F-ID-CLASS="FM-FUNCTION" />
+      </FM-SE-FUNCTIONS>
+      <SDGS>
+        <SDG GID="FMEAType">
+          <SDG-CAPTION>
+            <LONG-NAME>
+              <L-4 L="PRC">过程 FMEA</L-4>
+            </LONG-NAME>
+          </SDG-CAPTION>
+          <SD GID="FMEATypeIndex">4</SD>
+        </SDG>
+        <SDG SI="DICTIONARY" GID="root">
+          <SD SI="String" GID="plantID">AFTS</SD>
+          <SD GID="flags">68</SD>
+          <SD GID="teamID" ID-REF="T2002" ID-CLASS="FM-TEAM"/>
+        </SDG>
+      </SDGS>
+    </FM-STRUCTURE-ELEMENT>
+    <FM-STRUCTURE-ELEMENT ID="S0000002" T="2023.04.15 00:00:00" F-ID-CLASS="FM-STRUCTURE-ELEMENT">
+      <LONG-NAME>
+        <L-4 L="PRC">物料员Material handler</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">2</SHORT-NAME>
+      <CATEGORY>process</CATEGORY>
+      <FM-SE-DECOMPOSITION />
+      <FM-SE-FUNCTIONS>
+        <FM-FUNCTION-REF ID-REF="K0000004" F-ID-CLASS="FM-FUNCTION" />
+      </FM-SE-FUNCTIONS>
+      <SDGS>
+        <SDG GID="FMEAType">
+          <SDG-CAPTION>
+            <LONG-NAME>
+              <L-4 L="PRC">过程 FMEA</L-4>
+            </LONG-NAME>
+          </SDG-CAPTION>
+          <SD GID="FMEATypeIndex">4</SD>
+        </SDG>
+        <SDG SI="DICTIONARY" GID="root">
+          <SD SI="String" GID="plantID">AFTS</SD>
+          <SD GID="flags">68</SD>
+          <SD GID="teamID" ID-REF="T2002" ID-CLASS="FM-TEAM"/>
+        </SDG>
+      </SDGS>
+    </FM-STRUCTURE-ELEMENT>
+    <FM-STRUCTURE-ELEMENT ID="S0000003" T="2023.04.15 00:00:00" F-ID-CLASS="FM-STRUCTURE-ELEMENT">
+      <LONG-NAME>
+        <L-4 L="PRC">物料管控系统Material control system</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">3</SHORT-NAME>
+      <CATEGORY>process</CATEGORY>
+      <FM-SE-DECOMPOSITION />
+      <FM-SE-FUNCTIONS>
+        <FM-FUNCTION-REF ID-REF="K0000005" F-ID-CLASS="FM-FUNCTION" />
+        <FM-FUNCTION-REF ID-REF="K0000006" F-ID-CLASS="FM-FUNCTION" />
+      </FM-SE-FUNCTIONS>
+      <SDGS>
+        <SDG GID="FMEAType">
+          <SDG-CAPTION>
+            <LONG-NAME>
+              <L-4 L="PRC">过程 FMEA</L-4>
+            </LONG-NAME>
+          </SDG-CAPTION>
+          <SD GID="FMEATypeIndex">4</SD>
+        </SDG>
+        <SDG SI="DICTIONARY" GID="root">
+          <SD SI="String" GID="plantID">AFTS</SD>
+          <SD GID="flags">68</SD>
+          <SD GID="teamID" ID-REF="T2002" ID-CLASS="FM-TEAM"/>
+        </SDG>
+      </SDGS>
+    </FM-STRUCTURE-ELEMENT>
+  </FM-STRUCTURE-ELEMENTS>
+  <FM-FUNCTIONS>
+    <FM-FUNCTION ID="K0000000" T="2023.04.15 00:00:00" F-ID-CLASS="FM-FUNCTION">
+      <LONG-NAME>
+        <L-4 L="PRC">将产线所需材料发放至产线，并在系统中过账。Release the materials required by the production line to the production line and post them in the system.</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">1</SHORT-NAME>
+      <FM-PREREQUISITES>
+        <FM-FUNCTION-REF ID-REF="K0000001" F-ID-CLASS="FM-FUNCTION" />
+        <FM-FUNCTION-REF ID-REF="K0000002" F-ID-CLASS="FM-FUNCTION" />
+        <FM-FUNCTION-REF ID-REF="K0000003" F-ID-CLASS="FM-FUNCTION" />
+      </FM-PREREQUISITES>
+      <FM-FAULT-REFS>
+        <FM-FAULT-REF ID-REF="F0000000" F-ID-CLASS="FM-FAULT" />
+        <FM-FAULT-REF ID-REF="F0000001" F-ID-CLASS="FM-FAULT" />
+        <FM-FAULT-REF ID-REF="F0000002" F-ID-CLASS="FM-FAULT" />
+      </FM-FAULT-REFS>
+      <SDGS>
+        <SDG SI="DICTIONARY" GID="root">
+          <SD SI="String" GID="plantID">AFTS</SD>
+        </SDG>
+      </SDGS>
+    </FM-FUNCTION>
+    <FM-FUNCTION ID="K0000001" T="2023.04.15 00:00:00" F-ID-CLASS="FM-FUNCTION">
+      <LONG-NAME>
+        <L-4 L="PRC">将产品安全的从仓库移至生产线，并录入系统.Transfer the product safely from the warehouse to the workshop and keyin to system about material information.</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">2</SHORT-NAME>
+      <FM-PREREQUISITES>
+        <FM-FUNCTION-REF ID-REF="K0000004" F-ID-CLASS="FM-FUNCTION" />
+      </FM-PREREQUISITES>
+      <FM-FAULT-REFS>
+        <FM-FAULT-REF ID-REF="F0000003" F-ID-CLASS="FM-FAULT" />
+      </FM-FAULT-REFS>
+      <SDGS>
+        <SDG SI="DICTIONARY" GID="root">
+          <SD SI="String" GID="plantID">AFTS</SD>
+        </SDG>
+      </SDGS>
+    </FM-FUNCTION>
+    <FM-FUNCTION ID="K0000002" T="2023.04.15 00:00:00" F-ID-CLASS="FM-FUNCTION">
+      <LONG-NAME>
+        <L-4 L="PRC">发出正确的材料和数量Issue correct material and correct quantity</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">3</SHORT-NAME>
+      <FM-PREREQUISITES>
+        <FM-FUNCTION-REF ID-REF="K0000005" F-ID-CLASS="FM-FUNCTION" />
+      </FM-PREREQUISITES>
+      <FM-FAULT-REFS>
+        <FM-FAULT-REF ID-REF="F0000003" F-ID-CLASS="FM-FAULT" />
+      </FM-FAULT-REFS>
+      <SDGS>
+        <SDG SI="DICTIONARY" GID="root">
+          <SD SI="String" GID="plantID">AFTS</SD>
+        </SDG>
+      </SDGS>
+    </FM-FUNCTION>
+    <FM-FUNCTION ID="K0000003" T="2023.04.15 00:00:00" F-ID-CLASS="FM-FUNCTION">
+      <LONG-NAME>
+        <L-4 L="PRC">物料先进先出Materials must be first in first out</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">4</SHORT-NAME>
+      <FM-PREREQUISITES>
+        <FM-FUNCTION-REF ID-REF="K0000006" F-ID-CLASS="FM-FUNCTION" />
+      </FM-PREREQUISITES>
+      <FM-FAULT-REFS>
+        <FM-FAULT-REF ID-REF="F0000004" F-ID-CLASS="FM-FAULT" />
+      </FM-FAULT-REFS>
+      <SDGS>
+        <SDG SI="DICTIONARY" GID="root">
+          <SD SI="String" GID="plantID">AFTS</SD>
+        </SDG>
+      </SDGS>
+    </FM-FUNCTION>
+    <FM-FUNCTION ID="K0000004" T="2023.04.15 00:00:00" F-ID-CLASS="FM-FUNCTION">
+      <LONG-NAME>
+        <L-4 L="PRC">安全运输，数量正确safe transfor and correct quantity</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">5</SHORT-NAME>
+      <FM-PREREQUISITES />
+      <FM-FAULT-REFS>
+        <FM-FAULT-REF ID-REF="F0000005" F-ID-CLASS="FM-FAULT" />
+      </FM-FAULT-REFS>
+      <SDGS>
+        <SDG SI="DICTIONARY" GID="root">
+          <SD SI="String" GID="plantID">AFTS</SD>
+        </SDG>
+      </SDGS>
+    </FM-FUNCTION>
+    <FM-FUNCTION ID="K0000005" T="2023.04.15 00:00:00" F-ID-CLASS="FM-FUNCTION">
+      <LONG-NAME>
+        <L-4 L="PRC">发出正确的材料和数量Issue correct material and correct quantity</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">6</SHORT-NAME>
+      <FM-PREREQUISITES />
+      <FM-FAULT-REFS>
+        <FM-FAULT-REF ID-REF="F0000006" F-ID-CLASS="FM-FAULT" />
+      </FM-FAULT-REFS>
+      <SDGS>
+        <SDG SI="DICTIONARY" GID="root">
+          <SD SI="String" GID="plantID">AFTS</SD>
+        </SDG>
+      </SDGS>
+    </FM-FUNCTION>
+    <FM-FUNCTION ID="K0000006" T="2023.04.15 00:00:00" F-ID-CLASS="FM-FUNCTION">
+      <LONG-NAME>
+        <L-4 L="PRC">物料先进先出Materials must be first in first out</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">7</SHORT-NAME>
+      <FM-PREREQUISITES>
+        <FM-CHARACTERISTIC-REF ID-REF="MM0" F-ID-CLASS="FM-CHARACTERISTIC" />
+        <FM-CHARACTERISTIC-REF ID-REF="MM1" F-ID-CLASS="FM-CHARACTERISTIC" />
+        <FM-CHARACTERISTIC-REF ID-REF="MM2" F-ID-CLASS="FM-CHARACTERISTIC" />
+      </FM-PREREQUISITES>
+      <FM-FAULT-REFS>
+        <FM-FAULT-REF ID-REF="F0000007" F-ID-CLASS="FM-FAULT" />
+      </FM-FAULT-REFS>
+      <SDGS>
+        <SDG SI="DICTIONARY" GID="root">
+          <SD SI="String" GID="plantID">AFTS</SD>
+        </SDG>
+      </SDGS>
+    </FM-FUNCTION>
+  </FM-FUNCTIONS>
+  <FM-CHARACTERISTICS>
+    <FM-CHARACTERISTIC ID="MM0" F-ID-CLASS="FM-CHARACTERISTIC">
+      <LONG-NAME>
+        <L-4 L="PRC">尺寸</L-4>
+      </LONG-NAME>
+      <SHORT-NAME>VAR-62002</SHORT-NAME>
+      <PRMS>
+        <PRM ID="MM0prm_var" F-ID-CLASS="PRM">
+          <LONG-NAME>
+            <L-4 L="PRC">VAR</L-4>
+          </LONG-NAME>
+          <SHORT-NAME>VAR</SHORT-NAME>
+          <PRM-CHAR>
+            <MIN>49</MIN>
+            <TYP>56</TYP>
+            <MAX>63</MAX>
+            <UNIT>
+              <L-3 L="PRC">cm</L-3>
+            </UNIT>
+          </PRM-CHAR>
+          <PRM-CHAR>
+            <TEXT>
+              <L-3 L="PRC">Limitation=4;Distribution=1;DecimalPrecision=4</L-3>
+            </TEXT>
+          </PRM-CHAR>
+        </PRM>
+      </PRMS>
+      <SDGS>
+        <SDG SI="DICTIONARY" GID="root">
+          <SD SI="String" GID="type">VAR</SD>
+          <SD SI="String" GID="plantID">AFTS</SD>
+          <SD SI="SmallInteger" GID="importance">2</SD>
+          <SD SI="String" GID="classification">Critical</SD>
+        </SDG>
+      </SDGS>
+    </FM-CHARACTERISTIC>
+    <FM-CHARACTERISTIC ID="MM1" F-ID-CLASS="FM-CHARACTERISTIC">
+      <LONG-NAME>
+        <L-4 L="PRC">物料先进先出</L-4>
+      </LONG-NAME>
+      <SHORT-NAME>ATT-103002</SHORT-NAME>
+      <PRMS>
+        <PRM ID="MM1prmok" F-ID-CLASS="PRM">
+          <LONG-NAME>
+            <L-4 L="PRC">OK</L-4>
+          </LONG-NAME>
+          <SHORT-NAME>OK</SHORT-NAME>
+          <PRM-CHAR>
+            <TEXT>
+              <L-3 L="PRC">不包含</L-3>
+            </TEXT>
+          </PRM-CHAR>
+        </PRM>
+        <PRM ID="MM1prmnok" F-ID-CLASS="PRM">
+          <LONG-NAME>
+            <L-4 L="PRC">NOK</L-4>
+          </LONG-NAME>
+          <SHORT-NAME>NOK</SHORT-NAME>
+          <PRM-CHAR>
+            <TEXT>
+              <L-3 L="PRC">包含缺陷</L-3>
+            </TEXT>
+          </PRM-CHAR>
+        </PRM>
+      </PRMS>
+      <SDGS>
+        <SDG SI="DICTIONARY" GID="root">
+          <SD SI="String" GID="type">ATT</SD>
+          <SD SI="String" GID="plantID">AFTS</SD>
+          <SD SI="SmallInteger" GID="importance">2</SD>
+          <SD SI="String" GID="classification">Critical</SD>
+        </SDG>
+      </SDGS>
+    </FM-CHARACTERISTIC>
+    <FM-CHARACTERISTIC ID="MM2" F-ID-CLASS="FM-CHARACTERISTIC">
+      <LONG-NAME>
+        <L-4 L="PRC">包装情况</L-4>
+      </LONG-NAME>
+      <SHORT-NAME>FEKAT-122002</SHORT-NAME>
+      <SDGS>
+        <SDG SI="DICTIONARY" GID="root">
+          <SD SI="String" GID="type">VIS</SD>
+          <SD SI="String" GID="plantID">AFTS</SD>
+          <SD SI="SmallInteger" GID="importance">2</SD>
+          <SD SI="String" GID="classification">Critical</SD>
+        </SDG>
+      </SDGS>
+    </FM-CHARACTERISTIC>
+  </FM-CHARACTERISTICS>
+
+  <FM-FAULTS>
+    <FM-FAULT ID="F0000000" T="2023.04.15 00:00:00" F-ID-CLASS="FM-FAULT">
+      <LONG-NAME>
+        <L-4 L="PRC">呆料及缺少数量wait for material and lack of quantity</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">1</SHORT-NAME>
+      <FM-SIGNIFICANCE>
+        <RISK-PRIORITY-FACTOR>1</RISK-PRIORITY-FACTOR>
+      </FM-SIGNIFICANCE>
+      <FM-TASK-HISTORY />
+    </FM-FAULT>
+    <FM-FAULT ID="F0000001" T="2023.04.15 00:00:00" F-ID-CLASS="FM-FAULT">
+      <LONG-NAME>
+        <L-4 L="PRC">呆料及缺少数量wait for material and lack of quantity</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">2</SHORT-NAME>
+      <FM-SIGNIFICANCE>
+        <RISK-PRIORITY-FACTOR>1</RISK-PRIORITY-FACTOR>
+      </FM-SIGNIFICANCE>
+      <FM-TASK-HISTORY />
+    </FM-FAULT>
+    <FM-FAULT ID="F0000002" T="2023.04.15 00:00:00" F-ID-CLASS="FM-FAULT">
+      <LONG-NAME>
+        <L-4 L="PRC">部分材料过期Some materials are out of date</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">3</SHORT-NAME>
+      <FM-SIGNIFICANCE>
+        <RISK-PRIORITY-FACTOR>1</RISK-PRIORITY-FACTOR>
+      </FM-SIGNIFICANCE>
+      <FM-TASK-HISTORY />
+    </FM-FAULT>
+    <FM-FAULT ID="F0000003" T="2023.04.15 00:00:00" F-ID-CLASS="FM-FAULT">
+      <LONG-NAME>
+        <L-4 L="PRC">系统记录与实际不符合The system record does not conform to the actual situation</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">4</SHORT-NAME>
+      <FM-SIGNIFICANCE>
+        <RISK-PRIORITY-FACTOR>1</RISK-PRIORITY-FACTOR>
+      </FM-SIGNIFICANCE>
+      <FM-TASK-HISTORY />
+    </FM-FAULT>
+    <FM-FAULT ID="F0000004" T="2023.04.15 00:00:00" F-ID-CLASS="FM-FAULT">
+      <LONG-NAME>
+        <L-4 L="PRC">部分物料一直在仓库，未使用过Some materials have been in the warehouse and have not been used</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">5</SHORT-NAME>
+      <FM-SIGNIFICANCE>
+        <RISK-PRIORITY-FACTOR>1</RISK-PRIORITY-FACTOR>
+      </FM-SIGNIFICANCE>
+      <FM-TASK-HISTORY />
+    </FM-FAULT>
+    <FM-FAULT ID="F0000005" T="2023.04.15 00:00:00" F-ID-CLASS="FM-FAULT">
+      <LONG-NAME>
+        <L-4 L="PRC">人员疏忽Personnel negligence</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">6</SHORT-NAME>
+      <FM-SIGNIFICANCE>
+        <RISK-PRIORITY-FACTOR>1</RISK-PRIORITY-FACTOR>
+      </FM-SIGNIFICANCE>
+      <FM-TASK-HISTORY>
+        <FM-TASK-SETS ID="MDS000000" T="2023.04.15 00:00:00" F-ID-CLASS="FM-TASK-SETS">
+          <LONG-NAME>
+            <L-4 L="PRC">MDS000000</L-4>
+          </LONG-NAME>
+          <DATE-1>2023.04.15 00:00:00</DATE-1>
+          <FM-TASK-SET ID="MD000000" T="2023.04.15 00:00:00" F-ID-CLASS="FM-TASK-SET">
+            <LONG-NAME>
+              <L-4 L="PRC">MD000000</L-4>
+            </LONG-NAME>
+            <FM-DETECTION-TASKS>
+              <RISK-PRIORITY-FACTOR>4</RISK-PRIORITY-FACTOR>
+              <FM-ACTION-REF ID-REF="ME0000003" F-ID-CLASS="FM-ACTION" />
+            </FM-DETECTION-TASKS>
+            <FM-OCCURRENCE-TASKS>
+              <RISK-PRIORITY-FACTOR>3</RISK-PRIORITY-FACTOR>
+              <FM-ACTION-REF ID-REF="ME0000000" F-ID-CLASS="FM-ACTION" />
+            </FM-OCCURRENCE-TASKS>
+          </FM-TASK-SET>
+        </FM-TASK-SETS>
+      </FM-TASK-HISTORY>
+    </FM-FAULT>
+    <FM-FAULT ID="F0000006" T="2023.04.15 00:00:00" F-ID-CLASS="FM-FAULT">
+      <LONG-NAME>
+        <L-4 L="PRC">人员深入系统数据错误Personnel input system data error</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">7</SHORT-NAME>
+      <FM-SIGNIFICANCE>
+        <RISK-PRIORITY-FACTOR>1</RISK-PRIORITY-FACTOR>
+      </FM-SIGNIFICANCE>
+      <FM-TASK-HISTORY>
+        <FM-TASK-SETS ID="MDS000001" T="2023.04.15 00:00:00" F-ID-CLASS="FM-TASK-SETS">
+          <LONG-NAME>
+            <L-4 L="PRC">MDS000001</L-4>
+          </LONG-NAME>
+          <DATE-1>2023.04.15 00:00:00</DATE-1>
+          <FM-TASK-SET ID="MD000001" T="2023.04.15 00:00:00" F-ID-CLASS="FM-TASK-SET">
+            <LONG-NAME>
+              <L-4 L="PRC">MD000001</L-4>
+            </LONG-NAME>
+            <FM-DETECTION-TASKS>
+              <RISK-PRIORITY-FACTOR>4</RISK-PRIORITY-FACTOR>
+              <FM-ACTION-REF ID-REF="ME0000004" F-ID-CLASS="FM-ACTION" />
+            </FM-DETECTION-TASKS>
+            <FM-OCCURRENCE-TASKS>
+              <RISK-PRIORITY-FACTOR>3</RISK-PRIORITY-FACTOR>
+              <FM-ACTION-REF ID-REF="ME0000001" F-ID-CLASS="FM-ACTION" />
+            </FM-OCCURRENCE-TASKS>
+          </FM-TASK-SET>
+        </FM-TASK-SETS>
+      </FM-TASK-HISTORY>
+    </FM-FAULT>
+    <FM-FAULT ID="F0000007" T="2023.04.15 00:00:00" F-ID-CLASS="FM-FAULT">
+      <LONG-NAME>
+        <L-4 L="PRC">人员疏忽Personnel negligence</L-4>
+      </LONG-NAME>
+      <SHORT-NAME SI="AUTONUMBER">8</SHORT-NAME>
+      <FM-SIGNIFICANCE>
+        <RISK-PRIORITY-FACTOR>1</RISK-PRIORITY-FACTOR>
+      </FM-SIGNIFICANCE>
+      <FM-TASK-HISTORY>
+        <FM-TASK-SETS ID="MDS000002" T="2023.04.15 00:00:00" F-ID-CLASS="FM-TASK-SETS">
+          <LONG-NAME>
+            <L-4 L="PRC">MDS000002</L-4>
+          </LONG-NAME>
+          <DATE-1>2023.04.15 00:00:00</DATE-1>
+          <FM-TASK-SET ID="MD000002" T="2023.04.15 00:00:00" F-ID-CLASS="FM-TASK-SET">
+            <LONG-NAME>
+              <L-4 L="PRC">MD000002</L-4>
+            </LONG-NAME>
+            <FM-DETECTION-TASKS>
+              <RISK-PRIORITY-FACTOR>3</RISK-PRIORITY-FACTOR>
+              <FM-ACTION-REF ID-REF="ME0000005" F-ID-CLASS="FM-ACTION" />
+            </FM-DETECTION-TASKS>
+            <FM-OCCURRENCE-TASKS>
+              <RISK-PRIORITY-FACTOR>3</RISK-PRIORITY-FACTOR>
+              <FM-ACTION-REF ID-REF="ME0000002" F-ID-CLASS="FM-ACTION" />
+            </FM-OCCURRENCE-TASKS>
+          </FM-TASK-SET>
+        </FM-TASK-SETS>
+      </FM-TASK-HISTORY>
+    </FM-FAULT>
+  </FM-FAULTS>
+  <FM-ACTIONS>
+    <FM-ACTION ID="ME0000000" T="2023.04.15 00:00:00" F-ID-CLASS="FM-ACTION">
+      <LONG-NAME>
+        <L-4 L="PRC">所有信息由系统打印，并扫描确认All information is printed by the system and scanned for confirmation</L-4>
+      </LONG-NAME>
+      <CATEGORY>FM-ACTION-OCCURRENCE</CATEGORY>
+      <TEAM-MEMBER-REF ID-REF="PU1" F-ID-CLASS="TEAM-MEMBER" />
+      <FM-TASK-SCHEDULE>
+        <DATE-1>2023.04.15 00:00:00</DATE-1>
+      </FM-TASK-SCHEDULE>
+      <FM-ACTION-STATE>untouched</FM-ACTION-STATE>
+      <FM-HISTORY-STATES>
+        <FM-HISTORY-STATE>
+          <TEAM-MEMBER-REF ID-REF="PU1" F-ID-CLASS="TEAM-MEMBER" />
+          <FM-TASK-SCHEDULE>
+            <DATE-1>2023.04.15 00:00:00</DATE-1>
+          </FM-TASK-SCHEDULE>
+          <FM-ACTION-STATE>untouched</FM-ACTION-STATE>
+        </FM-HISTORY-STATE>
+      </FM-HISTORY-STATES>
+    </FM-ACTION>
+    <FM-ACTION ID="ME0000001" T="2023.04.15 00:00:00" F-ID-CLASS="FM-ACTION">
+      <LONG-NAME>
+        <L-4 L="PRC">所有信息由系统打印，并扫描确认All information is printed by the system and scanned for confirmation</L-4>
+      </LONG-NAME>
+      <CATEGORY>FM-ACTION-OCCURRENCE</CATEGORY>
+      <TEAM-MEMBER-REF ID-REF="PU1" F-ID-CLASS="TEAM-MEMBER" />
+      <FM-TASK-SCHEDULE>
+        <DATE-1>2023.04.15 00:00:00</DATE-1>
+      </FM-TASK-SCHEDULE>
+      <FM-ACTION-STATE>untouched</FM-ACTION-STATE>
+      <FM-HISTORY-STATES>
+        <FM-HISTORY-STATE>
+          <TEAM-MEMBER-REF ID-REF="PU1" F-ID-CLASS="TEAM-MEMBER" />
+          <FM-TASK-SCHEDULE>
+            <DATE-1>2023.04.15 00:00:00</DATE-1>
+          </FM-TASK-SCHEDULE>
+          <FM-ACTION-STATE>untouched</FM-ACTION-STATE>
+        </FM-HISTORY-STATE>
+      </FM-HISTORY-STATES>
+    </FM-ACTION>
+    <FM-ACTION ID="ME0000002" T="2023.04.15 00:00:00" F-ID-CLASS="FM-ACTION">
+      <LONG-NAME>
+        <L-4 L="PRC">使用物料管理系统use material control system</L-4>
+      </LONG-NAME>
+      <CATEGORY>FM-ACTION-OCCURRENCE</CATEGORY>
+      <TEAM-MEMBER-REF ID-REF="PU1" F-ID-CLASS="TEAM-MEMBER" />
+      <FM-TASK-SCHEDULE>
+        <DATE-1>2023.04.15 00:00:00</DATE-1>
+      </FM-TASK-SCHEDULE>
+      <FM-ACTION-STATE>untouched</FM-ACTION-STATE>
+      <FM-HISTORY-STATES>
+        <FM-HISTORY-STATE>
+          <TEAM-MEMBER-REF ID-REF="PU1" F-ID-CLASS="TEAM-MEMBER" />
+          <FM-TASK-SCHEDULE>
+            <DATE-1>2023.04.15 00:00:00</DATE-1>
+          </FM-TASK-SCHEDULE>
+          <FM-ACTION-STATE>untouched</FM-ACTION-STATE>
+        </FM-HISTORY-STATE>
+      </FM-HISTORY-STATES>
+    </FM-ACTION>
+    <FM-ACTION ID="ME0000003" T="2023.04.15 00:00:00" F-ID-CLASS="FM-ACTION">
+      <LONG-NAME>
+        <L-4 L="PRC">出入库使用扫描确认，禁止手工记账Receipt / issue is confirmed by scanning. Manual bookkeeping is prohibited</L-4>
+      </LONG-NAME>
+      <CATEGORY>FM-ACTION-DETECT</CATEGORY>
+      <TEAM-MEMBER-REF ID-REF="PU1" F-ID-CLASS="TEAM-MEMBER" />
+      <FM-TASK-SCHEDULE>
+        <DATE-1>2023.04.15 00:00:00</DATE-1>
+      </FM-TASK-SCHEDULE>
+      <FM-ACTION-STATE>untouched</FM-ACTION-STATE>
+      <FM-HISTORY-STATES>
+        <FM-HISTORY-STATE>
+          <TEAM-MEMBER-REF ID-REF="PU1" F-ID-CLASS="TEAM-MEMBER" />
+          <FM-TASK-SCHEDULE>
+            <DATE-1>2023.04.15 00:00:00</DATE-1>
+          </FM-TASK-SCHEDULE>
+          <FM-ACTION-STATE>untouched</FM-ACTION-STATE>
+        </FM-HISTORY-STATE>
+      </FM-HISTORY-STATES>
+    </FM-ACTION>
+    <FM-ACTION ID="ME0000004" T="2023.04.15 00:00:00" F-ID-CLASS="FM-ACTION">
+      <LONG-NAME>
+        <L-4 L="PRC">出入库使用扫描确认，禁止手工记账Receipt / issue is confirmed by scanning. Manual bookkeeping is prohibited</L-4>
+      </LONG-NAME>
+      <CATEGORY>FM-ACTION-DETECT</CATEGORY>
+      <TEAM-MEMBER-REF ID-REF="PU1" F-ID-CLASS="TEAM-MEMBER" />
+      <FM-TASK-SCHEDULE>
+        <DATE-1>2023.04.15 00:00:00</DATE-1>
+      </FM-TASK-SCHEDULE>
+      <FM-ACTION-STATE>untouched</FM-ACTION-STATE>
+      <FM-HISTORY-STATES>
+        <FM-HISTORY-STATE>
+          <TEAM-MEMBER-REF ID-REF="PU1" F-ID-CLASS="TEAM-MEMBER" />
+          <FM-TASK-SCHEDULE>
+            <DATE-1>2023.04.15 00:00:00</DATE-1>
+          </FM-TASK-SCHEDULE>
+          <FM-ACTION-STATE>untouched</FM-ACTION-STATE>
+        </FM-HISTORY-STATE>
+      </FM-HISTORY-STATES>
+    </FM-ACTION>
+    <FM-ACTION ID="ME0000005" T="2023.04.15 00:00:00" F-ID-CLASS="FM-ACTION">
+      <LONG-NAME>
+        <L-4 L="PRC">出入库使用扫描确认，系统管控Receipt / issue is confirmed by scanning. System control</L-4>
+      </LONG-NAME>
+      <CATEGORY>FM-ACTION-DETECT</CATEGORY>
+      <TEAM-MEMBER-REF ID-REF="PU1" F-ID-CLASS="TEAM-MEMBER" />
+      <FM-TASK-SCHEDULE>
+        <DATE-1>2023.04.15 00:00:00</DATE-1>
+      </FM-TASK-SCHEDULE>
+      <FM-ACTION-STATE>untouched</FM-ACTION-STATE>
+      <FM-HISTORY-STATES>
+        <FM-HISTORY-STATE>
+          <TEAM-MEMBER-REF ID-REF="PU1" F-ID-CLASS="TEAM-MEMBER" />
+          <FM-TASK-SCHEDULE>
+            <DATE-1>2023.04.15 00:00:00</DATE-1>
+          </FM-TASK-SCHEDULE>
+          <FM-ACTION-STATE>untouched</FM-ACTION-STATE>
+        </FM-HISTORY-STATE>
+      </FM-HISTORY-STATES>
+    </FM-ACTION>
+  </FM-ACTIONS>
+
+  <FM-FORM-SHEETS>
+    <FM-FORM-SHEET ID="FS0" F-ID-CLASS="FM-FORM-SHEET">
+      <LONG-NAME>
+        <L-4 L="PRC">领料Received material</L-4>
+      </LONG-NAME>
+      <SHORT-NAME>1.0</SHORT-NAME>
+      <FM-STRUCTURE-ELEMENT-REFS>
+        <FM-STRUCTURE-ELEMENT-REF F-ID-CLASS="FM-STRUCTURE-ELEMENT" ID-REF="S0000000"/>
+      </FM-STRUCTURE-ELEMENT-REFS>
+      <FM-FORM-HEADER SI="fmFormHeader">
+        <MISC-DATA>
+          <MISC>
+            <MISC-VALUE FIELD-NAME="headerFmeaDate" SI="String">2023.02.06 15:11:22</MISC-VALUE>
+          </MISC>
+          <MISC>
+            <MISC-VALUE FIELD-NAME="headerFmeaRevDate" SI="String">2023.04.06 19:50:23</MISC-VALUE>
+          </MISC>
+          <MISC>
+            <MISC-VALUE FIELD-NAME="headerFmeaNumber" SI="String">FMEA000350</MISC-VALUE>
+          </MISC>
+          <MISC>
+            <MISC-VALUE SI="String" FIELD-NAME="headerFmeaDepartament">Production</MISC-VALUE>
+          </MISC>
+          <MISC>
+            <MISC-VALUE FIELD-NAME="headerKeyDate" SI="String">2023.04.07 02:46:08</MISC-VALUE>
+          </MISC>
+          <MISC>
+            <MISC-VALUE FIELD-NAME="headerCompany" SI="String">Siemens Industry Software GmbH</MISC-VALUE>
+          </MISC>
+          <MISC>
+            <MISC-VALUE FIELD-NAME="headerLocation" SI="String">AFTS</MISC-VALUE>
+          </MISC>
+        </MISC-DATA>
+      </FM-FORM-HEADER>
+    </FM-FORM-SHEET>
+  </FM-FORM-SHEETS>
+
+</MSRFMEA>
