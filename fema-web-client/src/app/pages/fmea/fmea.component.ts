@@ -68,7 +68,7 @@ export class FmeaComponent {
     this.isLoading = true;
     this.fmeaService.apiFMEACodeCodePut(this.femaDoc.code!, this.femaDoc).subscribe({
       next: (data) => {
-        this.femaDoc = data;
+        this.femaDoc = this.helper.fillTreeLinks(data);
         this.isLoading = false;
         this.message.success('FMEA数据已保存');
       },

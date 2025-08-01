@@ -13,6 +13,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { HelperService } from '../helper.service';
 import { NzContextMenuService, NzDropdownMenuComponent, NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzModalModule } from 'ng-zorro-antd/modal';
+import { Output, EventEmitter } from '@angular/core';
 import {
   AbstractControl,
   NonNullableFormBuilder,
@@ -38,6 +39,7 @@ export class FmeaStep2Component {
     this.refreshView();
   }
 
+  internalFmeaDoc : FMEADto2 | null = null;
   private fb = inject(NonNullableFormBuilder);
   public editForm = this.fb.group({
     code: ['', [Validators.required]],
@@ -57,11 +59,16 @@ export class FmeaStep2Component {
   }
 
   refreshView() {
-    var rootFMStructure = this.fmeaDoc()?.rootFMStructure;
-    if (rootFMStructure) {
-      var rootNode = this.helper.generateTreeNodes(rootFMStructure, false);
+    if (this.internalFmeaDoc == null && this.fmeaDoc() !== null) {
+          this.internalFmeaDoc = this.fmeaDoc()!;
+    }
+
+    console.log('refreshView', this.internalFmeaDoc);
+    if (this.internalFmeaDoc?.rootFMStructure) {
+      var rootNode = this.helper.generateTreeNodes(this.internalFmeaDoc.rootFMStructure, false);
       this.nodes = rootNode.children || [];
-      this.fmStructures = this.helper.flattenFMStructures(rootFMStructure.childFMStructures);
+      console.log('refreshView', this.nodes);
+      this.fmStructures = this.helper.flattenFMStructures(this.internalFmeaDoc.rootFMStructure.childFMStructures);
     }
   }
 
@@ -99,6 +106,8 @@ export class FmeaStep2Component {
       this.selectedStructure.shortName = this.editForm.value.shortName!;
       this.selectedStructure.category = this.editForm.value.category!;
       this.refreshView();
+      
+      this.femaDocUpdated.emit(this.internalFmeaDoc!);
     }
   }
 
@@ -111,6 +120,7 @@ export class FmeaStep2Component {
   }
 
 
+  @Output() femaDocUpdated = new EventEmitter<FMEADto2>();
   fmeaDoc = input.required<FMEADto2 | null>();
   public selectedStructure: FMStructureDto2 = {
     code: '',

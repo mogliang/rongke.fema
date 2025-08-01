@@ -34,7 +34,7 @@
             <app-fmea-step1 [fmeaDoc]="femaDoc" (femaDocUpdated)="onFemaDocUpdated($event)"></app-fmea-step1>
         </div>
         <div id="fmStructure" *ngIf="step === 1">
-            <app-fmea-step2 [fmeaDoc]="femaDoc"></app-fmea-step2>
+            <app-fmea-step2 [fmeaDoc]="femaDoc" (femaDocUpdated)="onFemaDocUpdated($event)"></app-fmea-step2>
         </div>
         <div id="fmFunction" *ngIf="step === 2">
             <app-fmea-step3 [fmeaDoc]="femaDoc"></app-fmea-step3>
