@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Rongke.Fema.Data;
 using Rongke.Fema.Dto;
+using Rongke.Fema.Domain;
 
 namespace Rongke.Fema.Controllers
 {
@@ -52,7 +53,7 @@ namespace Rongke.Fema.Controllers
                 .Include(s => s.ParentFMStructureRef)
                 .ToListAsync();
             fmeaDto.FMStructures = _mapper.Map<List<FMStructureDto2>>(structures);
-            fmeaDto.RootFMStructure = fmeaDto.FMStructures.FirstOrDefault(s => s.ParentFMStructureCode == null);
+            fmeaDto.RootFMStructure = fmeaDto.FMStructures.FirstOrDefault(s => s.ParentFMStructureCode == null) ?? new FMStructureDto2();
 
             // Get all functions with their relationships
             var functions = await _context.FMFunctions
@@ -159,6 +160,12 @@ namespace Rongke.Fema.Controllers
                 fmea.ExtendedMembers = _mapper.Map<List<TeamMember>>(fmeaDto.ExtendedMembers);
             }
 
+            // Save FMEA structures
+            if (fmeaDto.RootFMStructure != null || fmeaDto.FMStructures?.Any() == true)
+            {
+                await SaveFmeaStructures(code, fmeaDto);
+            }
+
             try
             {
                 await _context.SaveChangesAsync();
@@ -181,6 +188,142 @@ namespace Rongke.Fema.Controllers
 
             // Return the updated FMEA DTO
             return await GetByCode(code);
+        }
+
+        private async Task SaveFmeaStructures(string code, FMEADto2 fmeaDto)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                Console.WriteLine($"Starting SaveFmeaStructures for FMEA code: {code}");
+
+                // Initialize the validator
+                var validator = new StructureHierarchyValidator();
+
+                // Get all existing structures for this FMEA
+                var existingStructures = await _context.FMStructures
+                    .Include(s => s.ParentFMStructureRef)
+                    .ToListAsync();
+
+                Console.WriteLine($"Found {existingStructures.Count} existing structures in database");
+
+                // Flatten the incoming DTO structure tree into a list
+                var incomingStructures = new List<FMStructureDto2>();
+                if (fmeaDto.RootFMStructure != null)
+                {
+                    if (!validator.FlattenStructures(fmeaDto.RootFMStructure, incomingStructures))
+                    {
+                        throw new InvalidOperationException("Circular reference detected in incoming structure hierarchy");
+                    }
+                }
+
+                Console.WriteLine($"Flattened {incomingStructures.Count} incoming structures from DTO");
+
+                // Validate the incoming structure hierarchy for circular references
+                if (!validator.ValidateHierarchy(incomingStructures))
+                {
+                    throw new InvalidOperationException("Invalid structure hierarchy: circular references detected");
+                }
+
+                Console.WriteLine("Structure hierarchy validation passed");
+
+                var existingCodes = existingStructures.Select(s => s.Code).ToHashSet();
+                var incomingCodes = incomingStructures.Select(s => s.Code).ToHashSet();
+
+                // 1. Update existing structures
+                foreach (var incomingStructure in incomingStructures)
+                {
+                    var existingStructure = existingStructures.FirstOrDefault(s => s.Code == incomingStructure.Code);
+                    
+                    if (existingStructure != null)
+                    {
+                        Console.WriteLine($"Updating existing structure: {incomingStructure.Code}");
+                        
+                        // Update properties
+                        existingStructure.LongName = incomingStructure.LongName;
+                        existingStructure.ShortName = incomingStructure.ShortName;
+                        existingStructure.Category = incomingStructure.Category;
+                        
+                        // Update parent relationship
+                        if (!string.IsNullOrEmpty(incomingStructure.ParentFMStructureCode))
+                        {
+                            var parentStructure = existingStructures.FirstOrDefault(s => s.Code == incomingStructure.ParentFMStructureCode);
+                            if (parentStructure != null)
+                            {
+                                existingStructure.ParentFMStructureId = parentStructure.Id;
+                                existingStructure.Level = validator.CalculateLevel(incomingStructure.Code, incomingStructures);
+                            }
+                        }
+                        else
+                        {
+                            existingStructure.ParentFMStructureId = null;
+                            existingStructure.Level = 1; // Root level
+                        }
+
+                        _context.FMStructures.Update(existingStructure);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Creating new structure: {incomingStructure.Code}");
+                        
+                        // Create new structure
+                        var newStructure = new FMStructure
+                        {
+                            Code = incomingStructure.Code,
+                            LongName = incomingStructure.LongName,
+                            ShortName = incomingStructure.ShortName,
+                            Category = incomingStructure.Category,
+                            Level = validator.CalculateLevel(incomingStructure.Code, incomingStructures),
+                            ImportCode = string.Empty
+                        };
+
+                        _context.FMStructures.Add(newStructure);
+                    }
+                }
+
+                // Save changes to get IDs for new structures
+                await _context.SaveChangesAsync();
+                Console.WriteLine("Saved initial structure changes");
+
+                // Reload structures to get updated IDs
+                var updatedStructures = await _context.FMStructures.ToListAsync();
+
+                // 2. Update parent references for new structures
+                foreach (var incomingStructure in incomingStructures)
+                {
+                    if (!string.IsNullOrEmpty(incomingStructure.ParentFMStructureCode))
+                    {
+                        var structure = updatedStructures.FirstOrDefault(s => s.Code == incomingStructure.Code);
+                        var parentStructure = updatedStructures.FirstOrDefault(s => s.Code == incomingStructure.ParentFMStructureCode);
+                        
+                        if (structure != null && parentStructure != null && structure.ParentFMStructureId != parentStructure.Id)
+                        {
+                            Console.WriteLine($"Updating parent reference for {structure.Code} to {parentStructure.Code}");
+                            structure.ParentFMStructureId = parentStructure.Id;
+                            _context.FMStructures.Update(structure);
+                        }
+                    }
+                }
+
+                // 3. Delete structures that are no longer present
+                var structuresToDelete = existingStructures.Where(s => !incomingCodes.Contains(s.Code)).ToList();
+                foreach (var structureToDelete in structuresToDelete)
+                {
+                    Console.WriteLine($"Deleting structure: {structureToDelete.Code}");
+                    _context.FMStructures.Remove(structureToDelete);
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                
+                Console.WriteLine($"Successfully saved {incomingStructures.Count} structures, deleted {structuresToDelete.Count} structures");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                Console.WriteLine($"Error in SaveFmeaStructures: {ex.Message}");
+                throw;
+            }
         }
 
         private bool FMEAExists(string code)
