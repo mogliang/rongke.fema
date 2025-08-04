@@ -265,10 +265,12 @@ namespace Rongke.Fema.Controllers
                     else
                     {
                         Console.WriteLine($"Creating new structure: {incomingStructure.Code}");
-                        
+                        var newId = FmeaCodeGenerator.ParseIdFromCode(incomingStructure.Code);
+
                         // Create new structure
                         var newStructure = new FMStructure
                         {
+                            Id = newId,
                             Code = incomingStructure.Code,
                             LongName = incomingStructure.LongName,
                             ShortName = incomingStructure.ShortName,

@@ -47,6 +47,13 @@ export class FmeaStep2Component {
     shortName: ['', [Validators.required, Validators.maxLength(10)]],
     category: ['', [Validators.required]],
   });
+  
+  public addForm = this.fb.group({
+    code: ['', [Validators.required]],
+    longName: ['', [Validators.required, Validators.maxLength(100)]],
+    shortName: ['', [Validators.required, Validators.maxLength(10)]],
+    category: ['', [Validators.required]],
+  });
   contextMenu2($event: NzFormatEmitEvent, menu: NzDropdownMenuComponent): void {
     if ($event.node) {
       this.selectedCode = $event.node?.key!;
@@ -82,12 +89,26 @@ export class FmeaStep2Component {
     });
   }
 
-  addSubNode($event: MouseEvent): void {
-    console.log(this.selectedCode);
+  addSubNode($event: MouseEvent, fmStructure: FMStructureDto2 | null): void {
+    if (fmStructure != null) {
+      this.setSelectedNode(fmStructure);
+    }
+
+    this.isAddMode = true;
+    this.addForm.reset();
+    var newCode = this.helper.generateNextStructureCode(this.internalFmeaDoc!.fmStructures)
+    this.addForm.patchValue({ code: newCode });
+    console.log('Adding sub node for:', this.selectedCode);
+  }
+
+  addRootStructure(): void {
+      this.addSubNode(new MouseEvent('click'),this.internalFmeaDoc?.rootFMStructure!);
   }
 
   // edit modal
   public isEditMode: boolean = false;
+  // add modal
+  public isAddMode: boolean = false;
   editNode($event: MouseEvent, fmStructure: FMStructureDto2 | null): void {
     if (fmStructure != null) {
       this.setSelectedNode(fmStructure);
@@ -107,6 +128,44 @@ export class FmeaStep2Component {
       this.selectedStructure.category = this.editForm.value.category!;
       this.refreshView();
       
+      this.femaDocUpdated.emit(this.internalFmeaDoc!);
+    }
+  }
+
+  // add modal methods
+  handleAddCancel(): void {
+    this.isAddMode = false;
+  }
+  
+  handleAddOk(): void {
+    if (this.addForm.valid) {
+      this.isAddMode = false;
+      
+      // Create new structure
+      const newStructure: FMStructureDto2 = {
+        code: this.addForm.value.code!,
+        longName: this.addForm.value.longName!,
+        shortName: this.addForm.value.shortName!,
+        category: this.addForm.value.category!,
+        parentFMStructureCode: this.selectedStructure.code,
+        childFMStructures: [],
+        seFunctions: [],
+      };
+      
+      // Add to parent's children
+      if (!this.selectedStructure.childFMStructures) {
+        this.selectedStructure.childFMStructures = [];
+      }
+      this.selectedStructure.childFMStructures.push(newStructure);
+      
+      // Add to the main fmStructures list as well
+      if (!this.internalFmeaDoc?.fmStructures) {
+        this.internalFmeaDoc!.fmStructures = [];
+      }
+      this.internalFmeaDoc!.fmStructures.push(newStructure);
+      
+      // Refresh view and emit update
+      this.refreshView();
       this.femaDocUpdated.emit(this.internalFmeaDoc!);
     }
   }

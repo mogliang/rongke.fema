@@ -9,6 +9,8 @@ export class HelperService {
 
   constructor() { }
 
+
+
   public fillTreeLinks(doc: FMEADto2) :FMEADto2 {
     if (!doc || !doc.fmStructures || !doc.fmFunctions || !doc.fmFaults) {
       return doc;
@@ -189,6 +191,73 @@ export class HelperService {
     }
 
     return node
+  }
+
+  public generateNextStructureCode(fmStructures: FMStructureDto2[]): string {
+    if (!fmStructures || fmStructures.length === 0) {
+      return 'S001-001';
+    }
+
+    let maxCode = '';
+    let maxNumber = 0;
+
+    // Find the biggest structure code
+    for (const structure of fmStructures) {
+      if (structure.code) {
+        const code = structure.code;
+        
+        // Extract the numeric part from codes like "S001-003"
+        const match = code.match(/^(S\d{3}-?)(\d{3})$/);
+        if (match) {
+          const prefix = match[1];
+          const number = parseInt(match[2], 10);
+          
+          if (number > maxNumber) {
+            maxNumber = number;
+            maxCode = code;
+          }
+        }
+      }
+    }
+
+    // Generate next code
+    if (maxCode) {
+      const match = maxCode.match(/^(S\d{3}-?)(\d{3})$/);
+      if (match) {
+        const prefix = match[1];
+        const nextNumber = maxNumber + 1;
+        return `${prefix}${nextNumber.toString().padStart(3, '0')}`;
+      }
+    }
+
+    // Fallback if no valid codes found
+    return 'S001-001';
+  }
+
+  public generateChildStructureCode(parentCode: string, existingChildren: FMStructureDto2[]): string {
+    if (!parentCode) {
+      return 'S001-001';
+    }
+
+    // Find the highest child number for this parent
+    let maxChildNumber = 0;
+    
+    if (existingChildren && existingChildren.length > 0) {
+      for (const child of existingChildren) {
+        if (child.code && child.code.startsWith(parentCode + '.')) {
+          // Extract child number from codes like "S001-001.1", "S001-001.2", etc.
+          const childPart = child.code.substring(parentCode.length + 1);
+          const childNumber = parseInt(childPart, 10);
+          
+          if (!isNaN(childNumber) && childNumber > maxChildNumber) {
+            maxChildNumber = childNumber;
+          }
+        }
+      }
+    }
+
+    // Generate next child code
+    return `${parentCode}.${maxChildNumber + 1}`;
   }
 
 }

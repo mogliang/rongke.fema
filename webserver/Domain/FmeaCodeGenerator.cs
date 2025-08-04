@@ -1,6 +1,7 @@
 namespace Rongke.Fema.Domain
 {
     using System.ComponentModel.DataAnnotations;
+    using System.Text.RegularExpressions;
     using AutoMapper;
     using Data;
 
@@ -21,6 +22,18 @@ namespace Rongke.Fema.Domain
             fmeaStructureStartCode = dbContext.FMStructures.Any() ? dbContext.FMStructures.Max(s => s.Id) : 0;
             fmeaFunctionStartCode = dbContext.FMFunctions.Any() ? dbContext.FMFunctions.Max(s => s.Id) : 0;
             fmeaFaultStartCode = dbContext.FMFaults.Any() ? dbContext.FMFaults.Max(s => s.Id) : 0;
+        }
+
+        public static int ParseIdFromCode(string code)
+        {
+            var regexPattern = @"^[FTS](\d+)-(\d+)$";
+            if (!Regex.IsMatch(code, regexPattern))
+            {
+                throw new ArgumentException("Invalid FMEA code format", nameof(code));
+            }
+
+            var strId = Regex.Match(code, regexPattern).Groups[2].Value;
+            return int.Parse(strId);
         }
 
 
