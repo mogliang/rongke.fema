@@ -5,9 +5,9 @@
                 <div class="box">
                     <nz-card nzTitle="结构分析" nzSize="small" [nzExtra]="extraTemplate">
                         <ng-template #extraTemplate>
-                            <button nz-button nzSize="small" nzType="default" (click)="addRootStructure()">添加根结构</button>
+                            <button nz-button nzSize="small" nzType="default" (click)="showRootTree()">{{showRootTreeFlag? "隐藏根结构" : "显示根结构"}}</button>
                         </ng-template>
-                        <nz-tree [nzData]="nodes" nzShowIcon [nzTreeTemplate]="nzTreeNodeTemplate" nzMultiple="false" (nzContextMenu)="contextMenu2($event, menu)">
+                        <nz-tree [nzData]="showRootTreeFlag ? rootNodes : nodes" nzShowIcon [nzTreeTemplate]="nzTreeNodeTemplate" nzMultiple="false" (nzContextMenu)="contextMenu2($event, menu)">
                             <ng-template #nzTreeNodeTemplate let-node>
                                 <div>
                                     <nz-icon [nzType]="node.icon" nzTheme="outline" class="tree-icon" />

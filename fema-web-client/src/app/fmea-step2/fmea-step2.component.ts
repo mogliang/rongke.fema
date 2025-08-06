@@ -73,10 +73,15 @@ export class FmeaStep2Component {
     console.log('refreshView', this.internalFmeaDoc);
     if (this.internalFmeaDoc?.rootFMStructure) {
       var rootNode = this.helper.generateTreeNodes(this.internalFmeaDoc.rootFMStructure, false);
+      this.rootNodes = [rootNode];
       this.nodes = rootNode.children || [];
       console.log('refreshView', this.nodes);
       this.fmStructures = this.helper.flattenFMStructures(this.internalFmeaDoc.rootFMStructure.childFMStructures);
     }
+  }
+
+  showRootTree(): void {
+    this.showRootTreeFlag = !this.showRootTreeFlag;
   }
 
   setSelectedNode(fmStructure: FMStructureDto2): void {
@@ -99,10 +104,6 @@ export class FmeaStep2Component {
     var newCode = this.helper.generateNextStructureCode(this.internalFmeaDoc!.fmStructures)
     this.addForm.patchValue({ code: newCode });
     console.log('Adding sub node for:', this.selectedCode);
-  }
-
-  addRootStructure(): void {
-      this.addSubNode(new MouseEvent('click'),this.internalFmeaDoc?.rootFMStructure!);
   }
 
   // edit modal
@@ -192,5 +193,8 @@ export class FmeaStep2Component {
   }
   public selectedCode: string = '';
   public fmStructures: FMStructureDto2[] = [];
+  
   public nodes: NzTreeNodeOptions[] = [];
+  public rootNodes: NzTreeNodeOptions[] = [];
+  public showRootTreeFlag: boolean = false;
 }
