@@ -133,6 +133,28 @@ docker-clean: ## Remove Docker image
 	-docker rmi $(FULL_IMAGE_NAME)
 	@echo "✅ Docker image removed"
 
+# Export Docker image to tar file
+.PHONY: docker-export
+docker-export: ## Export Docker image to tar file (use OUTPUT=filename.tar to specify output)
+ifndef OUTPUT
+	$(eval OUTPUT := $(IMAGE_NAME)-$(IMAGE_TAG).tar)
+endif
+	@echo "Exporting Docker image: $(FULL_IMAGE_NAME) -> $(OUTPUT)"
+	docker save -o $(OUTPUT) $(FULL_IMAGE_NAME)
+	@echo "✅ Docker image exported to: $(OUTPUT)"
+	@ls -lh $(OUTPUT)
+
+# Import Docker image from tar file
+.PHONY: docker-import
+docker-import: ## Import Docker image from tar file (use INPUT=filename.tar to specify input)
+ifndef INPUT
+	@echo "❌ Error: INPUT variable is required. Usage: make docker-import INPUT=filename.tar"
+	@exit 1
+endif
+	@echo "Importing Docker image from: $(INPUT)"
+	docker load -i $(INPUT)
+	@echo "✅ Docker image imported from: $(INPUT)"
+
 # Login to Docker registry
 .PHONY: docker-login
 docker-login: ## Login to Docker registry
@@ -142,6 +164,10 @@ docker-login: ## Login to Docker registry
 # Build and push workflow
 .PHONY: publish
 publish: docker-build docker-push ## Build and push Docker image
+
+# Build and export workflow
+.PHONY: package
+package: docker-build docker-export ## Build and export Docker image to tar file
 
 # Build and run workflow
 .PHONY: deploy-local

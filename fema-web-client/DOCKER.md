@@ -31,6 +31,8 @@ make help
 - `make docker-run` - Run Docker container on port 8080
 - `make docker-stop` - Stop and remove Docker container
 - `make docker-push` - Push image to registry
+- `make docker-export` - Export Docker image to tar file
+- `make docker-import INPUT=file.tar` - Import Docker image from tar file
 - `make publish` - Build and push Docker image
 - `make deploy-local` - Build and run locally
 - `make ci` - Run full CI pipeline
@@ -84,12 +86,24 @@ make dev  # Install dependencies and build
 make deploy-local  # Build Docker image and run locally
 ```
 
-3. **CI/CD pipeline:**
+3. **Export image for offline sharing:**
+```bash
+make docker-export  # Creates fema-web-client-latest.tar
+# or specify custom filename:
+make docker-export OUTPUT=my-app-v1.0.tar
+```
+
+4. **Import image on another machine:**
+```bash
+make docker-import INPUT=fema-web-client-latest.tar
+```
+
+5. **CI/CD pipeline:**
 ```bash
 make ci  # Full pipeline: install, lint, test, build, docker-build
 ```
 
-4. **Production deployment:**
+6. **Production deployment:**
 ```bash
 make publish REGISTRY=your-registry.com IMAGE_TAG=production
 ```
