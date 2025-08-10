@@ -16,7 +16,7 @@ YELLOW := \033[33m
 RED := \033[31m
 NC := \033[0m # No Color
 
-.PHONY: help install-ef restore build clean db-init db-migrate db-update db-reset run dev watch setup all
+.PHONY: help install-ef restore build clean db-init db-migrate db-update db-reset run dev watch setup all deploy-package
 
 help: ## Show this help message
 	@echo "$(GREEN)FEMA Web Server Makefile$(NC)"
@@ -141,6 +141,98 @@ check: ## Check for code issues
 publish: build ## Publish the application for production
 	@echo "$(GREEN)Publishing application for production...$(NC)"
 	dotnet publish $(PROJECT_FILE) -c Release -o ./publish
+
+deploy-package: build db-update ## Create complete deployment package with binaries, database, and production settings
+	@echo "$(GREEN)Creating deployment package...$(NC)"
+	
+	# Clean and create deployment directory
+	@rm -rf ./deploy
+	@mkdir -p ./deploy
+	
+	# Publish application binaries
+	@echo "$(YELLOW)Publishing application binaries...$(NC)"
+	dotnet publish $(PROJECT_FILE) -c Release -o ./deploy/app --self-contained false --runtime linux-x64
+	
+	# Copy database if it exists
+	@echo "$(YELLOW)Copying database...$(NC)"
+	@if [ -f "./bin/app.db" ]; then \
+		mkdir -p ./deploy/app/bin; \
+		cp ./bin/app.db ./deploy/app/bin/; \
+		echo "Database copied successfully"; \
+	else \
+		echo "$(YELLOW)Warning: Database file not found. Run 'make db-init' first.$(NC)"; \
+	fi
+	
+	# Copy production appsettings
+	@echo "$(YELLOW)Copying production configuration...$(NC)"
+	@cp ./appsettings.Production.json ./deploy/app/
+	
+	# Create deployment scripts
+	@echo "$(YELLOW)Creating deployment scripts...$(NC)"
+	@echo '#!/bin/bash' > ./deploy/start.sh
+	@echo 'cd "$$( dirname "$${BASH_SOURCE[0]}" )/app"' >> ./deploy/start.sh
+	@echo 'export ASPNETCORE_ENVIRONMENT=Production' >> ./deploy/start.sh
+	@echo 'export ASPNETCORE_URLS=http://0.0.0.0:5000' >> ./deploy/start.sh
+	@echo 'dotnet rongke.fema.dll' >> ./deploy/start.sh
+	@chmod +x ./deploy/start.sh
+	
+	@echo '#!/bin/bash' > ./deploy/install.sh
+	@echo '# Install .NET Runtime if not already installed' >> ./deploy/install.sh
+	@echo 'if ! command -v dotnet &> /dev/null; then' >> ./deploy/install.sh
+	@echo '    echo "Installing .NET Runtime..."' >> ./deploy/install.sh
+	@echo '    wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb' >> ./deploy/install.sh
+	@echo '    sudo dpkg -i packages-microsoft-prod.deb' >> ./deploy/install.sh
+	@echo '    sudo apt-get update' >> ./deploy/install.sh
+	@echo '    sudo apt-get install -y aspnetcore-runtime-9.0' >> ./deploy/install.sh
+	@echo '    rm packages-microsoft-prod.deb' >> ./deploy/install.sh
+	@echo 'else' >> ./deploy/install.sh
+	@echo '    echo ".NET Runtime is already installed"' >> ./deploy/install.sh
+	@echo 'fi' >> ./deploy/install.sh
+	@echo '' >> ./deploy/install.sh
+	@echo '# Make start script executable' >> ./deploy/install.sh
+	@echo 'chmod +x start.sh' >> ./deploy/install.sh
+	@echo 'echo "Installation complete. Run ./start.sh to start the application."' >> ./deploy/install.sh
+	@chmod +x ./deploy/install.sh
+	
+	# Create README for deployment
+	@echo "$(YELLOW)Creating deployment README...$(NC)"
+	@echo '# FEMA Web Server Deployment Package' > ./deploy/README.md
+	@echo '' >> ./deploy/README.md
+	@echo 'This package contains everything needed to deploy the FEMA Web Server.' >> ./deploy/README.md
+	@echo '' >> ./deploy/README.md
+	@echo '## Installation' >> ./deploy/README.md
+	@echo '' >> ./deploy/README.md
+	@echo '1. Extract this package to your target server' >> ./deploy/README.md
+	@echo '2. Run the install script: `./install.sh`' >> ./deploy/README.md
+	@echo '3. Start the application: `./start.sh`' >> ./deploy/README.md
+	@echo '' >> ./deploy/README.md
+	@echo '## Contents' >> ./deploy/README.md
+	@echo '' >> ./deploy/README.md
+	@echo '- `app/` - Application binaries and configuration' >> ./deploy/README.md
+	@echo '- `start.sh` - Script to start the application' >> ./deploy/README.md
+	@echo '- `install.sh` - Script to install .NET runtime dependencies' >> ./deploy/README.md
+	@echo '' >> ./deploy/README.md
+	@echo '## Configuration' >> ./deploy/README.md
+	@echo '' >> ./deploy/README.md
+	@echo 'The application will run on port 5000 by default.' >> ./deploy/README.md
+	@echo 'Edit `app/appsettings.Production.json` to modify configuration.' >> ./deploy/README.md
+	@echo '' >> ./deploy/README.md
+	@echo 'Database: SQLite database file is included at `app/bin/app.db`' >> ./deploy/README.md
+	
+	# Create archive for easy transfer
+	@echo "$(YELLOW)Creating deployment archive...$(NC)"
+	@cd deploy && tar -czf ../fema-webserver-deploy-$(shell date +%Y%m%d-%H%M%S).tar.gz .
+	
+	@echo "$(GREEN)Deployment package created successfully!$(NC)"
+	@echo "$(YELLOW)Files created:$(NC)"
+	@echo "  - ./deploy/ - Deployment directory"
+	@echo "  - ./fema-webserver-deploy-*.tar.gz - Deployment archive"
+	@echo ""
+	@echo "$(YELLOW)To deploy:$(NC)"
+	@echo "  1. Transfer the .tar.gz file to your target server"
+	@echo "  2. Extract: tar -xzf fema-webserver-deploy-*.tar.gz"
+	@echo "  3. Run: ./install.sh"
+	@echo "  4. Start: ./start.sh"
 
 # Docker helpers (if using Docker in the future)
 docker-build: ## Build Docker image
