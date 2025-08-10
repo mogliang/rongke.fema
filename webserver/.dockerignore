@@ -1,0 +1,48 @@
+# Ignore build outputs
+bin/
+obj/
+publish/
+deploy/
+
+# Ignore IDE files
+.vscode/
+.vs/
+.idea/
+
+# Ignore version control
+.git/
+.gitignore
+
+# Ignore documentation
+*.md
+docs/
+
+# Ignore log files
+*.log
+
+# Ignore temporary files
+*.tmp
+*.temp
+
+# Ignore test files
+Tests/
+*Tests/
+*.Tests/
+
+# Ignore local settings
+appsettings.Development.json
+appsettings.local.json
+
+# Ignore migration scripts (they should be included in final image but excluded from build context initially)
+# Migrations/
+
+# Ignore deployment packages
+*.zip
+*.tar
+*.tar.gz
+
+# Ignore Makefile (not needed in container)
+Makefile
+
+# Ignore scripts directory (deployment scripts not needed in container)
+scripts/

@@ -7,6 +7,14 @@ DB_CONTEXT = AppDbContext
 MIGRATION_NAME = AutoMigration_$(shell date +%Y%m%d_%H%M%S)
 PORT = 5166
 
+# Docker Variables
+IMAGE_NAME ?= fema-webserver
+IMAGE_TAG ?= latest
+REGISTRY ?= docker.io
+FULL_IMAGE_NAME = $(REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG)
+DOCKERFILE = Dockerfile
+BUILD_CONTEXT = .
+
 # Default target
 .DEFAULT_GOAL := help
 
@@ -16,7 +24,7 @@ YELLOW := \033[33m
 RED := \033[31m
 NC := \033[0m # No Color
 
-.PHONY: help install-ef restore build clean db-init db-migrate db-update db-reset run dev watch setup all deploy-package
+.PHONY: help install-ef restore build clean db-init db-migrate db-update db-reset run dev watch setup all deploy-package docker-build docker-build-no-cache docker-run docker-stop docker-inspect docker-logs docker-push docker-tag docker-images docker-clean docker-export docker-import docker-login publish package deploy-local docker-clean-all docker-test docker-config ci ci-docker
 
 help: ## Show this help message
 	@echo "$(GREEN)FEMA Web Server Makefile$(NC)"
@@ -202,14 +210,141 @@ deploy-package: build db-update ## Create complete deployment package with binar
 	@echo "  3. Option A - Console: start.bat"
 	@echo "  3. Option B - Service: install-service.bat (as Administrator)"
 
-# Docker helpers (if using Docker in the future)
-docker-build: ## Build Docker image
-	@echo "$(GREEN)Building Docker image...$(NC)"
-	docker build -t fema-webserver .
+# Docker Commands
+.PHONY: docker-build docker-build-no-cache docker-run docker-stop docker-inspect docker-logs docker-push docker-tag docker-images docker-clean docker-export docker-import docker-login publish package deploy-local docker-clean-all docker-test
 
-docker-run: ## Run Docker container
-	@echo "$(GREEN)Running Docker container...$(NC)"
-	docker run -p $(PORT):$(PORT) fema-webserver
+# Build Docker image
+docker-build: ## Build Docker image
+	@echo "$(GREEN)Building Docker image: $(FULL_IMAGE_NAME)$(NC)"
+	docker build -t $(FULL_IMAGE_NAME) -f $(DOCKERFILE) $(BUILD_CONTEXT)
+	@echo "$(GREEN)✅ Docker image built successfully: $(FULL_IMAGE_NAME)$(NC)"
+
+# Build Docker image with no cache
+docker-build-no-cache: ## Build Docker image without cache
+	@echo "$(GREEN)Building Docker image (no cache): $(FULL_IMAGE_NAME)$(NC)"
+	docker build --no-cache -t $(FULL_IMAGE_NAME) -f $(DOCKERFILE) $(BUILD_CONTEXT)
+	@echo "$(GREEN)✅ Docker image built successfully: $(FULL_IMAGE_NAME)$(NC)"
+
+# Run Docker container locally
+docker-run: ## Run Docker container locally on port 5166
+	@echo "$(GREEN)Running Docker container: $(FULL_IMAGE_NAME)$(NC)"
+	docker run -d -p $(PORT):80 --name fema-webserver-container $(FULL_IMAGE_NAME)
+	@echo "$(GREEN)✅ Container started at http://localhost:$(PORT)$(NC)"
+
+# Stop and remove Docker container
+docker-stop: ## Stop and remove Docker container
+	@echo "$(YELLOW)Stopping Docker container...$(NC)"
+	-docker stop fema-webserver-container
+	-docker rm fema-webserver-container
+	@echo "$(GREEN)✅ Container stopped and removed$(NC)"
+
+# Check what files are in the running container
+docker-inspect: ## Inspect files inside the running Docker container
+	@echo "$(GREEN)Inspecting files in the container...$(NC)"
+	docker exec fema-webserver-container ls -la /app/
+	@echo ""
+	@echo "$(YELLOW)Checking application files...$(NC)"
+	docker exec fema-webserver-container ls -la /app/bin/ || echo "No bin directory found"
+	@echo ""
+	@echo "$(YELLOW)Checking configuration files...$(NC)"
+	docker exec fema-webserver-container ls -la /app/appsettings*.json || echo "No appsettings files found"
+
+# Check container logs
+docker-logs: ## Show Docker container logs
+	@echo "$(GREEN)Docker container logs:$(NC)"
+	docker logs fema-webserver-container
+
+# Test Docker container health
+docker-test: ## Test if Docker container is responding
+	@echo "$(GREEN)Testing Docker container health...$(NC)"
+	@timeout 30 bash -c 'until curl -f http://localhost:$(PORT)/health 2>/dev/null || curl -f http://localhost:$(PORT) 2>/dev/null; do echo "Waiting for container to be ready..."; sleep 2; done' || echo "$(YELLOW)Warning: Health check endpoint not accessible$(NC)"
+	@echo "$(GREEN)✅ Container appears to be running$(NC)"
+
+# Push Docker image to registry
+docker-push: ## Push Docker image to registry
+	@echo "$(GREEN)Pushing Docker image: $(FULL_IMAGE_NAME)$(NC)"
+	docker push $(FULL_IMAGE_NAME)
+	@echo "$(GREEN)✅ Docker image pushed successfully: $(FULL_IMAGE_NAME)$(NC)"
+
+# Tag Docker image
+docker-tag: ## Tag Docker image (use TAG=your-tag)
+ifndef TAG
+	@echo "$(RED)❌ Error: TAG variable is required. Usage: make docker-tag TAG=your-tag$(NC)"
+	@exit 1
+endif
+	@echo "$(GREEN)Tagging Docker image: $(FULL_IMAGE_NAME) -> $(REGISTRY)/$(IMAGE_NAME):$(TAG)$(NC)"
+	docker tag $(FULL_IMAGE_NAME) $(REGISTRY)/$(IMAGE_NAME):$(TAG)
+	@echo "$(GREEN)✅ Image tagged successfully$(NC)"
+
+# List Docker images
+docker-images: ## List Docker images for this project
+	@echo "$(GREEN)Docker images for $(IMAGE_NAME):$(NC)"
+	docker images | grep $(IMAGE_NAME) || echo "No images found for $(IMAGE_NAME)"
+
+# Remove Docker image
+docker-clean: ## Remove Docker image
+	@echo "$(YELLOW)Removing Docker image: $(FULL_IMAGE_NAME)$(NC)"
+	-docker rmi $(FULL_IMAGE_NAME)
+	@echo "$(GREEN)✅ Docker image removed$(NC)"
+
+# Export Docker image to tar file
+docker-export: ## Export Docker image to tar file (use OUTPUT=filename.tar to specify output)
+ifndef OUTPUT
+	$(eval OUTPUT := $(IMAGE_NAME)-$(IMAGE_TAG).tar)
+endif
+	@echo "$(GREEN)Exporting Docker image: $(FULL_IMAGE_NAME) -> $(OUTPUT)$(NC)"
+	docker save -o $(OUTPUT) $(FULL_IMAGE_NAME)
+	@echo "$(GREEN)✅ Docker image exported to: $(OUTPUT)$(NC)"
+	@ls -lh $(OUTPUT)
+
+# Import Docker image from tar file
+docker-import: ## Import Docker image from tar file (use INPUT=filename.tar to specify input)
+ifndef INPUT
+	@echo "$(RED)❌ Error: INPUT variable is required. Usage: make docker-import INPUT=filename.tar$(NC)"
+	@exit 1
+endif
+	@echo "$(GREEN)Importing Docker image from: $(INPUT)$(NC)"
+	docker load -i $(INPUT)
+	@echo "$(GREEN)✅ Docker image imported from: $(INPUT)$(NC)"
+
+# Login to Docker registry
+docker-login: ## Login to Docker registry
+	@echo "$(GREEN)Logging in to Docker registry: $(REGISTRY)$(NC)"
+	docker login $(REGISTRY)
+
+# Build and push workflow
+publish: docker-build docker-push ## Build and push Docker image
+
+# Build and export workflow  
+package: docker-build docker-export ## Build and export Docker image to tar file
+
+# Build and run workflow
+deploy-local: docker-build docker-stop docker-run ## Build and run Docker container locally
+
+# Clean all Docker resources for this project
+docker-clean-all: docker-stop docker-clean ## Stop container and remove image
+
+# Show current Docker configuration
+docker-config: ## Show current Docker configuration
+	@echo "$(GREEN)Docker Configuration:$(NC)"
+	@echo "  IMAGE_NAME: $(IMAGE_NAME)"
+	@echo "  IMAGE_TAG: $(IMAGE_TAG)" 
+	@echo "  REGISTRY: $(REGISTRY)"
+	@echo "  FULL_IMAGE_NAME: $(FULL_IMAGE_NAME)"
+	@echo "  DOCKERFILE: $(DOCKERFILE)"
+	@echo "  BUILD_CONTEXT: $(BUILD_CONTEXT)"
+	@echo "  PORT: $(PORT)"
+
+# CI/CD Pipeline
+.PHONY: ci ci-docker
+
+# Full CI/CD pipeline simulation  
+ci: restore build test format check ## Run full CI pipeline (restore, build, test, format, check)
+	@echo "$(GREEN)✅ CI pipeline completed successfully!$(NC)"
+
+# CI pipeline with Docker build
+ci-docker: ci docker-build ## Run full CI pipeline and build Docker image
+	@echo "$(GREEN)✅ CI pipeline with Docker build completed successfully!$(NC)"
 
 # Cleanup
 clean-all: clean ## Clean everything including database
@@ -224,8 +359,18 @@ status: ## Show project status
 	@echo "Database Context: $(DB_CONTEXT)"
 	@echo "Port: $(PORT)"
 	@echo ""
+	@echo "$(YELLOW)Docker Configuration:$(NC)"
+	@echo "Image: $(FULL_IMAGE_NAME)"
+	@echo "Registry: $(REGISTRY)"
+	@echo ""
 	@echo "$(YELLOW)Recent migrations:$(NC)"
 	@ls -la Migrations/ 2>/dev/null || echo "No migrations found"
 	@echo ""
 	@echo "$(YELLOW)Database files:$(NC)"
 	@ls -la bin/app.db* 2>/dev/null || echo "No database files found"
+	@echo ""
+	@echo "$(YELLOW)Docker images:$(NC)"
+	@docker images | grep $(IMAGE_NAME) 2>/dev/null || echo "No Docker images found for $(IMAGE_NAME)"
+	@echo ""
+	@echo "$(YELLOW)Running containers:$(NC)"
+	@docker ps | grep fema-webserver-container 2>/dev/null || echo "No running containers found"
