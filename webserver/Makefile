@@ -137,6 +137,16 @@ check: ## Check for code issues
 	@echo "$(GREEN)Checking code...$(NC)"
 	dotnet format $(PROJECT_FILE) --verify-no-changes --verbosity diagnostic
 
+# Script management
+scripts-list: ## List available scripts in scripts/ directory
+	@echo "$(GREEN)Available scripts in scripts/ directory:$(NC)"
+	@ls -la scripts/
+
+scripts-exec: ## Make all shell scripts executable
+	@echo "$(GREEN)Making shell scripts executable...$(NC)"
+	@chmod +x scripts/*.sh
+	@echo "$(GREEN)Scripts are now executable$(NC)"
+
 # Production helpers
 publish: build ## Publish the application for production
 	@echo "$(GREEN)Publishing application for production...$(NC)"
@@ -167,72 +177,30 @@ deploy-package: build db-update ## Create complete deployment package with binar
 	@echo "$(YELLOW)Copying production configuration...$(NC)"
 	@cp ./appsettings.Production.json ./deploy/app/
 	
-	# Create deployment scripts
+	# Generate deployment scripts using external script generator
 	@echo "$(YELLOW)Creating deployment scripts...$(NC)"
-	@echo '#!/bin/bash' > ./deploy/start.sh
-	@echo 'cd "$$( dirname "$${BASH_SOURCE[0]}" )/app"' >> ./deploy/start.sh
-	@echo 'export ASPNETCORE_ENVIRONMENT=Production' >> ./deploy/start.sh
-	@echo 'export ASPNETCORE_URLS=http://0.0.0.0:5000' >> ./deploy/start.sh
-	@echo 'dotnet rongke.fema.dll' >> ./deploy/start.sh
-	@chmod +x ./deploy/start.sh
-	
-	@echo '#!/bin/bash' > ./deploy/install.sh
-	@echo '# Install .NET Runtime if not already installed' >> ./deploy/install.sh
-	@echo 'if ! command -v dotnet &> /dev/null; then' >> ./deploy/install.sh
-	@echo '    echo "Installing .NET Runtime..."' >> ./deploy/install.sh
-	@echo '    wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb' >> ./deploy/install.sh
-	@echo '    sudo dpkg -i packages-microsoft-prod.deb' >> ./deploy/install.sh
-	@echo '    sudo apt-get update' >> ./deploy/install.sh
-	@echo '    sudo apt-get install -y aspnetcore-runtime-9.0' >> ./deploy/install.sh
-	@echo '    rm packages-microsoft-prod.deb' >> ./deploy/install.sh
-	@echo 'else' >> ./deploy/install.sh
-	@echo '    echo ".NET Runtime is already installed"' >> ./deploy/install.sh
-	@echo 'fi' >> ./deploy/install.sh
-	@echo '' >> ./deploy/install.sh
-	@echo '# Make start script executable' >> ./deploy/install.sh
-	@echo 'chmod +x start.sh' >> ./deploy/install.sh
-	@echo 'echo "Installation complete. Run ./start.sh to start the application."' >> ./deploy/install.sh
-	@chmod +x ./deploy/install.sh
-	
-	# Create README for deployment
-	@echo "$(YELLOW)Creating deployment README...$(NC)"
-	@echo '# FEMA Web Server Deployment Package' > ./deploy/README.md
-	@echo '' >> ./deploy/README.md
-	@echo 'This package contains everything needed to deploy the FEMA Web Server.' >> ./deploy/README.md
-	@echo '' >> ./deploy/README.md
-	@echo '## Installation' >> ./deploy/README.md
-	@echo '' >> ./deploy/README.md
-	@echo '1. Extract this package to your target server' >> ./deploy/README.md
-	@echo '2. Run the install script: `./install.sh`' >> ./deploy/README.md
-	@echo '3. Start the application: `./start.sh`' >> ./deploy/README.md
-	@echo '' >> ./deploy/README.md
-	@echo '## Contents' >> ./deploy/README.md
-	@echo '' >> ./deploy/README.md
-	@echo '- `app/` - Application binaries and configuration' >> ./deploy/README.md
-	@echo '- `start.sh` - Script to start the application' >> ./deploy/README.md
-	@echo '- `install.sh` - Script to install .NET runtime dependencies' >> ./deploy/README.md
-	@echo '' >> ./deploy/README.md
-	@echo '## Configuration' >> ./deploy/README.md
-	@echo '' >> ./deploy/README.md
-	@echo 'The application will run on port 5000 by default.' >> ./deploy/README.md
-	@echo 'Edit `app/appsettings.Production.json` to modify configuration.' >> ./deploy/README.md
-	@echo '' >> ./deploy/README.md
-	@echo 'Database: SQLite database file is included at `app/bin/app.db`' >> ./deploy/README.md
+	@./scripts/generate-deployment-scripts.sh ./deploy
 	
 	# Create archive for easy transfer
 	@echo "$(YELLOW)Creating deployment archive...$(NC)"
-	@cd deploy && tar -czf ../fema-webserver-deploy-$(shell date +%Y%m%d-%H%M%S).tar.gz .
+	@cd deploy && zip -r ../fema-webserver-deploy-$(shell date +%Y%m%d-%H%M%S).zip .
 	
 	@echo "$(GREEN)Deployment package created successfully!$(NC)"
 	@echo "$(YELLOW)Files created:$(NC)"
 	@echo "  - ./deploy/ - Deployment directory"
-	@echo "  - ./fema-webserver-deploy-*.tar.gz - Deployment archive"
+	@echo "  - ./fema-webserver-deploy-*.zip - Deployment archive"
 	@echo ""
-	@echo "$(YELLOW)To deploy:$(NC)"
-	@echo "  1. Transfer the .tar.gz file to your target server"
-	@echo "  2. Extract: tar -xzf fema-webserver-deploy-*.tar.gz"
+	@echo "$(YELLOW)To deploy on Linux:$(NC)"
+	@echo "  1. Transfer the .zip file to your target server"
+	@echo "  2. Extract: unzip fema-webserver-deploy-*.zip"
 	@echo "  3. Run: ./install.sh"
 	@echo "  4. Start: ./start.sh"
+	@echo ""
+	@echo "$(YELLOW)To deploy on Windows:$(NC)"
+	@echo "  1. Transfer and extract the .zip file (or copy the deploy/ folder)"
+	@echo "  2. Run: install.bat (to verify .NET Runtime)"
+	@echo "  3. Option A - Console: start.bat"
+	@echo "  3. Option B - Service: install-service.bat (as Administrator)"
 
 # Docker helpers (if using Docker in the future)
 docker-build: ## Build Docker image
