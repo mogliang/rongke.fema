@@ -32,6 +32,36 @@ import {
 export class FmeaStep2Component {
   constructor(private nzContextMenuService: NzContextMenuService, private fmeaService: FMEAService, private helper: HelperService) { }
 
+  // ========================================
+  // INITIALIZATION SECTION
+  // ========================================
+  
+  // Input/Output
+  @Output() femaDocUpdated = new EventEmitter<FMEADto2>();
+  fmeaDoc = input.required<FMEADto2 | null>();
+
+  // Data properties
+  currentFmeaDoc: FMEADto2 | null = null;
+  public flattenedStructures: FMStructureDto2[] = [];
+  public currentSelectedStructure: FMStructureDto2 = {
+    code: '',
+    longName: '',
+    shortName: '',
+    category: '',
+    parentFMStructureCode: '',
+    childFMStructures: [],
+    seFunctions: [],
+  }
+
+  // Tree display properties
+  public childTreeNodes: NzTreeNodeOptions[] = [];
+  public fullTreeNodes: NzTreeNodeOptions[] = [];
+  public showRootInTree: boolean = false;
+
+  // Form builders
+  private fb = inject(NonNullableFormBuilder);
+
+  // Lifecycle methods
   ngOnInit() {
   }
 
@@ -39,114 +69,85 @@ export class FmeaStep2Component {
     this.refreshView();
   }
 
-  internalFmeaDoc: FMEADto2 | null = null;
-  private fb = inject(NonNullableFormBuilder);
-  public editForm = this.fb.group({
-    code: ['', [Validators.required]],
-    longName: ['', [Validators.required, Validators.maxLength(100)]],
-    shortName: ['', [Validators.required, Validators.maxLength(10)]],
-    category: ['', [Validators.required]],
-  });
+  // General utility methods
+  refreshView() {
+    if (this.currentFmeaDoc == null && this.fmeaDoc() !== null) {
+      this.currentFmeaDoc = this.fmeaDoc()!;
+    }
 
+    console.log('refreshView', this.currentFmeaDoc);
+    if (this.currentFmeaDoc?.rootFMStructure) {
+      var rootNode = this.helper.generateTreeNodes(this.currentFmeaDoc.rootFMStructure, false);
+      this.fullTreeNodes = [rootNode];
+      this.childTreeNodes = rootNode.children || [];
+      console.log('refreshView', this.childTreeNodes);
+      this.flattenedStructures = this.helper.flattenFMStructures(this.currentFmeaDoc.rootFMStructure.childFMStructures);
+    }
+  }
+
+  toggleRootTreeDisplay(): void {
+    this.showRootInTree = !this.showRootInTree;
+  }
+
+  selectStructureNode(fmStructure: FMStructureDto2): void {
+    this.currentSelectedStructure = fmStructure;
+    this.editForm.setValue({
+      code: this.currentSelectedStructure.code,
+      longName: this.currentSelectedStructure.longName,
+      shortName: this.currentSelectedStructure.shortName,
+      category: this.currentSelectedStructure.category,
+    });
+  }
+
+  onTreeContextMenu($event: NzFormatEmitEvent, menu: NzDropdownMenuComponent): void {
+    if ($event.node) {
+      const selectedCode = $event.node?.key!;
+      var selectedNode: FMStructureDto2 | null | undefined = null;
+
+      if (this.currentFmeaDoc!.rootFMStructure?.code == selectedCode) {
+        selectedNode = this.currentFmeaDoc!.rootFMStructure;
+      } else {
+        selectedNode = this.flattenedStructures.find((item) => item.code === selectedCode);
+      }
+
+      if (selectedNode) {
+        this.selectStructureNode(selectedNode);
+        this.nzContextMenuService.create($event.event!, menu);
+      }
+    }
+  }
+
+  // ========================================
+  // ADD SECTION
+  // ========================================
+  
+  // Add-related properties
+  public isAddMode: boolean = false;
   public addForm = this.fb.group({
     code: ['', [Validators.required]],
     longName: ['', [Validators.required, Validators.maxLength(100)]],
     shortName: ['', [Validators.required, Validators.maxLength(10)]],
     category: ['', [Validators.required]],
   });
-  
-  contextMenu2($event: NzFormatEmitEvent, menu: NzDropdownMenuComponent): void {
-    if ($event.node) {
-      this.selectedCode = $event.node?.key!;
-      var selectedNode: FMStructureDto2 | null | undefined = null;
 
-      if (this.internalFmeaDoc!.rootFMStructure?.code == this.selectedCode) {
-        selectedNode = this.internalFmeaDoc!.rootFMStructure;
-      } else {
-        selectedNode = this.fmStructures.find((item) => item.code === this.selectedCode);
-      }
-
-      if (selectedNode) {
-        this.setSelectedNode(selectedNode);
-        this.nzContextMenuService.create($event.event!, menu);
-      }
-    }
-  }
-
-  refreshView() {
-    if (this.internalFmeaDoc == null && this.fmeaDoc() !== null) {
-      this.internalFmeaDoc = this.fmeaDoc()!;
-    }
-
-    console.log('refreshView', this.internalFmeaDoc);
-    if (this.internalFmeaDoc?.rootFMStructure) {
-      var rootNode = this.helper.generateTreeNodes(this.internalFmeaDoc.rootFMStructure, false);
-      this.rootNodes = [rootNode];
-      this.nodes = rootNode.children || [];
-      console.log('refreshView', this.nodes);
-      this.fmStructures = this.helper.flattenFMStructures(this.internalFmeaDoc.rootFMStructure.childFMStructures);
-    }
-  }
-
-  showRootTree(): void {
-    this.showRootTreeFlag = !this.showRootTreeFlag;
-  }
-
-  setSelectedNode(fmStructure: FMStructureDto2): void {
-    this.selectedStructure = fmStructure;
-    this.editForm.setValue({
-      code: this.selectedStructure.code,
-      longName: this.selectedStructure.longName,
-      shortName: this.selectedStructure.shortName,
-      category: this.selectedStructure.category,
-    });
-  }
-
-  addSubNode($event: MouseEvent, fmStructure: FMStructureDto2 | null): void {
+  // Add methods
+  openAddStructureModal($event: MouseEvent, fmStructure: FMStructureDto2 | null): void {
     if (fmStructure != null) {
-      this.setSelectedNode(fmStructure);
+      this.selectStructureNode(fmStructure);
     }
 
     this.isAddMode = true;
     this.addForm.reset();
-    var newCode = this.helper.generateNextStructureCode(this.internalFmeaDoc!.fmStructures)
+    var newCode = this.helper.generateNextStructureCode(this.currentFmeaDoc!.fmStructures)
     this.addForm.patchValue({ code: newCode });
-    console.log('Adding sub node for:', this.selectedCode);
+    console.log('Adding sub node for:', this.currentSelectedStructure.code);
   }
 
-  // edit modal
-  public isEditMode: boolean = false;
-  // add modal
-  public isAddMode: boolean = false;
-  editNode($event: MouseEvent, fmStructure: FMStructureDto2 | null): void {
-    if (fmStructure != null) {
-      this.setSelectedNode(fmStructure);
-    }
-
-    this.isEditMode = true;
-    console.log(this.selectedCode);
-  }
-  handleEditCancel(): void {
-    this.isEditMode = false;
-  }
-  handleEditOk(): void {
-    if (this.editForm.valid) {
-      this.isEditMode = false;
-      this.selectedStructure.longName = this.editForm.value.longName!;
-      this.selectedStructure.shortName = this.editForm.value.shortName!;
-      this.selectedStructure.category = this.editForm.value.category!;
-      this.refreshView();
-
-      this.femaDocUpdated.emit(this.internalFmeaDoc!);
-    }
-  }
-
-  // add modal methods
-  handleAddCancel(): void {
+  cancelAddStructure(): void {
     this.isAddMode = false;
   }
 
-  handleAddOk(): void {
+  confirmAddStructure(): void {
     if (this.addForm.valid) {
       this.isAddMode = false;
 
@@ -156,53 +157,74 @@ export class FmeaStep2Component {
         longName: this.addForm.value.longName!,
         shortName: this.addForm.value.shortName!,
         category: this.addForm.value.category!,
-        parentFMStructureCode: this.selectedStructure.code,
+        parentFMStructureCode: this.currentSelectedStructure.code,
         childFMStructures: [],
         seFunctions: [],
       };
 
       // Add to parent's children
-      if (!this.selectedStructure.childFMStructures) {
-        this.selectedStructure.childFMStructures = [];
+      if (!this.currentSelectedStructure.childFMStructures) {
+        this.currentSelectedStructure.childFMStructures = [];
       }
-      this.selectedStructure.childFMStructures.push(newStructure);
+      this.currentSelectedStructure.childFMStructures.push(newStructure);
 
       // Add to the main fmStructures list as well
-      if (!this.internalFmeaDoc?.fmStructures) {
-        this.internalFmeaDoc!.fmStructures = [];
+      if (!this.currentFmeaDoc?.fmStructures) {
+        this.currentFmeaDoc!.fmStructures = [];
       }
-      this.internalFmeaDoc!.fmStructures.push(newStructure);
+      this.currentFmeaDoc!.fmStructures.push(newStructure);
 
       // Refresh view and emit update
       this.refreshView();
-      this.femaDocUpdated.emit(this.internalFmeaDoc!);
+      this.femaDocUpdated.emit(this.currentFmeaDoc!);
     }
   }
 
-  deleteNode($event: MouseEvent): void {
-    console.log(this.selectedCode);
+  // ========================================
+  // EDIT SECTION
+  // ========================================
+  
+  // Edit-related properties
+  public isEditMode: boolean = false;
+  public editForm = this.fb.group({
+    code: ['', [Validators.required]],
+    longName: ['', [Validators.required, Validators.maxLength(100)]],
+    shortName: ['', [Validators.required, Validators.maxLength(10)]],
+    category: ['', [Validators.required]],
+  });
+
+  // Edit methods
+  openEditStructureModal($event: MouseEvent, fmStructure: FMStructureDto2 | null): void {
+    if (fmStructure != null) {
+      this.selectStructureNode(fmStructure);
+    }
+
+    this.isEditMode = true;
+    console.log(this.currentSelectedStructure.code);
   }
 
-  deleteSubTree($event: MouseEvent): void {
-    console.log(this.selectedCode);
+  cancelEditStructure(): void {
+    this.isEditMode = false;
   }
 
+  confirmEditStructure(): void {
+    if (this.editForm.valid) {
+      this.isEditMode = false;
+      this.currentSelectedStructure.longName = this.editForm.value.longName!;
+      this.currentSelectedStructure.shortName = this.editForm.value.shortName!;
+      this.currentSelectedStructure.category = this.editForm.value.category!;
+      this.refreshView();
 
-  @Output() femaDocUpdated = new EventEmitter<FMEADto2>();
-  fmeaDoc = input.required<FMEADto2 | null>();
-  public selectedStructure: FMStructureDto2 = {
-    code: '',
-    longName: '',
-    shortName: '',
-    category: '',
-    parentFMStructureCode: '',
-    childFMStructures: [],
-    seFunctions: [],
+      this.femaDocUpdated.emit(this.currentFmeaDoc!);
+    }
   }
-  public selectedCode: string = '';
-  public fmStructures: FMStructureDto2[] = [];
 
-  public nodes: NzTreeNodeOptions[] = [];
-  public rootNodes: NzTreeNodeOptions[] = [];
-  public showRootTreeFlag: boolean = false;
+  // Delete methods (TODO: implement)
+  deleteStructureNode($event: MouseEvent): void {
+    console.log(this.currentSelectedStructure.code);
+  }
+
+  deleteStructureSubTree($event: MouseEvent): void {
+    console.log(this.currentSelectedStructure.code);
+  }
 }
