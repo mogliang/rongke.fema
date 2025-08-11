@@ -35,11 +35,11 @@ export class FmeaStep2Component {
   ngOnInit() {
   }
 
-  ngOnChanges(){
+  ngOnChanges() {
     this.refreshView();
   }
 
-  internalFmeaDoc : FMEADto2 | null = null;
+  internalFmeaDoc: FMEADto2 | null = null;
   private fb = inject(NonNullableFormBuilder);
   public editForm = this.fb.group({
     code: ['', [Validators.required]],
@@ -47,17 +47,25 @@ export class FmeaStep2Component {
     shortName: ['', [Validators.required, Validators.maxLength(10)]],
     category: ['', [Validators.required]],
   });
-  
+
   public addForm = this.fb.group({
     code: ['', [Validators.required]],
     longName: ['', [Validators.required, Validators.maxLength(100)]],
     shortName: ['', [Validators.required, Validators.maxLength(10)]],
     category: ['', [Validators.required]],
   });
+  
   contextMenu2($event: NzFormatEmitEvent, menu: NzDropdownMenuComponent): void {
     if ($event.node) {
       this.selectedCode = $event.node?.key!;
-      var selectedNode = this.fmStructures.find((item) => item.code === this.selectedCode);
+      var selectedNode: FMStructureDto2 | null | undefined = null;
+
+      if (this.internalFmeaDoc!.rootFMStructure?.code == this.selectedCode) {
+        selectedNode = this.internalFmeaDoc!.rootFMStructure;
+      } else {
+        selectedNode = this.fmStructures.find((item) => item.code === this.selectedCode);
+      }
+
       if (selectedNode) {
         this.setSelectedNode(selectedNode);
         this.nzContextMenuService.create($event.event!, menu);
@@ -67,7 +75,7 @@ export class FmeaStep2Component {
 
   refreshView() {
     if (this.internalFmeaDoc == null && this.fmeaDoc() !== null) {
-          this.internalFmeaDoc = this.fmeaDoc()!;
+      this.internalFmeaDoc = this.fmeaDoc()!;
     }
 
     console.log('refreshView', this.internalFmeaDoc);
@@ -128,7 +136,7 @@ export class FmeaStep2Component {
       this.selectedStructure.shortName = this.editForm.value.shortName!;
       this.selectedStructure.category = this.editForm.value.category!;
       this.refreshView();
-      
+
       this.femaDocUpdated.emit(this.internalFmeaDoc!);
     }
   }
@@ -137,11 +145,11 @@ export class FmeaStep2Component {
   handleAddCancel(): void {
     this.isAddMode = false;
   }
-  
+
   handleAddOk(): void {
     if (this.addForm.valid) {
       this.isAddMode = false;
-      
+
       // Create new structure
       const newStructure: FMStructureDto2 = {
         code: this.addForm.value.code!,
@@ -152,19 +160,19 @@ export class FmeaStep2Component {
         childFMStructures: [],
         seFunctions: [],
       };
-      
+
       // Add to parent's children
       if (!this.selectedStructure.childFMStructures) {
         this.selectedStructure.childFMStructures = [];
       }
       this.selectedStructure.childFMStructures.push(newStructure);
-      
+
       // Add to the main fmStructures list as well
       if (!this.internalFmeaDoc?.fmStructures) {
         this.internalFmeaDoc!.fmStructures = [];
       }
       this.internalFmeaDoc!.fmStructures.push(newStructure);
-      
+
       // Refresh view and emit update
       this.refreshView();
       this.femaDocUpdated.emit(this.internalFmeaDoc!);
@@ -193,7 +201,7 @@ export class FmeaStep2Component {
   }
   public selectedCode: string = '';
   public fmStructures: FMStructureDto2[] = [];
-  
+
   public nodes: NzTreeNodeOptions[] = [];
   public rootNodes: NzTreeNodeOptions[] = [];
   public showRootTreeFlag: boolean = false;
