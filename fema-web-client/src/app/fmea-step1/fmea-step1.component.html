@@ -211,7 +211,7 @@
 
         <nz-card nzTitle="核心团队" nzSize="small" [nzExtra]="extraTemplate3">
             <ng-template #extraTemplate3>
-                <button nz-button nzSize="small" nzType="default" (click)="openAddTeamMemberModal(true)">添加成员</button>
+                <button nz-button nzSize="small" nzType="default" (click)="openAddCoreTeamMemberModal()">添加成员</button>
             </ng-template>
             <nz-table #coreTeamTable [nzData]="coreTeamMembers" nzSize="small">
                 <thead>
@@ -250,7 +250,7 @@
         </nz-card>
         <nz-card nzTitle="扩展团队" nzSize="small" [nzExtra]="extraTemplate4">
             <ng-template #extraTemplate4>
-                <button nz-button nzSize="small" nzType="default" (click)="openAddTeamMemberModal(false)">添加成员</button>
+                <button nz-button nzSize="small" nzType="default" (click)="openAddExtendedTeamMemberModal()">添加成员</button>
             </ng-template>
             <nz-table #extendedTeamTable [nzData]="extendedTeamMembers" nzSize="small">
                 <thead>
@@ -295,69 +295,24 @@
     <nz-tab nzTitle="附件">
     </nz-tab>
 </nz-tabset>
-<!-- Add Team Member Modal -->
-<nz-modal [(nzVisible)]="isAddingTeamMember" [nzTitle]="isSelectingCoreTeamForAdd ? '添加核心团队成员' : '添加扩展团队成员'"
-    (nzOnCancel)="cancelAddTeamMember()" (nzOnOk)="confirmAddTeamMember()">
-    <ng-container *nzModalContent>
-        <nz-form-label nzRequired nzFor="employee">选择员工</nz-form-label>
-        <nz-form-control>
-            <div>
-                <nz-select nzPlaceHolder="选择员工" [(ngModel)]="currentSelectedEmployee"
-                    (ngModelChange)="selectEmployeeForTeam($event)">
-                    @for (p of availableEmployees; track p) {
-                    <nz-option [nzValue]="p" [nzLabel]="p.name + ' (' + p.employeeNo + ')'"></nz-option>
-                    }
-                </nz-select>
-            </div>
-        </nz-form-control>
 
-        <form nz-form [formGroup]="memberAddForm">
-            <nz-form-item>
-                <nz-form-label [nzSpan]="6">姓名</nz-form-label>
-                <nz-form-control [nzSpan]="18">
-                    <input nz-input formControlName="name" />
-                </nz-form-control>
-            </nz-form-item>
-            <nz-form-item>
-                <nz-form-label [nzSpan]="6">工号</nz-form-label>
-                <nz-form-control [nzSpan]="18">
-                    <input nz-input formControlName="employeeNo" />
-                </nz-form-control>
-            </nz-form-item>
-            <nz-form-item>
-                <nz-form-label [nzSpan]="6">角色</nz-form-label>
-                <nz-form-control [nzSpan]="18">
-                    <input nz-input formControlName="role" />
-                </nz-form-control>
-            </nz-form-item>
-            <nz-form-item>
-                <nz-form-label [nzSpan]="6">部门</nz-form-label>
-                <nz-form-control [nzSpan]="18">
-                    <input nz-input formControlName="department" />
-                </nz-form-control>
-            </nz-form-item>
-            <nz-form-item>
-                <nz-form-label [nzSpan]="6">邮箱</nz-form-label>
-                <nz-form-control [nzSpan]="18">
-                    <input nz-input formControlName="email" />
-                </nz-form-control>
-            </nz-form-item>
-            <nz-form-item>
-                <nz-form-label [nzSpan]="6">电话</nz-form-label>
-                <nz-form-control [nzSpan]="18">
-                    <input nz-input formControlName="phone" />
-                </nz-form-control>
-            </nz-form-item>
-            <nz-form-item>
-                <nz-form-label [nzSpan]="6">备注</nz-form-label>
-                <nz-form-control [nzSpan]="18">
-                    <textarea nz-input formControlName="note" placeholder="请输入备注信息"
-                        [nzAutosize]="{ minRows: 3, maxRows: 6 }"></textarea>
-                </nz-form-control>
-            </nz-form-item>
-        </form>
-    </ng-container>
-</nz-modal>
+<!-- Add Core Team Member Modal Component -->
+<app-add-team-member-modal
+  [(visible)]="isAddingCoreTeamMember"
+  title="添加核心团队成员"
+  [memberList]="coreTeamMembers"
+  (memberListUpdate)="onCoreTeamMemberAdd($event)"
+  (cancel)="onAddCoreTeamMemberCancel()">
+</app-add-team-member-modal>
+
+<!-- Add Extended Team Member Modal Component -->
+<app-add-team-member-modal
+  [(visible)]="isAddingExtendedTeamMember"
+  title="添加扩展团队成员"
+  [memberList]="extendedTeamMembers"
+  (memberListUpdate)="onExtendedTeamMemberAdd($event)"
+  (cancel)="onAddExtendedTeamMemberCancel()">
+</app-add-team-member-modal>
 
 <!-- Edit Team Member Modal -->
 <nz-modal [(nzVisible)]="isEditingTeamMember" [nzTitle]="isSelectingCoreTeamForEdit ? '编辑核心团队成员' : '编辑扩展团队成员'"

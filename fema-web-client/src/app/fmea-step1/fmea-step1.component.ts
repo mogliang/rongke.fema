@@ -4,8 +4,9 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { FormsModule } from '@angular/forms';
 import { FMEADto2, FMEAService, TeamMemberDto, FMEAType } from '../../libs/api-client';
 import { HelperService } from '../helper.service';
-import { MockService, EmployeeModel } from '../mock.service';
+import { MockService } from '../mock.service';
 import { Output, EventEmitter } from '@angular/core';
+import { AddTeamMemberModalComponent } from '../components/add-team-member-modal.component';
 
 // NG-ZORRO Modules
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -40,7 +41,8 @@ import { NzListModule } from 'ng-zorro-antd/list';
     NzIconModule,
     NzTableModule,
     NzModalModule,
-    NzListModule
+    NzListModule,
+    AddTeamMemberModalComponent
   ],
   providers: [HelperService, MockService],
   templateUrl: './fmea-step1.component.html',
@@ -60,7 +62,6 @@ export class FmeaStep1Component implements OnInit {
   currentFmeaDoc: FMEADto2 | null = null;
   coreTeamMembers: TeamMemberDto[] = [];
   extendedTeamMembers: TeamMemberDto[] = [];
-  availableEmployees: EmployeeModel[] = [];
 
   // UI state properties
   isEditingBasicInfo: boolean = false;
@@ -105,9 +106,7 @@ export class FmeaStep1Component implements OnInit {
 
   ngOnChanges() {
     this.initializeFmeaBasicInfoForm();
-    this.initializeMemberAddForm();
     this.initializeMemberEditForm();
-    this.loadAvailableEmployees();
     if (this.fmeaDoc()) {
       this.currentFmeaDoc = this.fmeaDoc();
       this.populateBasicInfoForm();
@@ -116,21 +115,6 @@ export class FmeaStep1Component implements OnInit {
   }
 
   // General utility methods
-  loadAvailableEmployees() {
-    this.availableEmployees = this.mockService.getEmployees();
-  }
-
-  selectEmployeeForTeam(employee: EmployeeModel): void {
-    this.currentSelectedEmployee = employee;
-    this.memberAddForm.patchValue({
-      name: employee.name,
-      employeeNo: employee.employeeNo,
-      role: employee.role,
-      department: employee.department,
-      email: employee.email,
-      phone: employee.phone
-    });
-  }
 
   initializeFmeaBasicInfoForm() {
     this.fmeaBasicInfoForm = this.fb.group({
@@ -156,18 +140,6 @@ export class FmeaStep1Component implements OnInit {
       accessLevel: ['编辑者'],
       designDepartment: [''],
       designOwner: ['']
-    });
-  }
-
-  initializeMemberAddForm() {
-    this.memberAddForm = this.fb.group({
-      name: [{value: '', disabled: true}, Validators.required],
-      employeeNo: [{value: '', disabled: true}, Validators.required],
-      role: [{value: '', disabled: true}, Validators.required],
-      department: [{value: '', disabled: true}],
-      email: [{value: '', disabled: true}],
-      phone: [{value: '', disabled: true}],
-      note: ['']
     });
   }
 
@@ -248,70 +220,37 @@ export class FmeaStep1Component implements OnInit {
   // ========================================
 
   // Team member add properties
-  isAddingTeamMember: boolean = false;
-  isSelectingCoreTeamForAdd: boolean = true;
-  memberAddForm!: FormGroup;
-  currentSelectedEmployee: EmployeeModel | null = null;
+  isAddingCoreTeamMember: boolean = false;
+  isAddingExtendedTeamMember: boolean = false;
 
-  openAddTeamMemberModal(isCoreTeam: boolean) {
-    this.isSelectingCoreTeamForAdd = isCoreTeam;
-    this.isAddingTeamMember = true;
-    this.currentSelectedEmployee = null;
-    this.memberAddForm.reset();
-    
-    // Reset form fields to disabled state (they'll be filled from employee selection)
-    Object.keys(this.memberAddForm.controls).forEach(key => {
-      if (key !== 'note') {
-        this.memberAddForm.get(key)?.disable();
-      }
-    });
+  openAddCoreTeamMemberModal() {
+    this.isAddingCoreTeamMember = true;
   }
 
-  cancelAddTeamMember() {
-    this.isAddingTeamMember = false;
-    this.currentSelectedEmployee = null;
+  openAddExtendedTeamMemberModal() {
+    this.isAddingExtendedTeamMember = true;
   }
 
-  confirmAddTeamMember() {
-    if (this.memberAddForm.invalid || !this.currentSelectedEmployee) {
-      if (!this.currentSelectedEmployee) {
-        this.message.warning('请先选择一名员工');
-      } else {
-        Object.values(this.memberAddForm.controls).forEach(control => {
-          if (control.invalid) {
-            control.markAsDirty();
-            control.updateValueAndValidity({ onlySelf: true });
-          }
-        });
-      }
-      return;
-    }
+  onAddCoreTeamMemberCancel() {
+    this.isAddingCoreTeamMember = false;
+  }
 
-    const newMember = this.mockService.convertToTeamMember(
-      this.currentSelectedEmployee, 
-      this.memberAddForm.value.note || ''
-    );
-    
+  onAddExtendedTeamMemberCancel() {
+    this.isAddingExtendedTeamMember = false;
+  }
+
+  onCoreTeamMemberAdd(updatedMemberList: TeamMemberDto[]) {
     if (!this.currentFmeaDoc) return;
-    if (this.coreTeamMembers.some(member => member.employeeNo === newMember.employeeNo)) {
-      this.message.warning('该成员已存在于核心团队中');
-      return;
-    }
-    if (this.extendedTeamMembers.some(member => member.employeeNo === newMember.employeeNo)) {
-      this.message.warning('该成员已存在于扩展团队中');
-      return;
-    }
-
-    if (this.isSelectingCoreTeamForAdd) {
-      this.currentFmeaDoc?.coreMembers?.push(newMember);
-    } else {
-      this.currentFmeaDoc?.extendedMembers?.push(newMember);
-    }
-
-    this.isAddingTeamMember = false;
-    this.currentSelectedEmployee = null;
-    this.message.success('成员已添加');
+    this.currentFmeaDoc.coreMembers = updatedMemberList;
     this.refreshTeamMemberLists();
+    this.femaDocUpdated.emit(this.currentFmeaDoc);
+  }
+
+  onExtendedTeamMemberAdd(updatedMemberList: TeamMemberDto[]) {
+    if (!this.currentFmeaDoc) return;
+    this.currentFmeaDoc.extendedMembers = updatedMemberList;
+    this.refreshTeamMemberLists();
+    this.femaDocUpdated.emit(this.currentFmeaDoc);
   }
 
   // ========================================
@@ -388,6 +327,7 @@ export class FmeaStep1Component implements OnInit {
     });
   }
 
+  // recreate array to refresh ui
   refreshTeamMemberLists() {
     this.coreTeamMembers = [...this.currentFmeaDoc?.coreMembers || []];
     this.extendedTeamMembers = [...this.currentFmeaDoc?.extendedMembers || []];
