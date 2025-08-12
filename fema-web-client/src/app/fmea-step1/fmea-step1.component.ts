@@ -47,33 +47,35 @@ import { NzListModule } from 'ng-zorro-antd/list';
   styleUrls: ['./fmea-step1.component.css']
 })
 export class FmeaStep1Component implements OnInit {
+
+  // ========================================
+  // INITIALIZATION SECTION
+  // ========================================
+  
+  // Input/Output properties
   fmeaDoc = input.required<FMEADto2 | null>();
   @Output() femaDocUpdated = new EventEmitter<FMEADto2>();
 
-  internalFmeaDoc : FMEADto2 | null = null;
-  coreMembers: TeamMemberDto[] = [];
-  extendedMembers: TeamMemberDto[] = [];
-  fmeaForm!: FormGroup;
-  isEditing = false;
+  // Core data properties
+  currentFmeaDoc: FMEADto2 | null = null;
+  coreTeamMembers: TeamMemberDto[] = [];
+  extendedTeamMembers: TeamMemberDto[] = [];
+  availableEmployees: EmployeeModel[] = [];
+
+  // UI state properties
+  isEditingBasicInfo: boolean = false;
+  showEmployeeSearch: string = '';
+
+  // Form builders
+  fmeaBasicInfoForm!: FormGroup;
   
-  // Member management
-  isAddingMember = false;
-  isEditingMember = false;
-  isCoreTeamTab = true;
-  memberForm!: FormGroup;
-  editNoteForm!: FormGroup;
-  selectedEmployee: EmployeeModel | null = null;
-  employees: EmployeeModel[] = [];
-  searchValue = '';
-  currentEditIndex: number = -1;
-  currentMember: TeamMemberDto | null = null;
-  
-  fmeaTypes = [
+  // Static data collections
+  fmeaTypeOptions = [
     { label: 'DFMEA', value: FMEAType.Dfmea },
     { label: 'PFMEA', value: FMEAType.Pfmea }
   ];
   
-  secretLevels = [
+  secretLevelOptions = [
     { label: '绝密', value: '绝密' },
     { label: '机密', value: '机密' },
     { label: '秘密', value: '秘密' },
@@ -81,7 +83,7 @@ export class FmeaStep1Component implements OnInit {
     { label: '公开', value: '公开' }
   ];
   
-  accessLevels = [
+  accessLevelOptions = [
     { label: '管理员', value: '管理员' },
     { label: '编辑者', value: '编辑者' },
     { label: '审阅者', value: '审阅者' },
@@ -97,27 +99,30 @@ export class FmeaStep1Component implements OnInit {
     private mockService: MockService
   ) {}
 
+  // Lifecycle methods
   ngOnInit() {
   }
 
-  ngOnChanges(){
-    this.initFmeaForm();
-    this.initMemberForm();
-    this.initEditNoteForm();
-    this.loadEmployees();
+  ngOnChanges() {
+    this.initializeFmeaBasicInfoForm();
+    this.initializeMemberAddForm();
+    this.initializeMemberEditForm();
+    this.loadAvailableEmployees();
     if (this.fmeaDoc()) {
-      this.internalFmeaDoc = this.fmeaDoc();
-      this.populateForm();
-      this.refreshMemberList();
+      this.currentFmeaDoc = this.fmeaDoc();
+      this.populateBasicInfoForm();
+      this.refreshTeamMemberLists();
     }
   }
 
-  loadEmployees() {
-    this.employees = this.mockService.getEmployees();
+  // General utility methods
+  loadAvailableEmployees() {
+    this.availableEmployees = this.mockService.getEmployees();
   }
 
-  selectEmployee(employee: EmployeeModel): void {
-    this.memberForm.patchValue({
+  selectEmployeeForTeam(employee: EmployeeModel): void {
+    this.currentSelectedEmployee = employee;
+    this.memberAddForm.patchValue({
       name: employee.name,
       employeeNo: employee.employeeNo,
       role: employee.role,
@@ -127,8 +132,8 @@ export class FmeaStep1Component implements OnInit {
     });
   }
 
-  initFmeaForm() {
-    this.fmeaForm = this.fb.group({
+  initializeFmeaBasicInfoForm() {
+    this.fmeaBasicInfoForm = this.fb.group({
       // Basic information
       code: ['', Validators.required],
       type: [FMEAType.Dfmea, Validators.required],
@@ -154,8 +159,8 @@ export class FmeaStep1Component implements OnInit {
     });
   }
 
-  initMemberForm() {
-    this.memberForm = this.fb.group({
+  initializeMemberAddForm() {
+    this.memberAddForm = this.fb.group({
       name: [{value: '', disabled: true}, Validators.required],
       employeeNo: [{value: '', disabled: true}, Validators.required],
       role: [{value: '', disabled: true}, Validators.required],
@@ -166,18 +171,18 @@ export class FmeaStep1Component implements OnInit {
     });
   }
 
-  initEditNoteForm() {
-    this.editNoteForm = this.fb.group({
+  initializeMemberEditForm() {
+    this.memberEditForm = this.fb.group({
       note: ['']
     });
   }
 
-  populateForm() {
+  populateBasicInfoForm() {
     console.log('Populating form with FMEA data');
-    var data = this.internalFmeaDoc
+    var data = this.currentFmeaDoc
     if (!data) return;
 
-    this.fmeaForm.patchValue({
+    this.fmeaBasicInfoForm.patchValue({
       code: data.code,
       type: data.type,
       name: data.name,
@@ -198,23 +203,27 @@ export class FmeaStep1Component implements OnInit {
       designDepartment: data.designDepartment,
       designOwner: data.designOwner
     });
-    this.fmeaForm.disable();
+    this.fmeaBasicInfoForm.disable();
   }
 
-  startEditing() {
-    this.isEditing = true;
-    this.fmeaForm.enable();
+  // ========================================
+  // BASIC INFO EDIT SECTION
+  // ========================================
+  
+  startEditingBasicInfo() {
+    this.isEditingBasicInfo = true;
+    this.fmeaBasicInfoForm.enable();
   }
 
-  cancelEditing() {
-    this.isEditing = false;
-    this.fmeaForm.disable();
-    this.populateForm();
+  cancelEditingBasicInfo() {
+    this.isEditingBasicInfo = false;
+    this.fmeaBasicInfoForm.disable();
+    this.populateBasicInfoForm();
   }
 
-  saveChanges() {
-    if (this.fmeaForm.invalid) {
-      Object.values(this.fmeaForm.controls).forEach(control => {
+  confirmBasicInfoChanges() {
+    if (this.fmeaBasicInfoForm.invalid) {
+      Object.values(this.fmeaBasicInfoForm.controls).forEach(control => {
         if (control.invalid) {
           control.markAsDirty();
           control.updateValueAndValidity({ onlySelf: true });
@@ -223,69 +232,52 @@ export class FmeaStep1Component implements OnInit {
       return;
     }
 
-    // Update internalFmeaDoc with form values
-    if (this.internalFmeaDoc) {
-      Object.assign(this.internalFmeaDoc, this.fmeaForm.value);
+    // Update currentFmeaDoc with form values
+    if (this.currentFmeaDoc) {
+      Object.assign(this.currentFmeaDoc, this.fmeaBasicInfoForm.value);
     }
 
-    this.isEditing = false;
-    this.fmeaForm.disable();
-    this.populateForm();
-    this.femaDocUpdated.emit(this.internalFmeaDoc!);
-
+    this.isEditingBasicInfo = false;
+    this.fmeaBasicInfoForm.disable();
+    this.populateBasicInfoForm();
+    this.femaDocUpdated.emit(this.currentFmeaDoc!);
   }
 
-  showAddMemberModal(isCoreTeam: boolean) {
-    this.isCoreTeamTab = isCoreTeam;
-    this.isAddingMember = true;
-    this.selectedEmployee = null;
-    this.memberForm.reset();
+  // ========================================
+  // TEAM MEMBER ADD SECTION
+  // ========================================
+
+  // Team member add properties
+  isAddingTeamMember: boolean = false;
+  isSelectingCoreTeamForAdd: boolean = true;
+  memberAddForm!: FormGroup;
+  currentSelectedEmployee: EmployeeModel | null = null;
+
+  openAddTeamMemberModal(isCoreTeam: boolean) {
+    this.isSelectingCoreTeamForAdd = isCoreTeam;
+    this.isAddingTeamMember = true;
+    this.currentSelectedEmployee = null;
+    this.memberAddForm.reset();
     
     // Reset form fields to disabled state (they'll be filled from employee selection)
-    Object.keys(this.memberForm.controls).forEach(key => {
+    Object.keys(this.memberAddForm.controls).forEach(key => {
       if (key !== 'note') {
-        this.memberForm.get(key)?.disable();
+        this.memberAddForm.get(key)?.disable();
       }
     });
   }
 
-  showEditMemberModal(isCoreTeam: boolean, index: number) {
-    this.isCoreTeamTab = isCoreTeam;
-    this.currentEditIndex = index;
-    
-    const membersList = isCoreTeam ? this.internalFmeaDoc?.coreMembers : this.internalFmeaDoc?.extendedMembers;
-    if (!membersList || index < 0 || index >= membersList.length) return;
-    
-    this.currentMember = membersList[index];
-    this.editNoteForm.setValue({
-      note: this.currentMember.note || ''
-    });
-    
-    this.isEditingMember = true;
+  cancelAddTeamMember() {
+    this.isAddingTeamMember = false;
+    this.currentSelectedEmployee = null;
   }
 
-  cancelAddMember() {
-    this.isAddingMember = false;
-    this.selectedEmployee = null;
-  }
-
-  cancelEditMember() {
-    this.isEditingMember = false;
-    this.currentMember = null;
-    this.currentEditIndex = -1;
-  }
-
-  refreshMemberList() {
-    this.coreMembers = [...this.internalFmeaDoc?.coreMembers || []];
-    this.extendedMembers = [...this.internalFmeaDoc?.extendedMembers || []];
-  }
-
-  addMember() {
-    if (this.memberForm.invalid || !this.selectedEmployee) {
-      if (!this.selectedEmployee) {
+  confirmAddTeamMember() {
+    if (this.memberAddForm.invalid || !this.currentSelectedEmployee) {
+      if (!this.currentSelectedEmployee) {
         this.message.warning('请先选择一名员工');
       } else {
-        Object.values(this.memberForm.controls).forEach(control => {
+        Object.values(this.memberAddForm.controls).forEach(control => {
           if (control.invalid) {
             control.markAsDirty();
             control.updateValueAndValidity({ onlySelf: true });
@@ -296,54 +288,86 @@ export class FmeaStep1Component implements OnInit {
     }
 
     const newMember = this.mockService.convertToTeamMember(
-      this.selectedEmployee, 
-      this.memberForm.value.note || ''
+      this.currentSelectedEmployee, 
+      this.memberAddForm.value.note || ''
     );
     
-    if (!this.internalFmeaDoc) return;
-    if (this.coreMembers.some(member => member.employeeNo === newMember.employeeNo)) {
+    if (!this.currentFmeaDoc) return;
+    if (this.coreTeamMembers.some(member => member.employeeNo === newMember.employeeNo)) {
       this.message.warning('该成员已存在于核心团队中');
       return;
     }
-    if (this.extendedMembers.some(member => member.employeeNo === newMember.employeeNo)) {
+    if (this.extendedTeamMembers.some(member => member.employeeNo === newMember.employeeNo)) {
       this.message.warning('该成员已存在于扩展团队中');
       return;
     }
 
-    if (this.isCoreTeamTab) {
-      this.internalFmeaDoc?.coreMembers?.push(newMember);
+    if (this.isSelectingCoreTeamForAdd) {
+      this.currentFmeaDoc?.coreMembers?.push(newMember);
     } else {
-      this.internalFmeaDoc?.extendedMembers?.push(newMember);
+      this.currentFmeaDoc?.extendedMembers?.push(newMember);
     }
 
-    this.isAddingMember = false;
-    this.selectedEmployee = null;
+    this.isAddingTeamMember = false;
+    this.currentSelectedEmployee = null;
     this.message.success('成员已添加');
-    this.refreshMemberList();
+    this.refreshTeamMemberLists();
   }
 
-  updateMemberNote() {
-    if (this.editNoteForm.invalid || this.currentEditIndex < 0 || !this.currentMember) {
+  // ========================================
+  // TEAM MEMBER EDIT SECTION
+  // ========================================
+
+  // Team member edit properties
+  isEditingTeamMember: boolean = false;
+  isSelectingCoreTeamForEdit: boolean = true;
+  memberEditForm!: FormGroup;
+  currentEditMemberIndex: number = -1;
+  currentEditMember: TeamMemberDto | null = null;
+
+  openEditTeamMemberModal(isCoreTeam: boolean, index: number) {
+    this.isSelectingCoreTeamForEdit = isCoreTeam;
+    this.currentEditMemberIndex = index;
+    
+    const membersList = isCoreTeam ? this.currentFmeaDoc?.coreMembers : this.currentFmeaDoc?.extendedMembers;
+    if (!membersList || index < 0 || index >= membersList.length) return;
+    
+    this.currentEditMember = membersList[index];
+    this.memberEditForm.setValue({
+      note: this.currentEditMember.note || ''
+    });
+    
+    this.isEditingTeamMember = true;
+  }
+
+  cancelEditTeamMember() {
+    this.isEditingTeamMember = false;
+    this.currentEditMember = null;
+    this.currentEditMemberIndex = -1;
+  }
+
+  confirmEditTeamMember() {
+    if (this.memberEditForm.invalid || this.currentEditMemberIndex < 0 || !this.currentEditMember) {
       return;
     }
 
-    if (!this.internalFmeaDoc) return;
+    if (!this.currentFmeaDoc) return;
     
-    const membersList = this.isCoreTeamTab ? this.internalFmeaDoc?.coreMembers : this.internalFmeaDoc?.extendedMembers;
-    if (!membersList || this.currentEditIndex >= membersList.length) return;
+    const membersList = this.isSelectingCoreTeamForEdit ? this.currentFmeaDoc?.coreMembers : this.currentFmeaDoc?.extendedMembers;
+    if (!membersList || this.currentEditMemberIndex >= membersList.length) return;
     
-    membersList[this.currentEditIndex].note = this.editNoteForm.value.note || '';
+    membersList[this.currentEditMemberIndex].note = this.memberEditForm.value.note || '';
     
-    this.isEditingMember = false;
-    this.currentMember = null;
-    this.currentEditIndex = -1;
+    this.isEditingTeamMember = false;
+    this.currentEditMember = null;
+    this.currentEditMemberIndex = -1;
     this.message.success('成员备注已更新');
   }
 
-  removeMember(isCoreTeam: boolean, index: number) {
-    if (!this.internalFmeaDoc) return;
+  deleteTeamMember(isCoreTeam: boolean, index: number) {
+    if (!this.currentFmeaDoc) return;
     
-    const membersList = this.isCoreTeamTab ? this.internalFmeaDoc?.coreMembers : this.internalFmeaDoc?.extendedMembers;
+    const membersList = isCoreTeam ? this.currentFmeaDoc?.coreMembers : this.currentFmeaDoc?.extendedMembers;
     if (!membersList || index < 0 || index >= membersList.length) return;
     
     const member = membersList[index];
@@ -359,8 +383,13 @@ export class FmeaStep1Component implements OnInit {
       nzOnOk: () => {
         membersList.splice(index, 1);
         this.message.success('成员已删除');
-        this.refreshMemberList();
+        this.refreshTeamMemberLists();
       }
     });
+  }
+
+  refreshTeamMemberLists() {
+    this.coreTeamMembers = [...this.currentFmeaDoc?.coreMembers || []];
+    this.extendedTeamMembers = [...this.currentFmeaDoc?.extendedMembers || []];
   }
 }

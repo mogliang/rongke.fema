@@ -2,11 +2,11 @@
     <nz-tab nzTitle="概述">
         <nz-card nzTitle="基本信息" nzSize="small" [nzExtra]="extraTemplate1">
             <ng-template #extraTemplate1>
-                <button nz-button *ngIf="!isEditing" nzSize="small" nzType="primary" (click)="startEditing()">编辑</button>
-                <button nz-button *ngIf="isEditing" nzSize="small" nzType="default" (click)="cancelEditing()">取消</button>
-                <button nz-button *ngIf="isEditing" nzSize="small" nzType="primary" (click)="saveChanges()">保存</button>
+                <button nz-button *ngIf="!isEditingBasicInfo" nzSize="small" nzType="primary" (click)="startEditingBasicInfo()">编辑</button>
+                <button nz-button *ngIf="isEditingBasicInfo" nzSize="small" nzType="default" (click)="cancelEditingBasicInfo()">取消</button>
+                <button nz-button *ngIf="isEditingBasicInfo" nzSize="small" nzType="primary" (click)="confirmBasicInfoChanges()">保存</button>
             </ng-template>
-            <form nz-form [formGroup]="fmeaForm">
+            <form nz-form [formGroup]="fmeaBasicInfoForm">
                 <div nz-row [nzGutter]="24">
                     <div nz-col [nzSpan]="6">
                         <nz-form-item>
@@ -21,7 +21,7 @@
                             <nz-form-label [nzSpan]="8" nzRequired>FMEA类型</nz-form-label>
                             <nz-form-control [nzSpan]="16" nzErrorTip="请选择FMEA类型">
                                 <nz-select formControlName="type">
-                                    <nz-option *ngFor="let type of fmeaTypes" [nzValue]="type.value"
+                                    <nz-option *ngFor="let type of fmeaTypeOptions" [nzValue]="type.value"
                                         [nzLabel]="type.label"></nz-option>
                                 </nz-select>
                             </nz-form-control>
@@ -95,7 +95,7 @@
         </nz-card>
 
         <nz-card nzTitle="规划和准备" nzSize="small">
-            <form nz-form [formGroup]="fmeaForm">
+            <form nz-form [formGroup]="fmeaBasicInfoForm">
                 <div nz-row [nzGutter]="24">
                     <div nz-col [nzSpan]="6">
                         <nz-form-item>
@@ -172,7 +172,7 @@
                             <nz-form-label [nzSpan]="8">保密级别</nz-form-label>
                             <nz-form-control [nzSpan]="16">
                                 <nz-select formControlName="secretLevel" style="width: 100%;">
-                                    <nz-option *ngFor="let level of secretLevels" [nzValue]="level.value"
+                                    <nz-option *ngFor="let level of secretLevelOptions" [nzValue]="level.value"
                                         [nzLabel]="level.label"></nz-option>
                                 </nz-select>
                             </nz-form-control>
@@ -183,7 +183,7 @@
                             <nz-form-label [nzSpan]="8">访问级别</nz-form-label>
                             <nz-form-control [nzSpan]="16">
                                 <nz-select formControlName="accessLevel" style="width: 100%;">
-                                    <nz-option *ngFor="let level of accessLevels" [nzValue]="level.value"
+                                    <nz-option *ngFor="let level of accessLevelOptions" [nzValue]="level.value"
                                         [nzLabel]="level.label"></nz-option>
                                 </nz-select>
                             </nz-form-control>
@@ -211,9 +211,9 @@
 
         <nz-card nzTitle="核心团队" nzSize="small" [nzExtra]="extraTemplate3">
             <ng-template #extraTemplate3>
-                <button nz-button nzSize="small" nzType="default" (click)="showAddMemberModal(true)">添加成员</button>
+                <button nz-button nzSize="small" nzType="default" (click)="openAddTeamMemberModal(true)">添加成员</button>
             </ng-template>
-            <nz-table #coreTeamTable [nzData]="coreMembers" nzSize="small">
+            <nz-table #coreTeamTable [nzData]="coreTeamMembers" nzSize="small">
                 <thead>
                     <tr>
                         <th>姓名</th>
@@ -237,10 +237,10 @@
                         </td>
                         <td>{{ member.note }}</td>
                         <td>
-                            <button nz-button nzType="link" (click)="showEditMemberModal(true, i)">
+                            <button nz-button nzType="link" (click)="openEditTeamMemberModal(true, i)">
                                 <span nz-icon nzType="edit" nzTheme="outline"></span>
                             </button>
-                            <button nz-button nzType="link" nzDanger (click)="removeMember(true, i)">
+                            <button nz-button nzType="link" nzDanger (click)="deleteTeamMember(true, i)">
                                 <span nz-icon nzType="delete" nzTheme="outline"></span>
                             </button>
                         </td>
@@ -248,12 +248,11 @@
                 </tbody>
             </nz-table>
         </nz-card>
-
         <nz-card nzTitle="扩展团队" nzSize="small" [nzExtra]="extraTemplate4">
             <ng-template #extraTemplate4>
-                <button nz-button nzSize="small" nzType="default" (click)="showAddMemberModal(false)">添加成员</button>
+                <button nz-button nzSize="small" nzType="default" (click)="openAddTeamMemberModal(false)">添加成员</button>
             </ng-template>
-            <nz-table #extendedTeamTable [nzData]="extendedMembers" nzSize="small">
+            <nz-table #extendedTeamTable [nzData]="extendedTeamMembers" nzSize="small">
                 <thead>
                     <tr>
                         <th>姓名</th>
@@ -277,10 +276,10 @@
                         </td>
                         <td>{{ member.note }}</td>
                         <td>
-                            <button nz-button nzType="link" (click)="showEditMemberModal(false, i)">
+                            <button nz-button nzType="link" (click)="openEditTeamMemberModal(false, i)">
                                 <span nz-icon nzType="edit" nzTheme="outline"></span>
                             </button>
-                            <button nz-button nzType="link" nzDanger (click)="removeMember(false, i)">
+                            <button nz-button nzType="link" nzDanger (click)="deleteTeamMember(false, i)">
                                 <span nz-icon nzType="delete" nzTheme="outline"></span>
                             </button>
                         </td>
@@ -296,92 +295,85 @@
     <nz-tab nzTitle="附件">
     </nz-tab>
 </nz-tabset>
-
-<!-- 添加成员模态框 -->
-<nz-modal [(nzVisible)]="isAddingMember" [nzTitle]="isCoreTeamTab ? '添加核心团队成员' : '添加扩展团队成员'"
-    (nzOnCancel)="cancelAddMember()" (nzOnOk)="addMember()">
+<!-- Add Team Member Modal -->
+<nz-modal [(nzVisible)]="isAddingTeamMember" [nzTitle]="isSelectingCoreTeamForAdd ? '添加核心团队成员' : '添加扩展团队成员'"
+    (nzOnCancel)="cancelAddTeamMember()" (nzOnOk)="confirmAddTeamMember()">
     <ng-container *nzModalContent>
-
-        <nz-form-item>
-            <nz-form-label [nzSpan]="6" nzRequired>员工</nz-form-label>
-            <nz-form-control [nzSpan]="18">
-                <nz-select nzPlaceHolder="选择员工" [(ngModel)]="selectedEmployee" (ngModelChange)="selectEmployee($event)">
-                    @for (p of employees; track p) {
-                    <nz-option [nzValue]="p" nzLabel="{{p.department}} - {{p.name}}"></nz-option>
+        <nz-form-label nzRequired nzFor="employee">选择员工</nz-form-label>
+        <nz-form-control>
+            <div>
+                <nz-select nzPlaceHolder="选择员工" [(ngModel)]="currentSelectedEmployee"
+                    (ngModelChange)="selectEmployeeForTeam($event)">
+                    @for (p of availableEmployees; track p) {
+                    <nz-option [nzValue]="p" [nzLabel]="p.name + ' (' + p.employeeNo + ')'"></nz-option>
                     }
-                </nz-select>        
-            </nz-form-control>
-        </nz-form-item>
-        <nz-divider></nz-divider>
-        <form nz-form [formGroup]="memberForm">
+                </nz-select>
+            </div>
+        </nz-form-control>
+
+        <form nz-form [formGroup]="memberAddForm">
             <nz-form-item>
-                <nz-form-label [nzSpan]="6" nzRequired>姓名</nz-form-label>
+                <nz-form-label [nzSpan]="6">姓名</nz-form-label>
                 <nz-form-control [nzSpan]="18">
-                    <input nz-input formControlName="name" [disabled]="true" />
+                    <input nz-input formControlName="name" />
                 </nz-form-control>
             </nz-form-item>
-
             <nz-form-item>
-                <nz-form-label [nzSpan]="6" nzRequired>工号</nz-form-label>
+                <nz-form-label [nzSpan]="6">工号</nz-form-label>
                 <nz-form-control [nzSpan]="18">
-                    <input nz-input formControlName="employeeNo" [disabled]="true" />
+                    <input nz-input formControlName="employeeNo" />
                 </nz-form-control>
             </nz-form-item>
-
             <nz-form-item>
-                <nz-form-label [nzSpan]="6" nzRequired>角色</nz-form-label>
+                <nz-form-label [nzSpan]="6">角色</nz-form-label>
                 <nz-form-control [nzSpan]="18">
-                    <input nz-input formControlName="role" [disabled]="true" />
+                    <input nz-input formControlName="role" />
                 </nz-form-control>
             </nz-form-item>
-
             <nz-form-item>
                 <nz-form-label [nzSpan]="6">部门</nz-form-label>
                 <nz-form-control [nzSpan]="18">
-                    <input nz-input formControlName="department" [disabled]="true" />
+                    <input nz-input formControlName="department" />
                 </nz-form-control>
             </nz-form-item>
-
             <nz-form-item>
-                <nz-form-label [nzSpan]="6">电子邮件</nz-form-label>
+                <nz-form-label [nzSpan]="6">邮箱</nz-form-label>
                 <nz-form-control [nzSpan]="18">
-                    <input nz-input formControlName="email" [disabled]="true" />
+                    <input nz-input formControlName="email" />
                 </nz-form-control>
             </nz-form-item>
-
             <nz-form-item>
                 <nz-form-label [nzSpan]="6">电话</nz-form-label>
                 <nz-form-control [nzSpan]="18">
-                    <input nz-input formControlName="phone" [disabled]="true" />
+                    <input nz-input formControlName="phone" />
                 </nz-form-control>
             </nz-form-item>
-
             <nz-form-item>
                 <nz-form-label [nzSpan]="6">备注</nz-form-label>
                 <nz-form-control [nzSpan]="18">
                     <textarea nz-input formControlName="note" placeholder="请输入备注信息"
-                        [nzAutosize]="{ minRows: 2, maxRows: 4 }"></textarea>
+                        [nzAutosize]="{ minRows: 3, maxRows: 6 }"></textarea>
                 </nz-form-control>
             </nz-form-item>
         </form>
     </ng-container>
 </nz-modal>
 
-<!-- 编辑成员备注模态框 -->
-<nz-modal [(nzVisible)]="isEditingMember" [nzTitle]="isCoreTeamTab ? '编辑核心团队成员' : '编辑扩展团队成员'"
-    (nzOnCancel)="cancelEditMember()" (nzOnOk)="updateMemberNote()">
+<!-- Edit Team Member Modal -->
+<nz-modal [(nzVisible)]="isEditingTeamMember" [nzTitle]="isSelectingCoreTeamForEdit ? '编辑核心团队成员' : '编辑扩展团队成员'"
+    (nzOnCancel)="cancelEditTeamMember()" (nzOnOk)="confirmEditTeamMember()">
     <ng-container *nzModalContent>
-        <div *ngIf="currentMember" class="member-info"
+        <div *ngIf="currentEditMember" class="member-info"
             style="margin-bottom: 16px; padding: 16px; background-color: #f5f5f5; border-radius: 2px;">
-            <p><strong>姓名:</strong> {{ currentMember.name }}</p>
-            <p><strong>工号:</strong> {{ currentMember.employeeNo }}</p>
-            <p><strong>角色:</strong> {{ currentMember.role }}</p>
-            <p><strong>部门:</strong> {{ currentMember.department }}</p>
-            <p *ngIf="currentMember.email"><strong>邮箱:</strong> {{ currentMember.email }}</p>
-            <p *ngIf="currentMember.phone"><strong>电话:</strong> {{ currentMember.phone }}</p>
+            <p><strong>姓名:</strong> {{ currentEditMember.name }}</p>
+            <p><strong>工号:</strong> {{ currentEditMember.employeeNo }}</p>
+            <p><strong>角色:</strong> {{ currentEditMember.role }}</p>
+            <p><strong>部门:</strong> {{ currentEditMember.department }}</p>
+            <p *ngIf="currentEditMember.email"><strong>邮箱:</strong> {{ currentEditMember.email }}</p>
+            <p *ngIf="currentEditMember.phone"><strong>电话:</strong> {{ currentEditMember.phone }}</p>
         </div>
 
-        <form nz-form [formGroup]="editNoteForm">
+        <form nz-form [formGroup]="memberEditForm">
             <nz-form-item>
                 <nz-form-label [nzSpan]="4">备注</nz-form-label>
                 <nz-form-control [nzSpan]="20">
