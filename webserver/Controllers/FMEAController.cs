@@ -172,14 +172,7 @@ namespace Rongke.Fema.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!FMEAExists(code))
-                {
-                    return NotFound($"FMEA with code {code} not found");
-                }
-                else
-                {
-                    throw;
-                }
+                return Conflict($"FMEA with code {code} was updated by another user");
             }
             catch (Exception ex)
             {
@@ -219,15 +212,6 @@ namespace Rongke.Fema.Controllers
 
                 Console.WriteLine($"Flattened {incomingStructures.Count} incoming structures from DTO");
 
-                // Validate the incoming structure hierarchy for circular references
-                if (!validator.ValidateHierarchy(incomingStructures))
-                {
-                    throw new InvalidOperationException("Invalid structure hierarchy: circular references detected");
-                }
-
-                Console.WriteLine("Structure hierarchy validation passed");
-
-                var existingCodes = existingStructures.Select(s => s.Code).ToHashSet();
                 var incomingCodes = incomingStructures.Select(s => s.Code).ToHashSet();
 
                 // 1. Update existing structures
@@ -244,22 +228,7 @@ namespace Rongke.Fema.Controllers
                         existingStructure.ShortName = incomingStructure.ShortName;
                         existingStructure.Category = incomingStructure.Category;
                         
-                        // Update parent relationship
-                        if (!string.IsNullOrEmpty(incomingStructure.ParentFMStructureCode))
-                        {
-                            var parentStructure = existingStructures.FirstOrDefault(s => s.Code == incomingStructure.ParentFMStructureCode);
-                            if (parentStructure != null)
-                            {
-                                existingStructure.ParentFMStructureId = parentStructure.Id;
-                                existingStructure.Level = validator.CalculateLevel(incomingStructure.Code, incomingStructures);
-                            }
-                        }
-                        else
-                        {
-                            existingStructure.ParentFMStructureId = null;
-                            existingStructure.Level = 1; // Root level
-                        }
-
+                        // Note: Parent relationship will be updated later after all structures are created
                         _context.FMStructures.Update(existingStructure);
                     }
                     else
@@ -290,19 +259,42 @@ namespace Rongke.Fema.Controllers
                 // Reload structures to get updated IDs
                 var updatedStructures = await _context.FMStructures.ToListAsync();
 
-                // 2. Update parent references for new structures
+                // 2. Update parent references and levels for all structures (both new and existing)
                 foreach (var incomingStructure in incomingStructures)
                 {
-                    if (!string.IsNullOrEmpty(incomingStructure.ParentFMStructureCode))
+                    var structure = updatedStructures.FirstOrDefault(s => s.Code == incomingStructure.Code);
+                    if (structure != null)
                     {
-                        var structure = updatedStructures.FirstOrDefault(s => s.Code == incomingStructure.Code);
-                        var parentStructure = updatedStructures.FirstOrDefault(s => s.Code == incomingStructure.ParentFMStructureCode);
-                        
-                        if (structure != null && parentStructure != null && structure.ParentFMStructureId != parentStructure.Id)
+                        if (!string.IsNullOrEmpty(incomingStructure.ParentFMStructureCode))
                         {
-                            Console.WriteLine($"Updating parent reference for {structure.Code} to {parentStructure.Code}");
-                            structure.ParentFMStructureId = parentStructure.Id;
-                            _context.FMStructures.Update(structure);
+                            var parentStructure = updatedStructures.FirstOrDefault(s => s.Code == incomingStructure.ParentFMStructureCode);
+
+                            if (parentStructure != null)
+                            {
+                                if (structure.ParentFMStructureId != parentStructure.Id)
+                                {
+                                    Console.WriteLine($"Updating parent reference for {structure.Code} to {parentStructure.Code}");
+                                    structure.ParentFMStructureId = parentStructure.Id;
+                                    structure.Level = validator.CalculateLevel(incomingStructure.Code, incomingStructures);
+                                    _context.FMStructures.Update(structure);
+                                }
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException($"Parent structure {incomingStructure.ParentFMStructureCode} not found for {structure.Code}");
+                                //Console.WriteLine($"Warning: Parent structure {incomingStructure.ParentFMStructureCode} not found for {structure.Code}");
+                            }
+                        }
+                        else
+                        {
+                            // Root level structure
+                            if (structure.ParentFMStructureId != null)
+                            {
+                                Console.WriteLine($"Setting {structure.Code} as root structure (removing parent reference)");
+                                structure.ParentFMStructureId = null;
+                                structure.Level = 1;
+                                _context.FMStructures.Update(structure);
+                            }
                         }
                     }
                 }
@@ -326,11 +318,6 @@ namespace Rongke.Fema.Controllers
                 Console.WriteLine($"Error in SaveFmeaStructures: {ex.Message}");
                 throw;
             }
-        }
-
-        private bool FMEAExists(string code)
-        {
-            return _context.FMEAs.Any(e => e.Code == code);
         }
     }
 }
