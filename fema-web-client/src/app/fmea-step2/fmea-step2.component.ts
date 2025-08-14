@@ -238,7 +238,12 @@ export class FmeaStep2Component {
       return;
     }
 
-    var parentStructure = this.helper.findFMStructureByCode(this.currentFmeaDoc?.rootFMStructure!, this.currentSelectedStructure.parentFMStructureCode);
+    if (this.currentFmeaDoc?.fmFunctions.find(func=>func.fmStructureCode === fmStructure?.code)) {
+      this.message.error('无法删除FEMA结构，当前结构下存在功能');
+      return;
+    }
+
+    var parentStructure = this.helper.findFMStructureByCode(this.currentFmeaDoc?.fmStructures!, this.currentSelectedStructure.parentFMStructureCode);
     if (!parentStructure) {
       this.message.error('无法找到父FEMA结构');
       return;

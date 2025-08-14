@@ -116,23 +116,65 @@ export class HelperService {
     return doc;
   }
 
-  public findFMStructureByCode(rootStructure: FMStructureDto2, code: string): FMStructureDto2 | null {
-    if (!rootStructure || !code) {
+  public findFMFaultByCode(faults: FMFaultDto2[], code: string): FMFaultDto2 | null {
+    if (!faults || !code) {
       return null;
     }
 
-    // Check if current structure matches the code
-    if (rootStructure.code === code) {
-      return rootStructure;
+    for (const fault of faults) {
+      // Check if current fault matches the code
+      if (fault.code === code) {
+        return fault;
+      }
+
+      // Recursively search in child faults
+      const found = this.findFMFaultByCode(fault.causes, code);
+      if (found) {
+        return found;
+      }
     }
 
-    // Recursively search in child structures
-    if (rootStructure.childFMStructures) {
-      for (const childStructure of rootStructure.childFMStructures) {
-        const found = this.findFMStructureByCode(childStructure, code);
-        if (found) {
-          return found;
-        }
+    // Not found
+    return null;
+  }
+
+  public findFMFunctionByCode(functions: FMFunctionDto2[], code: string): FMFunctionDto2 | null {
+    if (!functions || !code) {
+      return null;
+    }
+
+    for (const func of functions) {
+      // Check if current function matches the code
+      if (func.code === code) {
+        return func;
+      }
+
+      // Recursively search in child functions
+      const found = this.findFMFunctionByCode(func.prerequisites, code);
+      if (found) {
+        return found;
+      }
+    }
+
+    // Not found
+    return null;
+  }
+
+  public findFMStructureByCode(structures: FMStructureDto2[], code: string): FMStructureDto2 | null {
+    if (!structures || !code) {
+      return null;
+    }
+
+    for (const structure of structures) {
+      // Check if current structure matches the code
+      if (structure.code === code) {
+        return structure;
+      }
+
+      // Recursively search in child structures
+      const found = this.findFMStructureByCode(structure.childFMStructures, code);
+      if (found) {
+        return found;
       }
     }
 
