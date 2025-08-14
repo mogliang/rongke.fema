@@ -116,6 +116,30 @@ export class HelperService {
     return doc;
   }
 
+  public findFMStructureByCode(rootStructure: FMStructureDto2, code: string): FMStructureDto2 | null {
+    if (!rootStructure || !code) {
+      return null;
+    }
+
+    // Check if current structure matches the code
+    if (rootStructure.code === code) {
+      return rootStructure;
+    }
+
+    // Recursively search in child structures
+    if (rootStructure.childFMStructures) {
+      for (const childStructure of rootStructure.childFMStructures) {
+        const found = this.findFMStructureByCode(childStructure, code);
+        if (found) {
+          return found;
+        }
+      }
+    }
+
+    // Not found
+    return null;
+  }
+
   public flattenFMStructures(fmStructures: FMStructureDto2[]): FMStructureDto2[] {
     let flatList: FMStructureDto2[] = [];
 

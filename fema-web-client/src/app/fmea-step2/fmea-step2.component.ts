@@ -14,6 +14,8 @@ import { HelperService } from '../helper.service';
 import { NzContextMenuService, NzDropdownMenuComponent, NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { Output, EventEmitter } from '@angular/core';
+import { NzMessageService } from 'ng-zorro-antd/message';
+
 import {
   AbstractControl,
   NonNullableFormBuilder,
@@ -30,7 +32,7 @@ import {
   styleUrl: './fmea-step2.component.css'
 })
 export class FmeaStep2Component {
-  constructor(private nzContextMenuService: NzContextMenuService, private fmeaService: FMEAService, private helper: HelperService) { }
+  constructor(private nzContextMenuService: NzContextMenuService, private fmeaService: FMEAService, private message: NzMessageService, private helper: HelperService) { }
 
   // ========================================
   // INITIALIZATION SECTION
@@ -91,12 +93,6 @@ export class FmeaStep2Component {
 
   selectStructureNode(fmStructure: FMStructureDto2): void {
     this.currentSelectedStructure = fmStructure;
-    this.editForm.setValue({
-      code: this.currentSelectedStructure.code,
-      longName: this.currentSelectedStructure.longName,
-      shortName: this.currentSelectedStructure.shortName,
-      category: this.currentSelectedStructure.category,
-    });
   }
 
   onTreeContextMenu($event: NzFormatEmitEvent, menu: NzDropdownMenuComponent): void {
@@ -199,6 +195,13 @@ export class FmeaStep2Component {
       this.selectStructureNode(fmStructure);
     }
 
+    this.editForm.setValue({
+      code: this.currentSelectedStructure.code,
+      longName: this.currentSelectedStructure.longName,
+      shortName: this.currentSelectedStructure.shortName,
+      category: this.currentSelectedStructure.category,
+    });
+
     this.isEditMode = true;
     console.log(this.currentSelectedStructure.code);
   }
@@ -213,18 +216,37 @@ export class FmeaStep2Component {
       this.currentSelectedStructure.longName = this.editForm.value.longName!;
       this.currentSelectedStructure.shortName = this.editForm.value.shortName!;
       this.currentSelectedStructure.category = this.editForm.value.category!;
-      this.refreshView();
 
+      this.refreshView();
       this.femaDocUpdated.emit(this.currentFmeaDoc!);
     }
   }
 
   // Delete methods (TODO: implement)
-  deleteStructureNode($event: MouseEvent): void {
-    console.log(this.currentSelectedStructure.code);
-  }
+  deleteStructureNode($event: MouseEvent, fmStructure: FMStructureDto2 | null): void {
+    if (fmStructure != null) {
+      this.selectStructureNode(fmStructure);
+    }
 
-  deleteStructureSubTree($event: MouseEvent): void {
-    console.log(this.currentSelectedStructure.code);
+    if (!this.currentSelectedStructure.parentFMStructureCode) {
+      this.message.error('无法删除根FEMA结构');
+      return
+    }
+
+    if (this.currentSelectedStructure.childFMStructures.length > 0) {
+      this.message.error('无法删除FEMA结构，当前结构下存在子结构');
+      return;
+    }
+
+    var parentStructure = this.helper.findFMStructureByCode(this.currentFmeaDoc?.rootFMStructure!, this.currentSelectedStructure.parentFMStructureCode);
+    if (!parentStructure) {
+      this.message.error('无法找到父FEMA结构');
+      return;
+    }
+
+    parentStructure.childFMStructures = parentStructure.childFMStructures?.filter(s => s.code !== this.currentSelectedStructure.code);
+
+    this.refreshView();
+    this.femaDocUpdated.emit(this.currentFmeaDoc!);
   }
 }
