@@ -89,8 +89,8 @@ print_status "Cleaning up any remaining processes..."
 # Kill any remaining dotnet processes running the webserver
 pkill -f "dotnet.*rongke.fema" 2>/dev/null && print_status "Killed remaining webserver processes" || true
 
-# Kill any remaining npm/node processes for the client
-pkill -f "ng serve\|npm.*start" 2>/dev/null && print_status "Killed remaining client processes" || true
+# Kill any remaining ng serve processes for the client
+pkill -f "ng serve" 2>/dev/null && print_status "Killed remaining client processes" || true
 
 print_status "All services stopped successfully!"
 print_status ""

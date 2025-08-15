@@ -111,7 +111,7 @@ else
     fi
     
     # Start client development server with nohup
-    nohup npm start > "$CLIENT_LOG" 2>&1 &
+    nohup npx ng serve --host 0.0.0.0 --port 4200 > "$CLIENT_LOG" 2>&1 &
     CLIENT_PID=$!
     echo $CLIENT_PID > "$CLIENT_PID_FILE"
     
