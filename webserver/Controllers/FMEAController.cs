@@ -222,8 +222,9 @@ namespace Rongke.Fema.Controllers
                     if (existingStructure != null)
                     {
                         Console.WriteLine($"Updating existing structure: {incomingStructure.Code}");
-                        
+
                         // Update properties
+                        existingStructure.Seq = incomingStructure.Seq;
                         existingStructure.LongName = incomingStructure.LongName;
                         existingStructure.ShortName = incomingStructure.ShortName;
                         existingStructure.Category = incomingStructure.Category;

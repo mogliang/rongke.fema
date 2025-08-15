@@ -9,6 +9,8 @@ namespace Rongke.Fema.Data
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
+        public int Seq { get; set; }
+
         public string ImportCode { get; set; } = string.Empty;
 
         [Required]
@@ -22,7 +24,7 @@ namespace Rongke.Fema.Data
         [Required]
         [Range(1, 3)]
         public int Level { get; set; }
-        
+
         public int RiskPriorityFactor { get; set; }
 
         [ForeignKey(nameof(FMFunctionRef))]

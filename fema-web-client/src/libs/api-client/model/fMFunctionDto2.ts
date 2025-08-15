@@ -14,6 +14,7 @@ export interface FMFunctionDto2 {
     code: string;
     longName: string;
     shortName: string;
+    seq: number;
     fmStructureCode?: string | null;
     parentFMFunctionCode?: string | null;
     prerequisites: Array<FMFunctionDto2>;

@@ -112,6 +112,21 @@ export class HelperService {
       }
     });
 
+    // sort for structure
+    doc.fmStructures.forEach(structure => {
+      structure.childFMStructures = structure.childFMStructures?.sort((a, b) => a.seq - b.seq);
+      structure.seFunctions = structure.seFunctions?.sort((a, b) => a.seq - b.seq);
+    });
+
+    doc.fmFunctions.forEach(func => {
+      func.prerequisites = func.prerequisites?.sort((a, b) => a.seq - b.seq);
+      func.faultRefs = func.faultRefs?.sort((a, b) => a.seq - b.seq);
+    });
+
+    doc.fmFaults.forEach(fault => {
+      fault.causes = fault.causes?.sort((a, b) => a.seq - b.seq);
+    });
+
     doc.rootFMStructure = doc.fmStructures!.find((s) => s.code === doc.rootFMStructure?.code); 
     return doc;
   }
@@ -249,9 +264,10 @@ export class HelperService {
           }
         }
       }
-    
-      for (let i = 0; i < data.childFMStructures?.length; i++) {
-        var childNode = this.generateTreeNodes(data.childFMStructures[i], includesFunc);
+
+      const sortedStructures = data.childFMStructures.sort((a, b) => a.seq - b.seq);
+      for (let i = 0; i < sortedStructures.length; i++) {
+        var childNode = this.generateTreeNodes(sortedStructures[i], includesFunc);
         node.children.push(childNode);
       }
     }

@@ -28,8 +28,15 @@ namespace Rongke.Fema.Controllers
         [RequestSizeLimit(10 * 1024 * 1024)] // 10 MB
         public async Task<IActionResult> FmeaXml([FromForm] string fmeaXml)
         {
-
-            var femaXml = XElement.Parse(fmeaXml);
+            XElement? femaXml = null;
+            try
+            {
+                femaXml = XElement.Parse(fmeaXml);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Invalid XML format.", ex);
+            }
 
             var fmFaultEles = femaXml.XPathSelectElements("//FM-FAULT");
             importFMFaults(_dbContext, fmFaultEles.ToList());
@@ -105,21 +112,27 @@ namespace Rongke.Fema.Controllers
 
             // set level
             var visitChecker = new VisitChecker();
-            var level1List = importedFMFaults.Where(p => p.ParentFaultId == null).ToList();
+            var level1List = importedFMFaults.Where(p => p.ParentFaultId == null).OrderBy(p => p.Id).ToList();
+            var levelSeq = 0;
             foreach (var fMFault1 in level1List)
             {
                 visitChecker.Visit(fMFault1.Code, "FM-FAULT");
                 fMFault1.Level = 1;
-                var level2List = importedFMFaults.Where(p => p.ParentFaultId == fMFault1.Id).ToList();
+                fMFault1.Seq = levelSeq++;
+                var level2List = importedFMFaults.Where(p => p.ParentFaultId == fMFault1.Id).OrderBy(p => p.Id).ToList();
+                var level2Seq = 0;
                 foreach (var fMFault2 in level2List)
                 {
                     visitChecker.Visit(fMFault2.Code, "FM-FAULT");
                     fMFault2.Level = 2;
-                    var level3List = importedFMFaults.Where(p => p.ParentFaultId == fMFault2.Id).ToList();
+                    fMFault2.Seq = level2Seq++;
+                    var level3List = importedFMFaults.Where(p => p.ParentFaultId == fMFault2.Id).OrderBy(p => p.Id).ToList();
+                    var level3Seq = 0;
                     foreach (var fMFault3 in level3List)
                     {
                         visitChecker.Visit(fMFault3.Code, "FM-FAULT");
                         fMFault3.Level = 3;
+                        fMFault3.Seq = level3Seq++;
                     }
                 }
             }
@@ -183,21 +196,27 @@ namespace Rongke.Fema.Controllers
 
             // set level
             var visitChecker = new VisitChecker();
-            var level1List = importedFMFunctions.Where(p => p.ParentFMFunctionId == null).ToList();
+            var level1List = importedFMFunctions.Where(p => p.ParentFMFunctionId == null).OrderBy(p => p.Id).ToList();
+            var levelSeq = 0;
             foreach (var fMFunction1 in level1List)
             {
                 visitChecker.Visit(fMFunction1.Code, "FM-FUNCTION");
                 fMFunction1.Level = 1;
-                var level2List = importedFMFunctions.Where(p => p.ParentFMFunctionId == fMFunction1.Id).ToList();
+                fMFunction1.Seq = levelSeq++;
+                var level2List = importedFMFunctions.Where(p => p.ParentFMFunctionId == fMFunction1.Id).OrderBy(p => p.Id).ToList();
+                var level2Seq = 0;
                 foreach (var fMFunction2 in level2List)
                 {
                     visitChecker.Visit(fMFunction2.Code, "FM-FUNCTION");
                     fMFunction2.Level = 2;
-                    var level3List = importedFMFunctions.Where(p => p.ParentFMFunctionId == fMFunction2.Id).ToList();
+                    fMFunction2.Seq = level2Seq++;
+                    var level3List = importedFMFunctions.Where(p => p.ParentFMFunctionId == fMFunction2.Id).OrderBy(p => p.Id).ToList();
+                    var level3Seq = 0;
                     foreach (var fMFunction3 in level3List)
                     {
                         visitChecker.Visit(fMFunction3.Code, "FM-FUNCTION");
                         fMFunction3.Level = 3;
+                        fMFunction3.Seq = level3Seq++;
                     }
                 }
             }
@@ -207,6 +226,11 @@ namespace Rongke.Fema.Controllers
             {
                 var code = fmFunctionEle.Attribute("ID").Value;
                 var curFunction = importedFMFunctions.First(p => p.ImportCode == code);
+                if ( curFunction == null)
+                {
+                    throw new InvalidOperationException($"FMFunction with ImportCode {code} not found.");
+                }
+
                 var faultRefs = fmFunctionEle.Element("FM-FAULT-REFS")?.Elements("FM-FAULT-REF");
                 if (faultRefs != null)
                 {
@@ -280,27 +304,35 @@ namespace Rongke.Fema.Controllers
 
             // set level
             var visitChecker = new VisitChecker();
-            var level0List = importedFMStructures.Where(p => p.ParentFMStructureId == null).ToList();
+            var level0List = importedFMStructures.Where(p => p.ParentFMStructureId == null).OrderBy(p => p.Id).ToList();
             // todo: level0List should be 1
+            var levelSeq = 0;
             foreach (var fMStructure0 in level0List)
             {
                 visitChecker.Visit(fMStructure0.Code, "FM-STRUCTURE");
                 fMStructure0.Level = 0;
-                var level1List = importedFMStructures.Where(p => p.ParentFMStructureId == fMStructure0.Id).ToList();
+                fMStructure0.Seq = levelSeq++;
+                var level1List = importedFMStructures.Where(p => p.ParentFMStructureId == fMStructure0.Id).OrderBy(p => p.Id).ToList();
+                var level1Seq = 0;
                 foreach (var fMStructure1 in level1List)
                 {
                     visitChecker.Visit(fMStructure1.Code, "FM-STRUCTURE");
                     fMStructure1.Level = 1;
-                    var level2List = importedFMStructures.Where(p => p.ParentFMStructureId == fMStructure1.Id).ToList();
+                    fMStructure1.Seq = level1Seq++;
+                    var level2List = importedFMStructures.Where(p => p.ParentFMStructureId == fMStructure1.Id).OrderBy(p => p.Id).ToList();
+                    var level2Seq = 0;
                     foreach (var fMStructure2 in level2List)
                     {
                         visitChecker.Visit(fMStructure2.Code, "FM-STRUCTURE");
                         fMStructure2.Level = 2;
-                        var level3List = importedFMStructures.Where(p => p.ParentFMStructureId == fMStructure2.Id).ToList();
+                        fMStructure2.Seq = level2Seq++;
+                        var level3List = importedFMStructures.Where(p => p.ParentFMStructureId == fMStructure2.Id).OrderBy(p => p.Id).ToList();
+                        var level3Seq = 0;
                         foreach (var fMStructure3 in level3List)
                         {
                             visitChecker.Visit(fMStructure3.Code, "FM-STRUCTURE");
                             fMStructure3.Level = 3;
+                            fMStructure3.Seq = level3Seq++;
                         }
                     }
                 }

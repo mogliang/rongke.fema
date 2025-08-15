@@ -45,15 +45,15 @@ export class FmeaStep2Component {
   // Data properties
   currentFmeaDoc: FMEADto2 | null = null;
   public flattenedStructures: FMStructureDto2[] = [];
-  public currentSelectedStructure: FMStructureDto2 = {
+  public currentSelectedStructure: FMStructureDto2= {
     code: '',
     longName: '',
     shortName: '',
     category: '',
-    parentFMStructureCode: '',
+    seq: 0,
     childFMStructures: [],
     seFunctions: [],
-  }
+  };
 
   // Tree display properties
   public childTreeNodes: NzTreeNodeOptions[] = [];
@@ -150,6 +150,7 @@ export class FmeaStep2Component {
       // Create new structure
       const newStructure: FMStructureDto2 = {
         code: this.addForm.value.code!,
+        seq: 0,
         longName: this.addForm.value.longName!,
         shortName: this.addForm.value.shortName!,
         category: this.addForm.value.category!,
@@ -169,6 +170,10 @@ export class FmeaStep2Component {
         this.currentFmeaDoc!.fmStructures = [];
       }
       this.currentFmeaDoc!.fmStructures.push(newStructure);
+
+      for (let i = 0; i < this.currentSelectedStructure.childFMStructures.length; i++) {
+        this.currentSelectedStructure.childFMStructures[i].seq=i;
+      }
 
       // Refresh view and emit update
       this.refreshView();
@@ -220,6 +225,51 @@ export class FmeaStep2Component {
       this.refreshView();
       this.femaDocUpdated.emit(this.currentFmeaDoc!);
     }
+  }
+
+  // Move method 
+  moveStructureNode($event: MouseEvent, fmStructure: FMStructureDto2 | null, isUp: boolean): void {
+    if (fmStructure != null) {
+      this.selectStructureNode(fmStructure);
+    }
+
+    if (!this.currentSelectedStructure.parentFMStructureCode) {
+      this.message.error('无法移动根FEMA结构');
+      return;
+    }
+
+    var parentStructure = this.helper.findFMStructureByCode(this.currentFmeaDoc?.fmStructures!, this.currentSelectedStructure.parentFMStructureCode);
+    if (!parentStructure) {
+      this.message.error('无法找到父FEMA结构');
+      return;
+    }
+
+    const idx=parentStructure.childFMStructures.findIndex(s=>s.code === this.currentSelectedStructure.code);
+    if (idx == -1){
+      this.message.error('无法找到当前FEMA结构');
+      return;
+    }
+
+    if (isUp) {
+      if (idx > 0) {
+        const temp = parentStructure.childFMStructures[idx - 1];
+        parentStructure.childFMStructures[idx - 1] = parentStructure.childFMStructures[idx];
+        parentStructure.childFMStructures[idx] = temp;
+      }
+    } else {
+      if (idx < parentStructure.childFMStructures.length - 1) {
+        const temp = parentStructure.childFMStructures[idx + 1];
+        parentStructure.childFMStructures[idx + 1] = parentStructure.childFMStructures[idx];
+        parentStructure.childFMStructures[idx] = temp;
+      }
+    }
+
+    for (let i = 0; i < parentStructure.childFMStructures.length; i++) {
+      parentStructure.childFMStructures[i].seq = i;
+    }
+
+    this.refreshView();
+    this.femaDocUpdated.emit(this.currentFmeaDoc!);
   }
 
   // Delete methods (TODO: implement)

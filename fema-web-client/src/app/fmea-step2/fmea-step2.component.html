@@ -47,6 +47,8 @@
                                             <ul nz-menu>
                                                 <li nz-menu-item (click)="openEditStructureModal($event, data)">编辑结构</li>
                                                 <li nz-menu-item (click)="openAddStructureModal($event, data)">添加子结构</li>
+                                                <li nz-menu-item (click)="moveStructureNode($event, data, true)">上移结构</li>
+                                                <li nz-menu-item (click)="moveStructureNode($event, data, false)">下移结构</li>
                                                 <li nz-submenu nzTitle="删除">
                                                     <ul>
                                                         <li nz-menu-item (click)="deleteStructureNode($event, data)">删除结构</li>
@@ -77,6 +79,8 @@
     <ul nz-menu>
         <li nz-menu-item (click)="openEditStructureModal($event, null)">编辑结构</li>
         <li nz-menu-item (click)="openAddStructureModal($event, null)">添加子结构</li>
+        <li nz-menu-item (click)="moveStructureNode($event, null, true)">上移结构</li>
+        <li nz-menu-item (click)="moveStructureNode($event, null, false)">下移结构</li>
         <li nz-submenu nzTitle="删除">
             <ul>
                 <li nz-menu-item (click)="deleteStructureNode($event, null)">删除结构</li>

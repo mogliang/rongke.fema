@@ -57,7 +57,6 @@ export class FmeaComponent {
 
   onFemaDocUpdated($event: FMEADto2): void {
     this.femaDoc = $event;
-    this.message.success('FMEA数据已更新'); 
   }
 
   onSaveFemaDoc(): void {

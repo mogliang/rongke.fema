@@ -42,6 +42,8 @@ namespace Rongke.Fema.Dto
         public string ShortName { get; set; }
         [Required]
         public string Category { get; set; }
+        [Required]
+        public int Seq { get; set; }
 
         public string? ParentFMStructureCode { get; set; }
 
@@ -60,6 +62,8 @@ namespace Rongke.Fema.Dto
         public string LongName { get; set; }
         [Required]
         public string ShortName { get; set; }
+        [Required]
+        public int Seq { get; set; }
         public string? FMStructureCode { get; set; }
         public string? ParentFMFunctionCode { get; set; }
 
@@ -80,6 +84,8 @@ namespace Rongke.Fema.Dto
         public string ShortName { get; set; }
         [Required]
         public int RiskPriorityFactor { get; set; }
+        [Required]
+        public int Seq { get; set; }
         public string? FMFunctionCode { get; set; }
         public string? ParentFaultCode { get; set; }
         [Required]

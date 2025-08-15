@@ -9,6 +9,8 @@ namespace Rongke.Fema.Data
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
+        public int Seq { get; set; }
+
         [Required]
         public string Code { get; set; }
 
