@@ -299,6 +299,7 @@ export class FmeaStep2Component {
       return;
     }
 
+    this.currentFmeaDoc!.fmStructures = this.currentFmeaDoc!.fmStructures.filter(s => s.code !== this.currentSelectedStructure.code);
     parentStructure.childFMStructures = parentStructure.childFMStructures?.filter(s => s.code !== this.currentSelectedStructure.code);
 
     this.refreshView();
