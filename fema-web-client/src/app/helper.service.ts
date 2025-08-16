@@ -9,8 +9,6 @@ export class HelperService {
 
   constructor() { }
 
-
-
   public fillTreeLinks(doc: FMEADto2) :FMEADto2 {
     if (!doc || !doc.fmStructures || !doc.fmFunctions || !doc.fmFaults) {
       return doc;
@@ -315,31 +313,4 @@ export class HelperService {
     // Fallback if no valid codes found
     return 'S001-001';
   }
-
-  public generateChildStructureCode(parentCode: string, existingChildren: FMStructureDto2[]): string {
-    if (!parentCode) {
-      return 'S001-001';
-    }
-
-    // Find the highest child number for this parent
-    let maxChildNumber = 0;
-    
-    if (existingChildren && existingChildren.length > 0) {
-      for (const child of existingChildren) {
-        if (child.code && child.code.startsWith(parentCode + '.')) {
-          // Extract child number from codes like "S001-001.1", "S001-001.2", etc.
-          const childPart = child.code.substring(parentCode.length + 1);
-          const childNumber = parseInt(childPart, 10);
-          
-          if (!isNaN(childNumber) && childNumber > maxChildNumber) {
-            maxChildNumber = childNumber;
-          }
-        }
-      }
-    }
-
-    // Generate next child code
-    return `${parentCode}.${maxChildNumber + 1}`;
-  }
-
 }
