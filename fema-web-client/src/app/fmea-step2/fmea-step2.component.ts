@@ -1,4 +1,5 @@
 import { Component, inject, input } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTreeNodeOptions, NzTreeModule, NzFormatEmitEvent } from 'ng-zorro-antd/tree';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -26,7 +27,7 @@ import {
 
 @Component({
   selector: 'app-fmea-step2',
-  imports: [NzFormModule, NzInputModule, ReactiveFormsModule, NzModalModule, NzButtonModule, NzIconModule, NzDropDownModule, NzTabsModule, NzTreeModule, NzTableModule, NzDividerModule, NzCardModule, NzSplitterModule],
+  imports: [CommonModule, NzFormModule, NzInputModule, ReactiveFormsModule, NzModalModule, NzButtonModule, NzIconModule, NzDropDownModule, NzTabsModule, NzTreeModule, NzTableModule, NzDividerModule, NzCardModule, NzSplitterModule],
   providers: [FMStructuresService, HelperService],
   templateUrl: './fmea-step2.component.html',
   styleUrl: './fmea-step2.component.css'
@@ -79,7 +80,7 @@ export class FmeaStep2Component {
 
     console.log('refreshView', this.currentFmeaDoc);
     if (this.currentFmeaDoc?.rootFMStructure) {
-      var rootNode = this.helper.generateTreeNodes(this.currentFmeaDoc.rootFMStructure, false);
+      var rootNode = this.helper.generateTreeNodes(this.currentFmeaDoc.rootFMStructure, false, false);
       this.fullTreeNodes = [rootNode];
       this.childTreeNodes = rootNode.children || [];
       console.log('refreshView', this.childTreeNodes);

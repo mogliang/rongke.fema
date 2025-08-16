@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NzTreeNodeOptions } from 'ng-zorro-antd/tree';
-import { FMStructureDto, FMFunctionDto, FMEADto2 ,FMStructureDto2, FMFunctionDto2, FMFaultDto2 } from '../libs/api-client';
+import { FMStructureDto, FMFunctionDto, FMEADto2, FMStructureDto2, FMFunctionDto2, FMFaultDto2 } from '../libs/api-client';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +9,7 @@ export class HelperService {
 
   constructor() { }
 
-  public fillTreeLinks(doc: FMEADto2) :FMEADto2 {
+  public fillTreeLinks(doc: FMEADto2): FMEADto2 {
     if (!doc || !doc.fmStructures || !doc.fmFunctions || !doc.fmFaults) {
       return doc;
     }
@@ -125,7 +125,7 @@ export class HelperService {
       fault.causes = fault.causes?.sort((a, b) => a.seq - b.seq);
     });
 
-    doc.rootFMStructure = doc.fmStructures!.find((s) => s.code === doc.rootFMStructure?.code); 
+    doc.rootFMStructure = doc.fmStructures!.find((s) => s.code === doc.rootFMStructure?.code);
     return doc;
   }
 
@@ -225,7 +225,7 @@ export class HelperService {
     return flatList;
   }
 
-  public generateTreeNodes(data: FMStructureDto2, includesFunc: boolean): NzTreeNodeOptions {
+  public generateTreeNodes(data: FMStructureDto2, includesFunc: boolean, includesFault: boolean): NzTreeNodeOptions {
     if (!data) {
       return {
         title: '',
@@ -248,24 +248,43 @@ export class HelperService {
     if (data.childFMStructures != null) {
       node.children = [];
 
-      if(includesFunc) {
+      if (includesFunc) {
         if (data.seFunctions != null) {
           for (let i = 0; i < data.seFunctions?.length; i++) {
             var func = data.seFunctions[i];
-            node.children.push({
+            var functionNode = {
               icon: 'aim',
               title: `${func.code}/${func.longName}`,
               key: String(func.code),
               expanded: true,
-              isLeaf: true,
-            })
+              isLeaf: !func.faultRefs || func.faultRefs.length === 0,
+              children: [] as any[]
+            };
+
+            if (includesFault) {
+              // Add fault nodes under each function
+              if (func.faultRefs && func.faultRefs.length > 0) {
+                for (let j = 0; j < func.faultRefs.length; j++) {
+                  var fault = func.faultRefs[j];
+                  functionNode.children.push({
+                    icon: 'warning',
+                    title: `${fault.code}/${fault.longName}`,
+                    key: String(fault.code),
+                    expanded: true,
+                    isLeaf: true,
+                  });
+                }
+              }
+            }
+
+            node.children.push(functionNode);
           }
         }
       }
 
       const sortedStructures = data.childFMStructures.sort((a, b) => a.seq - b.seq);
       for (let i = 0; i < sortedStructures.length; i++) {
-        var childNode = this.generateTreeNodes(sortedStructures[i], includesFunc);
+        var childNode = this.generateTreeNodes(sortedStructures[i], includesFunc, includesFault);
         node.children.push(childNode);
       }
     }
@@ -285,13 +304,13 @@ export class HelperService {
     for (const structure of fmStructures) {
       if (structure.code) {
         const code = structure.code;
-        
+
         // Extract the numeric part from codes like "S001-003"
         const match = code.match(/^(S\d{3}-?)(\d{3})$/);
         if (match) {
           const prefix = match[1];
           const number = parseInt(match[2], 10);
-          
+
           if (number > maxNumber) {
             maxNumber = number;
             maxCode = code;
@@ -312,5 +331,46 @@ export class HelperService {
 
     // Fallback if no valid codes found
     return 'S001-001';
+  }
+
+  public generateNextFunctionCode(fmFunctions: FMFunctionDto2[]): string {
+    if (!fmFunctions || fmFunctions.length === 0) {
+      return 'F001-001';
+    }
+
+    let maxCode = '';
+    let maxNumber = 0;
+
+    // Find the biggest function code
+    for (const func of fmFunctions) {
+      if (func.code) {
+        const code = func.code;
+
+        // Extract the numeric part from codes like "F001-003"
+        const match = code.match(/^(F\d{3}-?)(\d{3})$/);
+        if (match) {
+          const prefix = match[1];
+          const number = parseInt(match[2], 10);
+
+          if (number > maxNumber) {
+            maxNumber = number;
+            maxCode = code;
+          }
+        }
+      }
+    }
+
+    // Generate next code
+    if (maxCode) {
+      const match = maxCode.match(/^(F\d{3}-?)(\d{3})$/);
+      if (match) {
+        const prefix = match[1];
+        const nextNumber = maxNumber + 1;
+        return `${prefix}${nextNumber.toString().padStart(3, '0')}`;
+      }
+    }
+
+    // Fallback if no valid codes found
+    return 'F001-001';
   }
 }

@@ -11,7 +11,11 @@
                             <ng-template #nzTreeNodeTemplate let-node>
                                 <div>
                                     <nz-icon [nzType]="node.icon" nzTheme="outline" class="tree-icon" />
-                                    <span >{{ node.title }}</span>
+                                    <span [ngClass]="{
+                                        'function-node': node.icon === 'aim', 
+                                        'structure-node': node.icon === 'setting',
+                                        'fault-node': node.icon === 'warning'
+                                    }">{{ node.title }}</span>
                                 </div>
                             </ng-template>
                         </nz-tree>

@@ -1,1 +1,28 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Shared FMEA Tree Node Styles */
+.box {
+  height: 100%;
+  padding: 8px;
+}
+
+.structure-node {
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.function-node {
+  color: #52c41a;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.fault-node {
+  color: #ff4d4f;
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.tree-icon {
+  margin-right: 4px;
+}
