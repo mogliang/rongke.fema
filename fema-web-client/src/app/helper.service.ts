@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { NzTreeNodeOptions } from 'ng-zorro-antd/tree';
-import { FMStructureDto, FMFunctionDto, FMEADto2, FMStructureDto2, FMFunctionDto2, FMFaultDto2 } from '../libs/api-client';
+import { FMEADto2, FMStructureDto2, FMFunctionDto2, FMFaultDto2 } from '../libs/api-client';
 
 @Injectable({
   providedIn: 'root'
@@ -9,232 +9,161 @@ export class HelperService {
 
   constructor() { }
 
-  public fillTreeLinks(doc: FMEADto2): FMEADto2 {
-    if (!doc || !doc.fmStructures || !doc.fmFunctions || !doc.fmFaults) {
-      return doc;
+  public getFunctions(doc:FMEADto2, structure: FMStructureDto2): FMFunctionDto2[] {
+    if (!doc || !structure) {
+      return [];
+    }
+    var funcs = doc.fmFunctions.filter(f => structure.functions.includes(f.code));
+    
+    if (funcs.length != structure.functions.length) {
+      throw new Error(`Function count mismatch: expected ${structure.functions.length}, found ${funcs.length}`);
     }
 
-    // Step 1: Create lookup maps for quick access
-    const structureMap = new Map<string, FMStructureDto2>();
-    const functionMap = new Map<string, FMFunctionDto2>();
-    const faultMap = new Map<string, FMFaultDto2>();
-
-    // Build maps for each entity type
-    doc.fmStructures.forEach(structure => {
-      if (structure.code) {
-        structureMap.set(structure.code, structure);
-      }
-    });
-
-    doc.fmFunctions.forEach(func => {
-      if (func.code) {
-        functionMap.set(func.code, func);
-      }
-    });
-
-    doc.fmFaults.forEach(fault => {
-      if (fault.code) {
-        faultMap.set(fault.code, fault);
-      }
-    });
-
-
-    doc.fmStructures.forEach(structure => {
-      // Link structure.childFMStructures
-      if (structure.parentFMStructureCode) {
-        const parentStructure = structureMap.get(structure.parentFMStructureCode);
-        if (parentStructure) {
-          if (!parentStructure.childFMStructures) {
-            parentStructure.childFMStructures = [];
-          }
-          if (!parentStructure.childFMStructures.includes(structure)) {
-            parentStructure.childFMStructures.push(structure);
-          }
-        }
-      }
-    });
-
-    doc.fmFunctions.forEach(func => {
-      // Link structure.seFunctions
-      if (func.fmStructureCode) {
-        const structure = structureMap.get(func.fmStructureCode);
-        if (structure) {
-          if (!structure.seFunctions) {
-            structure.seFunctions = [];
-          }
-          if (!structure.seFunctions.includes(func)) {
-            structure.seFunctions.push(func);
-          }
-        }
-      }
-
-      // Link function.prerequisites
-      if (func.parentFMFunctionCode) {
-        const parentFunction = functionMap.get(func.parentFMFunctionCode);
-        if (parentFunction) {
-          if (!parentFunction.prerequisites) {
-            parentFunction.prerequisites = [];
-          }
-          if (!parentFunction.prerequisites.includes(func)) {
-            parentFunction.prerequisites.push(func);
-          }
-        }
-      }
-    });
-
-    doc.fmFaults.forEach(fault => {
-      // Link faults to functions
-      if (fault.fmFunctionCode) {
-        const func = functionMap.get(fault.fmFunctionCode);
-        if (func) {
-          if (!func.faultRefs) {
-            func.faultRefs = [];
-          }
-          if (!func.faultRefs.includes(fault)) {
-            func.faultRefs.push(fault);
-          }
-        }
-      }
-
-      // Link fault.Causes
-      if (fault.parentFaultCode) {
-        const parentFault = faultMap.get(fault.parentFaultCode);
-        if (parentFault) {
-          if (!parentFault.causes) {
-            parentFault.causes = [];
-          }
-          if (!parentFault.causes.includes(fault)) {
-            parentFault.causes.push(fault);
-          }
-        }
-      }
-    });
-
-    // sort for structure
-    doc.fmStructures.forEach(structure => {
-      structure.childFMStructures = structure.childFMStructures?.sort((a, b) => a.seq - b.seq);
-      structure.seFunctions = structure.seFunctions?.sort((a, b) => a.seq - b.seq);
-    });
-
-    doc.fmFunctions.forEach(func => {
-      func.prerequisites = func.prerequisites?.sort((a, b) => a.seq - b.seq);
-      func.faultRefs = func.faultRefs?.sort((a, b) => a.seq - b.seq);
-    });
-
-    doc.fmFaults.forEach(fault => {
-      fault.causes = fault.causes?.sort((a, b) => a.seq - b.seq);
-    });
-
-    doc.rootFMStructure = doc.fmStructures!.find((s) => s.code === doc.rootFMStructure?.code);
-    return doc;
+    return funcs;
   }
 
-  public findFMFaultByCode(faults: FMFaultDto2[], code: string): FMFaultDto2 | null {
-    if (!faults || !code) {
+  public getDecomposition(doc:FMEADto2, structure: FMStructureDto2): FMStructureDto2[] {
+    if (!doc || !structure) {
+      return [];
+    }
+    var decomp = doc.fmStructures.filter(s => structure.decomposition.includes(s.code));
+
+    if (decomp.length != structure.decomposition.length) {
+      throw new Error(`Decomposition count mismatch: expected ${structure.decomposition.length}, found ${decomp.length}`);
+    }
+
+    return decomp;
+  }
+
+  public getPrerequisites(doc:FMEADto2, func: FMFunctionDto2): FMFunctionDto2[] {
+    if (!doc || !func) {
+      return [];
+    }
+    var funcs = doc.fmFunctions.filter(f => func.prerequisites.includes(f.code));
+
+    if (funcs.length != func.prerequisites.length) {
+      throw new Error(`Function count mismatch: expected ${func.prerequisites.length}, found ${funcs.length}`);
+    }
+
+    return funcs;
+  }
+
+  public getFaults(doc:FMEADto2, func:FMFunctionDto2): FMFaultDto2[] {
+    if (!doc || !func) {
+      return [];
+    }
+    var faults = doc.fmFaults.filter(f => func.faultRefs.includes(f.code));
+
+    if (faults.length != func.faultRefs.length) {
+      throw new Error(`Fault count mismatch: expected ${func.faultRefs.length}, found ${faults.length}`);
+    }
+
+    return faults;
+  }
+
+  public getCauses(doc:FMEADto2, fault:FMFaultDto2):FMFaultDto2[] {
+    if (!doc || !fault) {
+      return [];
+    }
+    var causes = doc.fmFaults.filter(f => fault.causes.includes(f.code));
+
+    if (causes.length != fault.causes.length) {
+      throw new Error(`Fault count mismatch: expected ${fault.causes.length}, found ${causes.length}`);
+    }
+
+    return causes;
+  }
+
+  public createChildStructure(doc:FMEADto2, parent:FMStructureDto2, child: FMStructureDto2) {
+    if (!doc || !parent) {
+      throw new Error('Invalid document or parent structure');
+    }
+
+    var children = this.getDecomposition(doc, parent);
+    const maxSeq = children.length > 0 ? Math.max(...children.map(c => c.seq)) : 0;
+    child.seq = maxSeq + 1;
+    child.level = parent.level + 1;
+
+    parent.decomposition.push(child.code);
+    doc.fmStructures.push(child);
+  }
+
+  public deleteStructure(doc:FMEADto2, structure:FMStructureDto2) {
+    if (!doc || !structure) {
+      throw new Error('Invalid document or structure');
+    }
+
+    if (doc.rootStructureCode == structure.code){
+      throw new Error('Cannot delete root structure');
+    }
+
+    if (structure.decomposition.length > 0) {
+      throw new Error('Cannot delete structure with children');
+    } 
+
+    if (structure.functions.length > 0) {
+      throw new Error('Cannot delete structure with functions');
+    }
+
+    // Remove from document
+    doc.fmStructures = doc.fmStructures.filter(s => s.code !== structure.code);
+
+    // Remove from parent's decomposition
+    var parent = this.getParentStructure(doc, structure);
+    if (!parent) {
+      throw new Error('Parent structure not found');
+    }
+    parent.decomposition = parent.decomposition.filter(code => code !== structure.code);
+
+    var siblings = this.getDecomposition(doc, parent);
+    siblings.forEach(s => s.seq = siblings.indexOf(s) + 1);
+  }
+
+  public getParentStructure(doc:FMEADto2, structure:FMStructureDto2): FMStructureDto2 | null {
+    if (!doc || !structure) {
       return null;
     }
-
-    for (const fault of faults) {
-      // Check if current fault matches the code
-      if (fault.code === code) {
-        return fault;
-      }
-
-      // Recursively search in child faults
-      const found = this.findFMFaultByCode(fault.causes, code);
-      if (found) {
-        return found;
-      }
-    }
-
-    // Not found
-    return null;
+    return doc.fmStructures.find(s => s.decomposition.includes(structure.code)) || null;
   }
 
-  public findFMFunctionByCode(functions: FMFunctionDto2[], code: string): FMFunctionDto2 | null {
-    if (!functions || !code) {
-      return null;
+  public moveStructure(doc:FMEADto2, structure:FMStructureDto2, isUp:boolean) {
+    if (!doc || !structure) {
+      throw new Error('Invalid document or structure');
     }
 
-    for (const func of functions) {
-      // Check if current function matches the code
-      if (func.code === code) {
-        return func;
-      }
-
-      // Recursively search in child functions
-      const found = this.findFMFunctionByCode(func.prerequisites, code);
-      if (found) {
-        return found;
-      }
+    var parent= this.getParentStructure(doc, structure);
+    if (!parent) {
+      throw new Error('Parent structure not found');
+    }
+    var siblings = this.getDecomposition(doc, parent);
+    const currentIndex = siblings.findIndex(s => s.code === structure.code);
+    if (currentIndex === -1) {
+      throw new Error('Structure not found among siblings');
     }
 
-    // Not found
-    return null;
+    var newIndex = isUp ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0) {
+      newIndex = 0;
+    }
+    if (newIndex >= siblings.length) {
+      newIndex = siblings.length - 1;
+    }
+    // Swap the structures
+    [siblings[currentIndex], siblings[newIndex]] = [siblings[newIndex], siblings[currentIndex]];
+
+    siblings.forEach(s => s.seq = siblings.indexOf(s) + 1);
   }
 
-  public findFMStructureByCode(structures: FMStructureDto2[], code: string): FMStructureDto2 | null {
-    if (!structures || !code) {
-      return null;
-    }
-
-    for (const structure of structures) {
-      // Check if current structure matches the code
-      if (structure.code === code) {
-        return structure;
-      }
-
-      // Recursively search in child structures
-      const found = this.findFMStructureByCode(structure.childFMStructures, code);
-      if (found) {
-        return found;
-      }
-    }
-
-    // Not found
-    return null;
-  }
-
-  public flattenFMStructures(fmStructures: FMStructureDto2[]): FMStructureDto2[] {
-    let flatList: FMStructureDto2[] = [];
-
-    if (fmStructures == null) {
-      return flatList;
-    }
-
-    for (let i = 0; i < fmStructures.length; i++) {
-      flatList.push(fmStructures[i]);
-      flatList.push(...this.flattenFMStructures(fmStructures[i].childFMStructures || []));
-    }
-
-    return flatList;
-  }
-
-  public flattenFunctions(fmFunctions: FMFunctionDto2[]): FMFunctionDto2[] {
-    let flatList: FMFunctionDto2[] = [];
-
-    if (fmFunctions == null) {
-      return flatList;
-    }
-
-    for (let i = 0; i < fmFunctions.length; i++) {
-      flatList.push(fmFunctions[i]);
-      flatList.push(...this.flattenFunctions(fmFunctions[i].prerequisites || []));
-    }
-
-    return flatList;
-  }
-
-  public generateTreeNodes(data: FMStructureDto2, includesFunc: boolean, includesFault: boolean): NzTreeNodeOptions {
+  public generateTreeNodes(doc: FMEADto2, data: FMStructureDto2, includesFunc: boolean, includesFault: boolean): NzTreeNodeOptions {
     if (!data) {
       return {
         title: '',
         key: '',
-      }
+      } as NzTreeNodeOptions;
     }
 
-    var hasChildrenStructures: boolean = data.childFMStructures != null && data.childFMStructures.length > 0;
-    var hasChildrenFunctions: boolean = includesFunc && data.seFunctions != null && data.seFunctions.length > 0;
+    var hasChildrenStructures = data.decomposition.length > 0;
+    var hasChildrenFunctions = data.functions.length > 0;
 
     var node: NzTreeNodeOptions = {
       icon: 'setting',
@@ -243,57 +172,52 @@ export class HelperService {
       expanded: true,
       child: null,
       isLeaf: !hasChildrenStructures && !hasChildrenFunctions,
+      children: [],
     };
 
-    if (data.childFMStructures != null) {
-      node.children = [];
+    if (includesFunc) {
+      // add function nodes under each structure
+      var funcs = this.getFunctions(doc, data)
+      for (let i = 0; i < funcs.length; i++) {
+        var func = funcs[i];
+        const functionNode = {
+          icon: 'aim',
+          title: `${func.code}/${func.longName}`,
+          key: String(func.code),
+          expanded: true,
+          isLeaf: !func.faultRefs || func.faultRefs.length === 0,
+          children: [] as any[]
+        };
+        node.children!.push(functionNode);
 
-      if (includesFunc) {
-        if (data.seFunctions != null) {
-          for (let i = 0; i < data.seFunctions?.length; i++) {
-            var func = data.seFunctions[i];
-            var functionNode = {
-              icon: 'aim',
-              title: `${func.code}/${func.longName}`,
-              key: String(func.code),
+        if (includesFault) {
+          // Add fault nodes under each function
+          var faults = this.getFaults(doc, func);
+          for (let j = 0; j < faults.length; j++) {
+            var fault = faults[j];
+            functionNode.children.push({
+              icon: 'warning',
+              title: `${fault.code}/${fault.longName}`,
+              key: String(fault.code),
               expanded: true,
-              isLeaf: !func.faultRefs || func.faultRefs.length === 0,
-              children: [] as any[]
-            };
-
-            if (includesFault) {
-              // Add fault nodes under each function
-              if (func.faultRefs && func.faultRefs.length > 0) {
-                for (let j = 0; j < func.faultRefs.length; j++) {
-                  var fault = func.faultRefs[j];
-                  functionNode.children.push({
-                    icon: 'warning',
-                    title: `${fault.code}/${fault.longName}`,
-                    key: String(fault.code),
-                    expanded: true,
-                    isLeaf: true,
-                  });
-                }
-              }
-            }
-
-            node.children.push(functionNode);
+              isLeaf: true,
+            });
           }
         }
       }
+    }
 
-      const sortedStructures = data.childFMStructures.sort((a, b) => a.seq - b.seq);
-      for (let i = 0; i < sortedStructures.length; i++) {
-        var childNode = this.generateTreeNodes(sortedStructures[i], includesFunc, includesFault);
-        node.children.push(childNode);
-      }
+    var decomposition = this.getDecomposition(doc, data);
+    for (let i = 0; i < decomposition.length; i++) {
+      var childNode = this.generateTreeNodes(doc, decomposition[i], includesFunc, includesFault);
+      node.children!.push(childNode);
     }
 
     return node
   }
 
-  public generateNextStructureCode(fmStructures: FMStructureDto2[]): string {
-    if (!fmStructures || fmStructures.length === 0) {
+  public generateNextStructureCode(doc: FMEADto2): string {
+    if (!doc || !doc.fmStructures || doc.fmStructures.length === 0) {
       return 'S001-001';
     }
 
@@ -301,7 +225,7 @@ export class HelperService {
     let maxNumber = 0;
 
     // Find the biggest structure code
-    for (const structure of fmStructures) {
+    for (const structure of doc.fmStructures) {
       if (structure.code) {
         const code = structure.code;
 
@@ -333,8 +257,8 @@ export class HelperService {
     return 'S001-001';
   }
 
-  public generateNextFunctionCode(fmFunctions: FMFunctionDto2[]): string {
-    if (!fmFunctions || fmFunctions.length === 0) {
+  public generateNextFunctionCode(doc: FMEADto2): string {
+    if (!doc || !doc.fmFunctions || doc.fmFunctions.length === 0) {
       return 'F001-001';
     }
 
@@ -342,7 +266,7 @@ export class HelperService {
     let maxNumber = 0;
 
     // Find the biggest function code
-    for (const func of fmFunctions) {
+    for (const func of doc.fmFunctions) {
       if (func.code) {
         const code = func.code;
 

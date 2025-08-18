@@ -147,6 +147,7 @@ namespace Rongke.Fema.Dto
         public List<TeamMemberDto> CoreMembers { get; set; } = new List<TeamMemberDto>();
         public List<TeamMemberDto> ExtendedMembers { get; set; } = new List<TeamMemberDto>();
 
+        [Required]
         public string RootStructureCode { get; set; }
 
         [Required]

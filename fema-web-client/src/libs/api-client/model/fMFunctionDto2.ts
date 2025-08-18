@@ -7,7 +7,6 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { FMFaultDto2 } from './fMFaultDto2';
 
 
 export interface FMFunctionDto2 { 
@@ -15,9 +14,10 @@ export interface FMFunctionDto2 {
     longName: string;
     shortName: string;
     seq: number;
+    level: number;
     fmStructureCode?: string | null;
     parentFMFunctionCode?: string | null;
-    prerequisites: Array<FMFunctionDto2>;
-    faultRefs: Array<FMFaultDto2>;
+    prerequisites: Array<string>;
+    faultRefs: Array<string>;
 }
 

@@ -7,7 +7,6 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { FMFunctionDto2 } from './fMFunctionDto2';
 
 
 export interface FMStructureDto2 { 
@@ -16,8 +15,8 @@ export interface FMStructureDto2 {
     shortName: string;
     category: string;
     seq: number;
-    parentFMStructureCode?: string | null;
-    childFMStructures: Array<FMStructureDto2>;
-    seFunctions: Array<FMFunctionDto2>;
+    level: number;
+    decomposition: Array<string>;
+    functions: Array<string>;
 }
 

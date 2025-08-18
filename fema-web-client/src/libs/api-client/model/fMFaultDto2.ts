@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { FaultType } from './faultType';
 
 
 export interface FMFaultDto2 { 
@@ -15,8 +16,13 @@ export interface FMFaultDto2 {
     shortName: string;
     riskPriorityFactor: number;
     seq: number;
+    level: number;
     fmFunctionCode?: string | null;
-    parentFaultCode?: string | null;
-    causes: Array<FMFaultDto2>;
+    fmFaultCode?: string | null;
+    faultType?: FaultType;
+    causes: Array<string>;
 }
+export namespace FMFaultDto2 {
+}
+
 

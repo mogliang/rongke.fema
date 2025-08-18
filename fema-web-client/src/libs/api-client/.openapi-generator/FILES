@@ -4,8 +4,6 @@ api.base.service.ts
 api.module.ts
 api/api.ts
 api/fMEA.service.ts
-api/fMFunctions.service.ts
-api/fMStructures.service.ts
 api/import.service.ts
 api/products.service.ts
 configuration.ts
@@ -15,13 +13,10 @@ index.ts
 model/fMEADto2.ts
 model/fMEAType.ts
 model/fMFaultDto2.ts
-model/fMFunctionDto.ts
 model/fMFunctionDto2.ts
-model/fMStructureCreateDto.ts
-model/fMStructureDto.ts
 model/fMStructureDto2.ts
+model/faultType.ts
 model/models.ts
 model/teamMemberDto.ts
-model/treeType.ts
 param.ts
 variables.ts
