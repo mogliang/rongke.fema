@@ -8,6 +8,19 @@ namespace Rongke.Fema.Data
         {
             optionsBuilder.UseSeeding((ctx, _) =>
             {
+                var root = new FMStructure
+                {
+                    Code = "S001-001",
+                    LongName = "Root Structure",
+                    Category = "design",
+                    ShortName = "root",
+                    Decomposition = "",
+                    Functions = "",
+                    Level = 0,
+                    Seq = 1
+                };
+                ctx.Set<FMStructure>().Add(root);
+
                 var fmea = new FMEA
                 {
                     Code = "FMEA-0001",
@@ -31,6 +44,7 @@ namespace Rongke.Fema.Data
                     AccessLevel = "Restricted",
                     DesignDepartment = "Engineering",
                     DesignOwner = "John Doe",
+                    RootStructureCode = "S001-001"
                 };
                 fmea.CoreMembers = new List<TeamMember>
                 {

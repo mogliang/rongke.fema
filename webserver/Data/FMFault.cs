@@ -28,8 +28,7 @@ namespace Rongke.Fema.Data
 
         public FaultType FaultType { get; set; }
 
-        public string FunctionCode { get; set; }
-        public string FMTypeFaultCode { get; set; }
+        public string Causes { get; set; }
     }
 
     public enum FaultType

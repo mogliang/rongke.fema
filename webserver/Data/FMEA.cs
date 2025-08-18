@@ -37,6 +37,7 @@ namespace Rongke.Fema.Data
         public string AccessLevel { get; set; }
         public string DesignDepartment { get; set; }
         public string DesignOwner { get; set; }
+        public string RootStructureCode { get; set; }
 
         public string CoreMembersJson { get; set; }
 

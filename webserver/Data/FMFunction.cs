@@ -20,9 +20,9 @@ namespace Rongke.Fema.Data
 
         public string ShortName { get; set; }
 
-        public string ParentCode { get; set; }
+        public string Prerequisites { get; set; }
 
-        public string StructureCode { get; set; }
+        public string FaultRefs { get; set; }
 
         [Required]
         [Range(1, 3)]

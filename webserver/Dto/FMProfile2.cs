@@ -10,34 +10,41 @@ namespace Rongke.Fema.Dto
         public FMProfile2()
         {
             CreateMap<FMStructure, FMStructureDto2>()
-                .ForMember(d => d.ParentFMStructureCode, opt => opt.MapFrom(s => s.ParentCode))
-                .ForMember(d => d.ChildFMStructures, opt => opt.Ignore())
-                .ForMember(d => d.SEFunctions, opt => opt.Ignore());
+                .ForMember(d => d.Decomposition, opt => opt.MapFrom(s => CommaStringToList(s.Decomposition)))
+                .ForMember(d => d.Functions, opt => opt.MapFrom(s => CommaStringToList(s.Functions)));
 
             CreateMap<FMStructureDto2, FMStructure>()
-                .ForMember(d => d.ParentCode, opt => opt.MapFrom(s => s.ParentFMStructureCode));
+                .ForMember(d => d.Decomposition, opt => opt.MapFrom(s => ListToCommaString(s.Decomposition)))
+                .ForMember(d => d.Functions, opt => opt.MapFrom(s => ListToCommaString(s.Functions)));
 
             CreateMap<FMFunction, FMFunctionDto2>()
-                .ForMember(d => d.FMStructureCode, opt => opt.MapFrom(s => s.StructureCode))
-                .ForMember(d => d.ParentFMFunctionCode, opt => opt.MapFrom(s => s.ParentCode))
-                .ForMember(d => d.Prerequisites, opt => opt.Ignore())
-                .ForMember(d => d.FaultRefs, opt => opt.Ignore());
+                .ForMember(d => d.Prerequisites, opt => opt.MapFrom(s => CommaStringToList(s.Prerequisites)))
+                .ForMember(d => d.FaultRefs, opt => opt.MapFrom(s => CommaStringToList(s.FaultRefs)));
 
             CreateMap<FMFunctionDto2, FMFunction>()
-                .ForMember(d => d.StructureCode, opt => opt.MapFrom(s => s.FMStructureCode))
-                .ForMember(d => d.ParentCode, opt => opt.MapFrom(s => s.ParentFMFunctionCode));
+                .ForMember(d => d.Prerequisites, opt => opt.MapFrom(s => ListToCommaString(s.Prerequisites)))
+                .ForMember(d => d.FaultRefs, opt => opt.MapFrom(s => ListToCommaString(s.FaultRefs)));
 
             CreateMap<FMFault, FMFaultDto2>()
-                .ForMember(d => d.FMFunctionCode, opt => opt.MapFrom(s => s.FunctionCode))
-                .ForMember(d => d.Causes, opt => opt.Ignore());
+                .ForMember(d => d.Causes, opt => opt.MapFrom(s => CommaStringToList(s.Causes)));
 
             CreateMap<FMFaultDto2, FMFault>()
-                .ForMember(d => d.FunctionCode, opt => opt.MapFrom(s => s.FMFunctionCode));
+                .ForMember(d => d.Causes, opt => opt.MapFrom(s => ListToCommaString(s.Causes)));
 
             CreateMap<TeamMember, TeamMemberDto>();
             CreateMap<TeamMemberDto, TeamMember>();
             CreateMap<FMEA, FMEADto2>();
-            CreateMap<FMEADto2,FMEA>();
+            CreateMap<FMEADto2, FMEA>();
+        }
+
+        List<string> CommaStringToList(string? input)
+        {
+            return input?.Split(',').Select(s => s.Trim()).ToList() ?? new List<string>();
+        }
+
+        string ListToCommaString(List<string>? input)
+        {
+            return input != null ? string.Join(",", input) : string.Empty;
         }
     }
 
@@ -54,12 +61,14 @@ namespace Rongke.Fema.Dto
         [Required]
         public int Seq { get; set; }
 
-        public string? ParentFMStructureCode { get; set; }
+        [Required]
+        public int Level { get; set; }
 
         [Required]
-        public List<FMStructureDto2> ChildFMStructures { get; set; } = new List<FMStructureDto2>();
+        public List<string> Decomposition { get; set; } = new List<string>();
+
         [Required]
-        public List<FMFunctionDto2> SEFunctions { get; set; } = new List<FMFunctionDto2>();
+        public List<string> Functions { get; set; } = new List<string>();
     }
 
     public class FMFunctionDto2
@@ -73,14 +82,16 @@ namespace Rongke.Fema.Dto
         public string ShortName { get; set; }
         [Required]
         public int Seq { get; set; }
+        [Required]
+        public int Level { get; set; }
         public string? FMStructureCode { get; set; }
         public string? ParentFMFunctionCode { get; set; }
 
         [Required]
-        public List<FMFunctionDto2> Prerequisites { get; set; } = new List<FMFunctionDto2>();
+        public List<string> Prerequisites { get; set; } = new List<string>();
 
         [Required]
-        public virtual List<FMFaultDto2> FaultRefs { get; set; } = new List<FMFaultDto2>();
+        public List<string> FaultRefs { get; set; } = new List<string>();
     }
 
     public class FMFaultDto2
@@ -95,11 +106,13 @@ namespace Rongke.Fema.Dto
         public int RiskPriorityFactor { get; set; }
         [Required]
         public int Seq { get; set; }
+        [Required]
+        public int Level { get; set; }
         public string? FMFunctionCode { get; set; }
         public string? FMFaultCode { get; set; }
         public FaultType FaultType { get; set; }
         [Required]
-        public virtual List<FMFaultDto2> Causes { get; set; } = new List<FMFaultDto2>();
+        public virtual List<string> Causes { get; set; } = new List<string>();
 
     }
 
@@ -134,7 +147,7 @@ namespace Rongke.Fema.Dto
         public List<TeamMemberDto> CoreMembers { get; set; } = new List<TeamMemberDto>();
         public List<TeamMemberDto> ExtendedMembers { get; set; } = new List<TeamMemberDto>();
 
-        public FMStructureDto2 RootFMStructure { get; set; }
+        public string RootStructureCode { get; set; }
 
         [Required]
         public List<FMStructureDto2> FMStructures { get; set; } = new List<FMStructureDto2>();

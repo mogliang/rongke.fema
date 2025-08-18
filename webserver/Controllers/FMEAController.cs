@@ -51,7 +51,7 @@ namespace Rongke.Fema.Controllers
             // Get all structures with their relationships
             var structures = await _context.FMStructures.ToListAsync();
             fmeaDto.FMStructures = _mapper.Map<List<FMStructureDto2>>(structures);
-            fmeaDto.RootFMStructure = fmeaDto.FMStructures.FirstOrDefault(s => s.ParentFMStructureCode == null) ?? new FMStructureDto2();
+            fmeaDto.RootStructureCode = fmea.RootStructureCode;
 
             // Get all functions with their relationships
             var functions = await _context.FMFunctions.ToListAsync();

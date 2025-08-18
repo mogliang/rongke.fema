@@ -30,7 +30,8 @@ namespace Rongke.Fema.Controllers
         {
             var domain = new FMEADomain(_dbContext, _mapper);
             var fmeaDto = ConvertXmlToDto2(fmeaXml);
-            domain.SetupReferences(fmeaDto);
+            domain.SetupLevels(fmeaDto);
+            SetFaultType(fmeaDto);
             var failedRules = domain.Verify(fmeaDto);
             if (failedRules.Count > 0)
             {
@@ -42,10 +43,36 @@ namespace Rongke.Fema.Controllers
             return Ok("FMEA imported successfully.");
         }
 
+        private void SetFaultType(FMEADto2 fmeaDto)
+        {
+            foreach (var fault in fmeaDto.FMFaults)
+            {
+                if (fault.Level == 1)
+                {
+                    fault.FaultType = FaultType.FE;
+                }
+                else if (fault.Level == 2)
+                {
+                    fault.FaultType = FaultType.FM;
+                }
+                else if (fault.Level == 3)
+                {
+                    fault.FaultType = FaultType.FC;
+                }
+            }
+        }
+
         private FMEADto2 ConvertXmlToDto2(string fmeaXml)
         {
             var fmeaDto = new FMEADto2();
             var doc = XDocument.Parse(fmeaXml);
+
+            //FM-STRUCTURE-ROOT
+            var rootStructureEle = doc.XPathSelectElement("//FM-STRUCTURE-ROOT");
+            if (rootStructureEle != null)
+            {
+                fmeaDto.RootStructureCode = rootStructureEle.Element("FM-STRUCTURE-ELEMENT-REF").Attribute("ID-REF").Value;
+            }
 
             var structureEles = doc.XPathSelectElements("//FM-STRUCTURE-ELEMENT").ToList();
             foreach (var structureEle in structureEles)
@@ -56,6 +83,8 @@ namespace Rongke.Fema.Controllers
                     LongName = structureEle.Element("LONG-NAME").Element("L-4").Value,
                     ShortName = structureEle.Element("SHORT-NAME").Value,
                     Category = structureEle.Element("CATEGORY").Value,
+                    Decomposition = structureEle.Element("FM-SE-DECOMPOSITION")?.Elements("FM-STRUCTURE-ELEMENT-REF")?.Select(e => e.Attribute("ID-REF").Value).ToList() ?? new List<string>(),
+                    Functions = structureEle.Element("FM-SE-FUNCTIONS")?.Elements("FM-FUNCTION-REF")?.Select(e => e.Attribute("ID-REF").Value).ToList() ?? new List<string>()
                 };
                 fmeaDto.FMStructures.Add(structureDto);
             }
@@ -68,6 +97,8 @@ namespace Rongke.Fema.Controllers
                     Code = functionEle.Attribute("ID").Value,
                     LongName = functionEle.Element("LONG-NAME").Element("L-4").Value,
                     ShortName = functionEle.Element("SHORT-NAME").Value,
+                    Prerequisites = functionEle.Element("FM-PREREQUISITES")?.Elements("FM-FUNCTION-REF")?.Select(e => e.Attribute("ID-REF").Value).ToList() ?? new List<string>(),
+                    FaultRefs = functionEle.Element("FM-FAULT-REFS")?.Elements("FM-FAULT-REF")?.Select(e => e.Attribute("ID-REF").Value).ToList() ?? new List<string>()
                 };
                 fmeaDto.FMFunctions.Add(functionDto);
             }
@@ -80,6 +111,7 @@ namespace Rongke.Fema.Controllers
                     Code = faultEle.Attribute("ID").Value,
                     LongName = faultEle.Element("LONG-NAME").Element("L-4").Value,
                     ShortName = faultEle.Element("SHORT-NAME").Value,
+                    Causes = faultEle.Element("FM-CAUSES")?.Elements("FM-FAULT-REF")?.Select(e => e.Attribute("ID-REF").Value).ToList() ?? new List<string>()
                 };
                 var riskFactorStr = faultEle.Element("FM-SIGNIFICANCE")?.Element("RISK-PRIORITY-FACTOR")?.Value;
                 if (riskFactorStr != null)
@@ -88,42 +120,6 @@ namespace Rongke.Fema.Controllers
                 }
 
                 fmeaDto.FMFaults.Add(faultDto);
-            }
-
-            foreach (var structureEle in structureEles)
-            {
-                var parentCode = structureEle.Attribute("ID").Value;
-                 var children = structureEle.Element("FM-SE-DECOMPOSITION")?.Elements("FM-STRUCTURE-ELEMENT-REF");
-                if (children != null)
-                {
-                    foreach (var childRef in children)
-                    {
-                        var childCode = childRef.Attribute("ID-REF").Value;
-                        var child = fmeaDto.FMStructures.FirstOrDefault(s => s.Code == childCode);
-                        if (child != null)
-                        {
-                            child.ParentFMStructureCode = parentCode;
-                        }
-                    }
-                }
-            }
-
-            foreach (var functionEle in functionEles)
-            {
-                var parentCode = functionEle.Attribute("ID").Value;
-                var children = functionEle.Element("FM-SE-FUNCTIONS")?.Elements("FM-FUNCTION-REF");
-                if (children != null)
-                {
-                    foreach (var childRef in children)
-                    {
-                        var childCode = childRef.Attribute("ID-REF").Value;
-                        var child = fmeaDto.FMFunctions.FirstOrDefault(s => s.Code == childCode);
-                        if (child != null)
-                        {
-                            child.ParentFMFunctionCode = parentCode;
-                        }
-                    }
-                }
             }
 
             return fmeaDto;

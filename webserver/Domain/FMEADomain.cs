@@ -44,16 +44,76 @@ public class FMEADomain
         return new List<string>();
     }
 
-    public void SetupReferences(FMEADto2 fmeaDto)
+    public void SetupLevels(FMEADto2 fmeaDto)
     {
-        // setup structure reference
         // calculate structure levels
+        var rootStructure = fmeaDto.FMStructures.First(s => s.Code == fmeaDto.RootStructureCode);
+        SetStructureLevel(fmeaDto, rootStructure, 0);
 
-        // setup function reference
         // calculate structure levels
+        foreach (var structureDto in fmeaDto.FMStructures.Where(s => s.Level == 1))
+        {
+            foreach (var funcRef in structureDto.Functions)
+            {
+                var func = fmeaDto.FMFunctions.FirstOrDefault(s => s.Code == funcRef);
+                if (func != null)
+                {
+                    SetFunctionLevel(fmeaDto, func, 1);
+                }
+            }
+        }
 
-        // setup fault reference
         // calculate structure levels
+        foreach (var functionDto in fmeaDto.FMFunctions.Where(f => f.Level == 1))
+        {
+            foreach (var faultRef in functionDto.FaultRefs)
+            {
+                var fault = fmeaDto.FMFaults.FirstOrDefault(f => f.Code == faultRef);
+                if (fault != null)
+                {
+                    SetFaultLevel(fmeaDto, fault, 1);
+                }
+            }
+        }
+    }
+
+    private void SetStructureLevel(FMEADto2 fmeaDto, FMStructureDto2 structureDto, int level)
+    {
+        structureDto.Level = level;
+        foreach (var childRef in structureDto.Decomposition)
+        {
+            var child = fmeaDto.FMStructures.FirstOrDefault(s => s.Code == childRef);
+            if (child != null)
+            {
+                SetStructureLevel(fmeaDto, child, level + 1);
+            }
+        }
+    }
+
+    private void SetFunctionLevel(FMEADto2 fmeaDto, FMFunctionDto2 functionDto, int level)
+    {
+        functionDto.Level = level;
+        foreach (var childRef in functionDto.Prerequisites)
+        {
+            var child = fmeaDto.FMFunctions.FirstOrDefault(f => f.Code == childRef);
+            if (child != null)
+            {
+                SetFunctionLevel(fmeaDto, child, level + 1);
+            }
+        }
+    }
+
+    private void SetFaultLevel(FMEADto2 fmeaDto, FMFaultDto2 faultDto, int level)
+    {
+        faultDto.Level = level;
+        foreach (var childRef in faultDto.Causes)
+        {
+            var child = fmeaDto.FMFaults.FirstOrDefault(f => f.Code == childRef);
+            if (child != null)
+            {
+                SetFaultLevel(fmeaDto, child, level + 1);
+            }
+        }
     }
 
     public async Task UpdateToDatabase(FMEADto2 fmeaDto)

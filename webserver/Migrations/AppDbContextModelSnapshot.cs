@@ -92,6 +92,10 @@ namespace rongke.fema.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("RootStructureCode")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("SecretLevel")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -121,20 +125,16 @@ namespace rongke.fema.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Code")
+                    b.Property<string>("Causes")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("FMTypeFaultCode")
+                    b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("FaultType")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("FunctionCode")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("ImportCode")
                         .IsRequired()
@@ -172,6 +172,10 @@ namespace rongke.fema.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("FaultRefs")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ImportCode")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -183,7 +187,7 @@ namespace rongke.fema.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ParentCode")
+                    b.Property<string>("Prerequisites")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -191,10 +195,6 @@ namespace rongke.fema.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ShortName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("StructureCode")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -217,6 +217,14 @@ namespace rongke.fema.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Decomposition")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Functions")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ImportCode")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -225,10 +233,6 @@ namespace rongke.fema.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("LongName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ParentCode")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

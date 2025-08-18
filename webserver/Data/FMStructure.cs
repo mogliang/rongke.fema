@@ -24,7 +24,9 @@ namespace Rongke.Fema.Data
 
         public string Category { get; set; }
 
-        public string ParentCode { get; set; }
+        public string Decomposition { get; set; }
+
+        public string Functions { get; set; }
 
         [Required]
         [Range(0, 3)]
