@@ -6,7 +6,6 @@ namespace Rongke.Fema.Data
 {
     public class FMFault
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         public int Seq { get; set; }
@@ -27,16 +26,17 @@ namespace Rongke.Fema.Data
 
         public int RiskPriorityFactor { get; set; }
 
-        [ForeignKey(nameof(FMFunctionRef))]
-        public int? FMFunctionId { get; set; }
-        public virtual FMFunction FMFunctionRef { get; set; }
+        public FaultType FaultType { get; set; }
 
-        [ForeignKey(nameof(ParentFaultRef))]
-        public int? ParentFaultId { get; set; }
-        public virtual FMFault ParentFaultRef { get; set; }
+        public string FunctionCode { get; set; }
+        public string FMTypeFaultCode { get; set; }
+    }
 
-        public virtual List<FMFault> Causes { get; set; } = new List<FMFault>();
-
+    public enum FaultType
+    {
+        FM,
+        FE,
+        FC,
     }
 
 }

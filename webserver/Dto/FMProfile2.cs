@@ -10,20 +10,29 @@ namespace Rongke.Fema.Dto
         public FMProfile2()
         {
             CreateMap<FMStructure, FMStructureDto2>()
-                .ForMember(d => d.ParentFMStructureCode, opt => opt.MapFrom(s => s.ParentFMStructureRef.Code))
+                .ForMember(d => d.ParentFMStructureCode, opt => opt.MapFrom(s => s.ParentCode))
                 .ForMember(d => d.ChildFMStructures, opt => opt.Ignore())
                 .ForMember(d => d.SEFunctions, opt => opt.Ignore());
 
+            CreateMap<FMStructureDto2, FMStructure>()
+                .ForMember(d => d.ParentCode, opt => opt.MapFrom(s => s.ParentFMStructureCode));
+
             CreateMap<FMFunction, FMFunctionDto2>()
-                .ForMember(d => d.FMStructureCode, opt => opt.MapFrom(s => s.FMStructureRef.Code))
-                .ForMember(d => d.ParentFMFunctionCode, opt => opt.MapFrom(s => s.ParentFMFunctionRef.Code))
+                .ForMember(d => d.FMStructureCode, opt => opt.MapFrom(s => s.StructureCode))
+                .ForMember(d => d.ParentFMFunctionCode, opt => opt.MapFrom(s => s.ParentCode))
                 .ForMember(d => d.Prerequisites, opt => opt.Ignore())
                 .ForMember(d => d.FaultRefs, opt => opt.Ignore());
 
+            CreateMap<FMFunctionDto2, FMFunction>()
+                .ForMember(d => d.StructureCode, opt => opt.MapFrom(s => s.FMStructureCode))
+                .ForMember(d => d.ParentCode, opt => opt.MapFrom(s => s.ParentFMFunctionCode));
+
             CreateMap<FMFault, FMFaultDto2>()
-                .ForMember(d => d.FMFunctionCode, opt => opt.MapFrom(s => s.FMFunctionRef.Code))
-                .ForMember(d => d.ParentFaultCode, opt => opt.MapFrom(s => s.ParentFaultRef.Code))
+                .ForMember(d => d.FMFunctionCode, opt => opt.MapFrom(s => s.FunctionCode))
                 .ForMember(d => d.Causes, opt => opt.Ignore());
+
+            CreateMap<FMFaultDto2, FMFault>()
+                .ForMember(d => d.FunctionCode, opt => opt.MapFrom(s => s.FMFunctionCode));
 
             CreateMap<TeamMember, TeamMemberDto>();
             CreateMap<TeamMemberDto, TeamMember>();
@@ -87,7 +96,8 @@ namespace Rongke.Fema.Dto
         [Required]
         public int Seq { get; set; }
         public string? FMFunctionCode { get; set; }
-        public string? ParentFaultCode { get; set; }
+        public string? FMFaultCode { get; set; }
+        public FaultType FaultType { get; set; }
         [Required]
         public virtual List<FMFaultDto2> Causes { get; set; } = new List<FMFaultDto2>();
 

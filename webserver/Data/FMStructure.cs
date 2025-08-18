@@ -8,7 +8,6 @@ namespace Rongke.Fema.Data
     [Index(nameof(Code), IsUnique = true)]
     public class FMStructure
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         public int Seq { get; set; }
@@ -25,17 +24,11 @@ namespace Rongke.Fema.Data
 
         public string Category { get; set; }
 
+        public string ParentCode { get; set; }
+
         [Required]
-        [Range(1, 3)]
+        [Range(0, 3)]
         public int Level { get; set; }
-
-        [ForeignKey(nameof(ParentFMStructureRef))]
-        public int? ParentFMStructureId { get; set; }
-        public virtual FMStructure ParentFMStructureRef { get; set; }
-
-        public virtual List<FMStructure> ChildFMStructures { get; set; } = new List<FMStructure>();
-
-        public virtual List<FMFunction> SEFunctions { get; set; } = new List<FMFunction>();
     }
 
 }

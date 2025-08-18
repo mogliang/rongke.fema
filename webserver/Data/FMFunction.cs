@@ -6,7 +6,6 @@ namespace Rongke.Fema.Data
 {
     public class FMFunction
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
 
         public int Seq { get; set; }
@@ -21,21 +20,13 @@ namespace Rongke.Fema.Data
 
         public string ShortName { get; set; }
 
+        public string ParentCode { get; set; }
+
+        public string StructureCode { get; set; }
+
         [Required]
         [Range(1, 3)]
         public int Level { get; set; }
-
-        [ForeignKey(nameof(FMStructureRef))]
-        public int? FMStructureId { get; set; }
-        public virtual FMStructure FMStructureRef { get; set; }
-
-        [ForeignKey(nameof(ParentFMFunctionRef))]
-        public int? ParentFMFunctionId { get; set; }
-        public virtual FMFunction ParentFMFunctionRef { get; set; }
-
-        public virtual List<FMFunction> Prerequisites { get; set; } = new List<FMFunction>();
-
-        public virtual List<FMFault> FaultRefs { get; set; } = new List<FMFault>();
     }
 
 }
