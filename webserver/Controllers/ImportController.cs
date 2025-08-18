@@ -30,6 +30,9 @@ namespace Rongke.Fema.Controllers
         {
             var domain = new FMEADomain(_dbContext, _mapper);
             var fmeaDto = ConvertXmlToDto2(fmeaXml);
+
+            // hardcoded, TODO
+            fmeaDto.Code = "FMEA-0001";
             domain.SetupLevels(fmeaDto);
             SetFaultType(fmeaDto);
             var failedRules = domain.Verify(fmeaDto);

@@ -13,7 +13,7 @@ import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { CommonModule } from '@angular/common';
 
-import { FMEADto2, FMEAService, FMStructuresService, FMStructureDto2, TreeType } from '../../../libs/api-client';
+import { FMEADto2, FMEAService, FMStructureDto2 } from '../../../libs/api-client';
 import { HelperService } from '../../helper.service';
 import { FmeaStep1Component } from '../../fmea-step1/fmea-step1.component';
 import { FmeaStep2Component } from '../../fmea-step2/fmea-step2.component';
@@ -22,7 +22,7 @@ import { FmeaStep3Component } from '../../fmea-step3/fmea-step3.component';
 @Component({
   selector: 'app-fema',
   imports: [CommonModule, NzLayoutModule, NzGridModule, NzStepsModule, NzCardModule, NzFlexModule, NzButtonModule, NzTabsModule, NzRadioModule, NzTreeModule, NzTableModule, NzDividerModule, FmeaStep1Component, FmeaStep2Component, FmeaStep3Component],
-  providers: [FMStructuresService, HelperService, NzMessageService],
+  providers: [ HelperService, NzMessageService],
   templateUrl: './fmea.component.html',
   styleUrl: './fmea.component.css'
 })
@@ -41,7 +41,7 @@ export class FmeaComponent {
     this.isLoading = true;
     this.fmeaService.apiFMEACodeCodeGet("FMEA-0001").subscribe({
       next: (data) => {
-        this.femaDoc = this.helper.fillTreeLinks(data);
+        this.femaDoc = data;
         this.isLoading = false;
       },
       error: (err) => {
@@ -67,7 +67,7 @@ export class FmeaComponent {
     this.isLoading = true;
     this.fmeaService.apiFMEACodeCodePut(this.femaDoc.code!, this.femaDoc).subscribe({
       next: (data) => {
-        this.femaDoc = this.helper.fillTreeLinks(data);
+        this.femaDoc = data;
         this.isLoading = false;
         this.message.success('FMEA数据已保存');
       },

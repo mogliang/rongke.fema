@@ -13,8 +13,8 @@ export class HelperService {
     if (!doc || !structure) {
       return [];
     }
-    var funcs = doc.fmFunctions.filter(f => structure.functions.includes(f.code));
-    
+    var funcs = doc.fmFunctions.filter(f => structure.functions.includes(f.code)).sort((a, b) => a.seq - b.seq);
+
     if (funcs.length != structure.functions.length) {
       throw new Error(`Function count mismatch: expected ${structure.functions.length}, found ${funcs.length}`);
     }
@@ -26,7 +26,7 @@ export class HelperService {
     if (!doc || !structure) {
       return [];
     }
-    var decomp = doc.fmStructures.filter(s => structure.decomposition.includes(s.code));
+    var decomp = doc.fmStructures.filter(s => structure.decomposition.includes(s.code)).sort((a, b) => a.seq - b.seq);
 
     if (decomp.length != structure.decomposition.length) {
       throw new Error(`Decomposition count mismatch: expected ${structure.decomposition.length}, found ${decomp.length}`);
@@ -39,7 +39,7 @@ export class HelperService {
     if (!doc || !func) {
       return [];
     }
-    var funcs = doc.fmFunctions.filter(f => func.prerequisites.includes(f.code));
+    var funcs = doc.fmFunctions.filter(f => func.prerequisites.includes(f.code)).sort((a, b) => a.seq - b.seq);
 
     if (funcs.length != func.prerequisites.length) {
       throw new Error(`Function count mismatch: expected ${func.prerequisites.length}, found ${funcs.length}`);
@@ -52,7 +52,7 @@ export class HelperService {
     if (!doc || !func) {
       return [];
     }
-    var faults = doc.fmFaults.filter(f => func.faultRefs.includes(f.code));
+    var faults = doc.fmFaults.filter(f => func.faultRefs.includes(f.code)).sort((a, b) => a.seq - b.seq);
 
     if (faults.length != func.faultRefs.length) {
       throw new Error(`Fault count mismatch: expected ${func.faultRefs.length}, found ${faults.length}`);
@@ -65,7 +65,7 @@ export class HelperService {
     if (!doc || !fault) {
       return [];
     }
-    var causes = doc.fmFaults.filter(f => fault.causes.includes(f.code));
+    var causes = doc.fmFaults.filter(f => fault.causes.includes(f.code)).sort((a, b) => a.seq - b.seq);
 
     if (causes.length != fault.causes.length) {
       throw new Error(`Fault count mismatch: expected ${fault.causes.length}, found ${causes.length}`);
@@ -86,6 +86,27 @@ export class HelperService {
 
     parent.decomposition.push(child.code);
     doc.fmStructures.push(child);
+  }
+
+  public createChildFunction(doc: FMEADto2, parent: FMStructureDto2, parentFunc: FMFunctionDto2|null, child: FMFunctionDto2) {
+    if (!doc || !parent) {
+      throw new Error('Invalid document or parent structure');
+    }
+
+    var children = this.getFunctions(doc, parent);
+    const maxSeq = children.length > 0 ? Math.max(...children.map(c => c.seq)) : 0;
+    child.seq = maxSeq + 1;
+    child.level = parent.level;
+
+    parent.decomposition.push(child.code);
+    if (parentFunc) {
+      if (child.level!=1){
+        throw new Error('Child function missing parent function');
+      }
+      parentFunc.prerequisites.push(child.code);
+    }
+
+    doc.fmFunctions.push(child);
   }
 
   public deleteStructure(doc:FMEADto2, structure:FMStructureDto2) {
@@ -152,6 +173,44 @@ export class HelperService {
     [siblings[currentIndex], siblings[newIndex]] = [siblings[newIndex], siblings[currentIndex]];
 
     siblings.forEach(s => s.seq = siblings.indexOf(s) + 1);
+    parent.decomposition = siblings.map(s => s.code);
+  }
+
+  public flattenStructures(doc: FMEADto2): FMStructureDto2[] {
+    var levelStructures = doc.fmStructures.filter(s => s.level === 1);
+    return this.flattenStructuresImpl(doc, levelStructures);
+  }
+
+  private flattenStructuresImpl(doc: FMEADto2, fmStructures: FMStructureDto2[]): FMStructureDto2[] {
+    let flatList: FMStructureDto2[] = [];
+
+    if (fmStructures == null) {
+      return flatList;
+    }
+
+    for (let i = 0; i < fmStructures.length; i++) {
+      flatList.push(fmStructures[i]);
+      var children = this.getDecomposition(doc, fmStructures[i]);
+      flatList.push(...this.flattenStructuresImpl(doc,children));
+    }
+
+    return flatList;
+  }
+
+  public flattenFunctions(doc: FMEADto2, fmFunctions: FMFunctionDto2[]): FMFunctionDto2[] {
+    let flatList: FMFunctionDto2[] = [];
+
+    if (fmFunctions == null) {
+      return flatList;
+    }
+
+    for (let i = 0; i < fmFunctions.length; i++) {
+      flatList.push(fmFunctions[i]);
+      var children = this.getPrerequisites(doc, fmFunctions[i]);
+      flatList.push(...this.flattenFunctions(doc, children));
+    }
+
+    return flatList;
   }
 
   public generateTreeNodes(doc: FMEADto2, data: FMStructureDto2, includesFunc: boolean, includesFault: boolean): NzTreeNodeOptions {
@@ -171,7 +230,7 @@ export class HelperService {
       key: String(data.code),
       expanded: true,
       child: null,
-      isLeaf: !hasChildrenStructures && !hasChildrenFunctions,
+      isLeaf: !(hasChildrenStructures || (includesFunc && hasChildrenFunctions)),
       children: [],
     };
 

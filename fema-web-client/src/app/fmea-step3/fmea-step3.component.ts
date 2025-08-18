@@ -44,11 +44,22 @@ export class FmeaStep3Component {
   // Data properties
   currentFmeaDoc: FMEADto2 | null = null;
   public fmFunctions: FMFunctionDto2[] = [];
+  public currentSelectedStructure: FMStructureDto2 = {
+    code: '',
+    longName: '',
+    shortName: '',
+    category: '',
+    seq: 0,
+    decomposition: [],
+    functions: [],
+    level: 0
+  };
   public currentSelectedFunction: FMFunctionDto2 = {
     code: '',
     longName: '',
     shortName: '',
     seq: 0,
+    level: 0,
     fmStructureCode: '',
     parentFMFunctionCode: '',
     prerequisites: [],
@@ -77,22 +88,19 @@ export class FmeaStep3Component {
       this.currentFmeaDoc = this.fmeaDoc()!;
     }
 
-    console.log('refreshView', this.currentFmeaDoc);
-    if (this.currentFmeaDoc?.rootFMStructure) {
-      var rootNode = this.helper.generateTreeNodes(this.currentFmeaDoc.rootFMStructure, true, false);
-      this.fullTreeNodes = [rootNode];
-      this.childTreeNodes = rootNode.children || [];
-      console.log('refreshView', this.childTreeNodes);
-    }
+    var root = this.currentFmeaDoc?.fmStructures.find(f => f.code === this.currentFmeaDoc?.rootStructureCode);
+    var rootNode = this.helper.generateTreeNodes(this.currentFmeaDoc!, root!, true, false);
+    this.childTreeNodes = rootNode.children || [];
 
-    var rootFMFunctions = this.currentFmeaDoc?.fmFunctions.filter(item => !item.parentFMFunctionCode);
-    if (rootFMFunctions) {
-      this.fmFunctions = this.helper.flattenFunctions(rootFMFunctions);
-    }
+    this.fmFunctions = this.currentFmeaDoc!.fmFunctions;
   }
 
   toggleRootTreeDisplay(): void {
     this.showRootInTree = !this.showRootInTree;
+  }
+
+  selectStructureNode(fmStructure: FMStructureDto2): void {
+    this.currentSelectedStructure = fmStructure;
   }
 
   selectFunctionNode(fmFunction: FMFunctionDto2): void {
@@ -129,24 +137,18 @@ export class FmeaStep3Component {
   });
 
   // Add methods
-  openAddFunctionModal($event: MouseEvent, fmFunction: FMFunctionDto2 | null): void {
-    if (fmFunction != null) {
-      this.selectFunctionNode(fmFunction);
+  openAddFunctionModal($event: MouseEvent, structure: FMStructureDto2 | null): void {
+    if (structure != null) {
+      this.selectStructureNode(structure);
     }
 
     this.isAddMode = true;
     this.addForm.reset();
-    var newCode = this.helper.generateNextFunctionCode(this.currentFmeaDoc!.fmFunctions)
-    
-    // If no function is selected (adding from tree context), try to use the first available structure
-    let defaultStructureCode = this.currentSelectedFunction.fmStructureCode || '';
-    if (!defaultStructureCode && this.currentFmeaDoc?.rootFMStructure) {
-      defaultStructureCode = this.currentFmeaDoc.rootFMStructure.code;
-    }
+    var newCode = this.helper.generateNextFunctionCode(this.currentFmeaDoc!)
     
     this.addForm.patchValue({ 
       code: newCode,
-      fmStructureCode: defaultStructureCode
+      fmStructureCode: structure?.code
     });
     console.log('Adding sub function for:', this.currentSelectedFunction.code);
   }
@@ -163,6 +165,7 @@ export class FmeaStep3Component {
       const newFunction: FMFunctionDto2 = {
         code: this.addForm.value.code!,
         seq: 0,
+        level:0,
         longName: this.addForm.value.longName!,
         shortName: this.addForm.value.shortName!,
         fmStructureCode: this.addForm.value.fmStructureCode!,
@@ -171,28 +174,7 @@ export class FmeaStep3Component {
         faultRefs: [],
       };
 
-      // Add to parent's prerequisites if this is a subfunc
-      if (this.currentSelectedFunction.code) {
-        if (!this.currentSelectedFunction.prerequisites) {
-          this.currentSelectedFunction.prerequisites = [];
-        }
-        this.currentSelectedFunction.prerequisites.push(newFunction);
-      }
-
-      // Add to the main fmFunctions list
-      if (!this.currentFmeaDoc?.fmFunctions) {
-        this.currentFmeaDoc!.fmFunctions = [];
-      }
-      this.currentFmeaDoc!.fmFunctions.push(newFunction);
-
-      // Update sequence numbers
-      const parentCode = this.currentSelectedFunction.code || undefined;
-      const siblings = this.currentFmeaDoc!.fmFunctions.filter(f => 
-        f.parentFMFunctionCode === parentCode
-      );
-      for (let i = 0; i < siblings.length; i++) {
-        siblings[i].seq = i;
-      }
+      this.helper.createChildFunction(this.currentFmeaDoc!, this.currentSelectedStructure!, this.currentSelectedFunction, newFunction);
 
       // Refresh view and emit update
       this.refreshView();
@@ -252,35 +234,7 @@ export class FmeaStep3Component {
       this.selectFunctionNode(fmFunction);
     }
 
-    // Find siblings (functions with the same parent)
-    const siblings = this.currentFmeaDoc!.fmFunctions.filter(f => 
-      f.parentFMFunctionCode === this.currentSelectedFunction.parentFMFunctionCode
-    );
-
-    const idx = siblings.findIndex(f => f.code === this.currentSelectedFunction.code);
-    if (idx === -1) {
-      this.message.error('无法找到当前功能');
-      return;
-    }
-
-    if (isUp) {
-      if (idx > 0) {
-        const temp = siblings[idx - 1];
-        siblings[idx - 1] = siblings[idx];
-        siblings[idx] = temp;
-      }
-    } else {
-      if (idx < siblings.length - 1) {
-        const temp = siblings[idx + 1];
-        siblings[idx + 1] = siblings[idx];
-        siblings[idx] = temp;
-      }
-    }
-
-    // Update sequence numbers
-    for (let i = 0; i < siblings.length; i++) {
-      siblings[i].seq = i;
-    }
+    // TODO: implement
 
     this.refreshView();
     this.femaDocUpdated.emit(this.currentFmeaDoc!);
@@ -292,39 +246,7 @@ export class FmeaStep3Component {
       this.selectFunctionNode(fmFunction);
     }
 
-    // Check if there are child functions
-    const hasChildren = this.currentFmeaDoc?.fmFunctions.some(f => 
-      f.parentFMFunctionCode === this.currentSelectedFunction.code
-    );
-    
-    if (hasChildren) {
-      this.message.error('无法删除功能，当前功能下存在子功能');
-      return;
-    }
-
-    // Check if there are associated faults
-    if (this.currentSelectedFunction.faultRefs && this.currentSelectedFunction.faultRefs.length > 0) {
-      this.message.error('无法删除功能，当前功能下存在故障');
-      return;
-    }
-
-    // Remove from main fmFunctions list
-    this.currentFmeaDoc!.fmFunctions = this.currentFmeaDoc!.fmFunctions.filter(f => 
-      f.code !== this.currentSelectedFunction.code
-    );
-
-    // Remove from parent's prerequisites if applicable
-    if (this.currentSelectedFunction.parentFMFunctionCode) {
-      const parentFunction = this.helper.findFMFunctionByCode(
-        this.currentFmeaDoc!.fmFunctions, 
-        this.currentSelectedFunction.parentFMFunctionCode
-      );
-      if (parentFunction && parentFunction.prerequisites) {
-        parentFunction.prerequisites = parentFunction.prerequisites.filter(f => 
-          f.code !== this.currentSelectedFunction.code
-        );
-      }
-    }
+    // TODO: implement
 
     this.refreshView();
     this.femaDocUpdated.emit(this.currentFmeaDoc!);

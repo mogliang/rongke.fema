@@ -28,7 +28,7 @@ import {
 @Component({
   selector: 'app-fmea-step2',
   imports: [CommonModule, NzFormModule, NzInputModule, ReactiveFormsModule, NzModalModule, NzButtonModule, NzIconModule, NzDropDownModule, NzTabsModule, NzTreeModule, NzTableModule, NzDividerModule, NzCardModule, NzSplitterModule],
-  providers: [ HelperService],
+  providers: [HelperService],
   templateUrl: './fmea-step2.component.html',
   styleUrl: './fmea-step2.component.css'
 })
@@ -38,7 +38,7 @@ export class FmeaStep2Component {
   // ========================================
   // INITIALIZATION SECTION
   // ========================================
-  
+
   // Input/Output
   @Output() femaDocUpdated = new EventEmitter<FMEADto2>();
   fmeaDoc = input.required<FMEADto2 | null>();
@@ -46,7 +46,7 @@ export class FmeaStep2Component {
   // Data properties
   currentFmeaDoc: FMEADto2 | null = null;
   public flattenedStructures: FMStructureDto2[] = [];
-  public currentSelectedStructure: FMStructureDto2= {
+  public currentSelectedStructure: FMStructureDto2 = {
     code: '',
     longName: '',
     shortName: '',
@@ -85,7 +85,7 @@ export class FmeaStep2Component {
 
     this.fullTreeNodes = [rootNode];
     this.childTreeNodes = rootNode.children || [];
-    this.flattenedStructures = this.currentFmeaDoc?.fmStructures.filter(f => f.code != root!.code) ?? [];
+    this.flattenedStructures = this.helper.flattenStructures(this.currentFmeaDoc!);
   }
 
   toggleRootTreeDisplay(): void {
@@ -111,7 +111,7 @@ export class FmeaStep2Component {
   // ========================================
   // ADD SECTION
   // ========================================
-  
+
   // Add-related properties
   public isAddMode: boolean = false;
   public addForm = this.fb.group({
@@ -163,7 +163,7 @@ export class FmeaStep2Component {
   // ========================================
   // EDIT SECTION
   // ========================================
-  
+
   // Edit-related properties
   public isEditMode: boolean = false;
   public editForm = this.fb.group({
@@ -213,7 +213,6 @@ export class FmeaStep2Component {
     }
 
     this.helper.moveStructure(this.currentFmeaDoc!, this.currentSelectedStructure, isUp);
-
     this.refreshView();
     this.femaDocUpdated.emit(this.currentFmeaDoc!);
   }
@@ -226,11 +225,10 @@ export class FmeaStep2Component {
 
     try {
       this.helper.deleteStructure(this.currentFmeaDoc!, this.currentSelectedStructure);
+      this.refreshView();
+      this.femaDocUpdated.emit(this.currentFmeaDoc!);
     } catch (err) {
-      this.message.error(err.message);
+      this.message.error((err as Error).message || 'An error occurred');
     }
-
-    this.refreshView();
-    this.femaDocUpdated.emit(this.currentFmeaDoc!);
   }
 }

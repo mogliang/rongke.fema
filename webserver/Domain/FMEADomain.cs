@@ -118,6 +118,10 @@ public class FMEADomain
 
     public async Task UpdateToDatabase(FMEADto2 fmeaDto)
     {
+        var fmeaDoc = await _context.FMEAs.SingleAsync(d=>d.Code==fmeaDto.Code);
+        fmeaDoc.RootStructureCode = fmeaDto.RootStructureCode;
+        _context.Update(fmeaDoc);
+
         // Get existing data
         var existingStructures = await _context.FMStructures.ToListAsync();
         var existingFunctions = await _context.FMFunctions.ToListAsync();

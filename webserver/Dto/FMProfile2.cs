@@ -39,7 +39,11 @@ namespace Rongke.Fema.Dto
 
         List<string> CommaStringToList(string? input)
         {
-            return input?.Split(',').Select(s => s.Trim()).ToList() ?? new List<string>();
+            if (string.IsNullOrEmpty(input))
+            {
+                return new List<string>();
+            }
+            return input.Split(',').Select(s => s.Trim()).ToList();
         }
 
         string ListToCommaString(List<string>? input)

@@ -50,7 +50,7 @@
                                         <nz-dropdown-menu #menu2="nzDropdownMenu">
                                             <ul nz-menu>
                                                 <li nz-menu-item (click)="openEditFunctionModal($event, data)">编辑功能</li>
-                                                <li nz-menu-item (click)="openAddFunctionModal($event, data)">添加子功能</li>
+                                                <li nz-menu-item (click)="openAddFunctionModal($event, null)">添加子功能</li>
                                                 <li nz-menu-item (click)="moveFunctionNode($event, data, true)">上移功能</li>
                                                 <li nz-menu-item (click)="moveFunctionNode($event, data, false)">下移功能</li>
                                                 <li nz-submenu nzTitle="删除">

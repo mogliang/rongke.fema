@@ -88,6 +88,7 @@ namespace Rongke.Fema.Controllers
                 return BadRequest("Code in URL must match code in FMEA data");
             }
 
+            var domain = new FMEADomain(_context, _mapper);
             var fmea = await _context.FMEAs
                 .Where(f => f.Code == code)
                 .FirstOrDefaultAsync();
@@ -155,7 +156,7 @@ namespace Rongke.Fema.Controllers
             // Update structures, functions, and faults following the specified rules
             try
             {
-                await UpdateStructuresFunctionsFaults(fmeaDto);
+                await domain.UpdateToDatabase(fmeaDto);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -168,95 +169,6 @@ namespace Rongke.Fema.Controllers
 
             // Return the updated FMEA DTO
             return await GetByCode(code);
-        }
-
-        // rules:
-        // find new structure, create
-        // loop updated structure, check no circular ref, update field and ref
-        // find new func, create
-        // loop updated func, check no circular ref, update field and ref
-        // find new fault, create
-        // loop updated fault, check no circular ref, update field and ref
-        // remove deleted fault, then func, then structure
-        private async Task UpdateStructuresFunctionsFaults(FMEADto2 fmeaDto)
-        {
-            // Get existing data
-            var existingStructures = await _context.FMStructures.ToListAsync();
-            var existingFunctions = await _context.FMFunctions.ToListAsync();
-            var existingFaults = await _context.FMFaults.ToListAsync();
-
-            // add & update structure
-            var newStructures = fmeaDto.FMStructures
-                .Where(dto => !existingStructures.Any(e => e.Code == dto.Code))
-                .ToList();
-
-            foreach (var structureDto in newStructures)
-            {
-                var structure = _mapper.Map<FMStructure>(structureDto);
-                _context.FMStructures.Add(structure);
-            }
-
-            foreach (var structureDto in fmeaDto.FMStructures)
-            {
-                var structure = await _context.FMStructures.FirstAsync(s => s.Code == structureDto.Code);
-                _mapper.Map(structureDto, structure);
-            }
-
-            // add & update function
-            var newFunctions = fmeaDto.FMFunctions
-                .Where(dto => !existingFunctions.Any(e => e.Code == dto.Code))
-                .ToList();
-
-            foreach (var functionDto in newFunctions)
-            {
-                var function = _mapper.Map<FMFunction>(functionDto);
-                _context.FMFunctions.Add(function);
-            }
-
-            foreach (var functionDto in fmeaDto.FMFunctions)
-            {
-                var function = await _context.FMFunctions.FirstAsync(f => f.Code == functionDto.Code);
-                _mapper.Map(functionDto, function);
-            }
-
-            // add & update fault
-            var newFaults = fmeaDto.FMFaults
-                .Where(dto => !existingFaults.Any(e => e.Code == dto.Code))
-                .ToList();
-
-            foreach (var faultDto in newFaults)
-            {
-                var fault = _mapper.Map<FMFault>(faultDto);
-                _context.FMFaults.Add(fault);
-            }
-
-            foreach (var faultDto in fmeaDto.FMFaults)
-            {
-                var fault = await _context.FMFaults.FirstAsync(f => f.Code == faultDto.Code);
-                _mapper.Map(faultDto, fault);
-            }
-
-            // remove deleted items
-            var dtoCodes = new
-            {
-                StructureCodes = fmeaDto.FMStructures.Select(s => s.Code).ToHashSet(),
-                FunctionCodes = fmeaDto.FMFunctions.Select(f => f.Code).ToHashSet(),
-                FaultCodes = fmeaDto.FMFaults.Select(f => f.Code).ToHashSet()
-            };
-
-            // Remove deleted faults
-            var faultsToRemove = existingFaults.Where(f => !dtoCodes.FaultCodes.Contains(f.Code)).ToList();
-            _context.FMFaults.RemoveRange(faultsToRemove);
-
-            // Remove deleted functions
-            var functionsToRemove = existingFunctions.Where(f => !dtoCodes.FunctionCodes.Contains(f.Code)).ToList();
-            _context.FMFunctions.RemoveRange(functionsToRemove);
-
-            // Remove deleted structures
-            var structuresToRemove = existingStructures.Where(s => !dtoCodes.StructureCodes.Contains(s.Code)).ToList();
-            _context.FMStructures.RemoveRange(structuresToRemove);
-
-            await _context.SaveChangesAsync(); 
         }
 
         // private bool HasCircularReference<T>(string code, string? parentCode, List<T> items) where T : class
