@@ -224,7 +224,7 @@ export class FmeaStep2Component {
     }
 
     try {
-      this.helper.deleteStructure(this.currentFmeaDoc!, this.currentSelectedStructure);
+      this.helper.deleteStructure(this.currentFmeaDoc!, this.currentSelectedStructure, false, false, false, false, false);
       this.refreshView();
       this.fmeaDocUpdated.emit(this.currentFmeaDoc!);
     } catch (err) {
