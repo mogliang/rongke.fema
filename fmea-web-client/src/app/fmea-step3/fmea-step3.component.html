@@ -1,0 +1,173 @@
+<nz-tabset>
+    <nz-tab nzTitle="功能">
+        <nz-splitter>
+            <nz-splitter-panel nzDefaultSize="30%" nzMin="20%" nzMax="70%">
+                <div class="box">
+                    <nz-card nzTitle="结构与功能树" nzSize="small" [nzExtra]="extraTemplate">
+                        <ng-template #extraTemplate>
+                            <button nz-button nzSize="small" nzType="default"
+                                (click)="toggleRootTreeDisplay()">{{showRootInTree? "隐藏根结构" : "显示根结构"}}</button>
+                        </ng-template>
+                        <nz-tree [nzData]="showRootInTree ? fullTreeNodes : childTreeNodes" nzShowIcon
+                            [nzTreeTemplate]="nzTreeNodeTemplate" nzMultiple="false"
+                            (nzContextMenu)="onTreeContextMenu($event)">
+                            <ng-template #nzTreeNodeTemplate let-node>
+                                <div>
+                                    <nz-icon [nzType]="node.icon" nzTheme="outline" class="tree-icon" />
+                                    <span [ngClass]="{
+                                        'function-node': node.icon === 'aim', 
+                                        'structure-node': node.icon === 'setting',
+                                        'fault-node': node.icon === 'warning'
+                                    }">{{ node.title }}</span>
+                                </div>
+                            </ng-template>
+                        </nz-tree>
+                    </nz-card>
+                </div>
+            </nz-splitter-panel>
+            <nz-splitter-panel>
+                <div class="box">
+                    <nz-card nzTitle="表单" nzSize="small">
+                        <nz-table #basicTable nzSize="small" [nzData]="fmFunctions" [nzPageSize]="50">
+                            <thead>
+                                <tr>
+                                    <th nzWidth="100px">功能编号</th>
+                                    <th nzWidth="100px">短名</th>
+                                    <th>功能名称</th>
+                                    <th nzWidth="100px">结构编号</th>
+                                    <th nzWidth="120px">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (data of basicTable.data; track data) {
+                                <tr>
+                                    <td>{{ data.code }}</td>
+                                    <td>{{ data.shortName }}</td>
+                                    <td>{{ data.longName }}</td>
+                                    <td>{{ data.fmStructureCode }}</td>
+                                    <td>
+                                        <button nzSize="small" nz-button nz-dropdown [nzDropdownMenu]="menu2"
+                                            [nzPlacement]="'bottomLeft'">
+                                            编辑
+                                            <nz-icon nzType="down" />
+                                        </button>
+                                        <nz-dropdown-menu #menu2="nzDropdownMenu">
+                                            <ul nz-menu>
+                                                <li nz-menu-item (click)="openEditFunctionModal($event, data)">编辑功能</li>
+                                                <li nz-menu-item (click)="moveFunctionNode($event, data, true)">上移功能
+                                                </li>
+                                                <li nz-menu-item (click)="moveFunctionNode($event, data, false)">下移功能
+                                                </li>
+                                                <li nz-submenu nzTitle="删除">
+                                                    <ul>
+                                                        <li nz-menu-item (click)="deleteFunctionNode($event, data)">删除功能
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </nz-dropdown-menu>
+                                        <nz-divider nzType="vertical"></nz-divider>
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </nz-table>
+                    </nz-card>
+                </div>
+            </nz-splitter-panel>
+        </nz-splitter>
+    </nz-tab>
+    <nz-tab nzTitle="表单">
+    </nz-tab>
+    <nz-tab nzTitle="功能网">
+    </nz-tab>
+    <nz-tab nzTitle="参数图">
+    </nz-tab>
+    <nz-tab nzTitle="功能矩阵">
+    </nz-tab>
+    <nz-tab nzTitle="特性清单">
+    </nz-tab>
+</nz-tabset>
+
+<nz-dropdown-menu #treeMenu1="nzDropdownMenu">
+    <ul nz-menu>
+        <li nz-menu-item (click)="openAddFunctionModal($event, null)">添加子功能</li>
+    </ul>
+</nz-dropdown-menu>
+<nz-dropdown-menu #treeMenu2="nzDropdownMenu">
+    <ul nz-menu>
+        <li nz-menu-item (click)="openEditFunctionModal($event, null)">编辑功能</li>
+        <li nz-menu-item (click)="moveFunctionNode($event, null, true)">上移功能</li>
+        <li nz-menu-item (click)="moveFunctionNode($event, null, false)">下移功能</li>
+        <li nz-submenu nzTitle="删除">
+            <ul>
+                <li nz-menu-item (click)="deleteFunctionNode($event, null)">删除功能</li>
+            </ul>
+        </li>
+    </ul>
+</nz-dropdown-menu>
+
+<nz-modal [(nzVisible)]="isEditMode"
+    nzTitle="编辑 {{currentSelectedFunction?.code}}" nzClosable="false"
+    nzMaskClosable="false" (nzOnCancel)="cancelEditFunction()" (nzOnOk)="confirmEditFunction()">
+    <ng-container *nzModalContent>
+        <form nz-form [formGroup]="editForm">
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>功能编号</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input value="{{currentSelectedFunction?.code}}" readonly name="code" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>功能名称</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input formControlName="longName" name="longName" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>短名</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input formControlName="shortName" name="shortName" />
+                </nz-form-control>
+            </nz-form-item>
+        </form>
+    </ng-container>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isAddMode" nzTitle="添加FMFunction" nzClosable="false" nzMaskClosable="false"
+    (nzOnCancel)="cancelAddFunction()" (nzOnOk)="confirmAddFunction()">
+    <ng-container *nzModalContent>
+        <form nz-form [formGroup]="addForm">
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>父结构编号</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input formControlName="fmStructureCode" readonly name="fmStructureCode" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6">父功能</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input value="{{currentSelectedFunction?.code || '(根功能)'}}" readonly name="parentCode" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>功能编号</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input formControlName="code" readonly name="code" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>功能名称</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input formControlName="longName" name="longName" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>短名</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input formControlName="shortName" name="shortName" />
+                </nz-form-control>
+            </nz-form-item>
+        </form>
+    </ng-container>
+</nz-modal>

@@ -1,6 +1,6 @@
-# FEMA Web Server
+# FMEA Web Server
 
-This is the backend API server for the FEMA (Failure Mode and Effects Analysis) application.
+This is the backend API server for the FMEA (Failure Mode and Effects Analysis) application.
 
 ## Quick Start
 

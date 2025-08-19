@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Rongke.Fema.Data
+namespace Rongke.Fmea.Data
 {
     public class Product
     {

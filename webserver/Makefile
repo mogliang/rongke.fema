@@ -1,14 +1,14 @@
-# Makefile for FEMA Web Server
+# Makefile for FMEA Web Server
 # This Makefile provides commands to setup, manage database migrations, and run the application
 
 # Variables
-PROJECT_FILE = rongke.fema.csproj
+PROJECT_FILE = rongke.fmea.csproj
 DB_CONTEXT = AppDbContext
 MIGRATION_NAME = AutoMigration_$(shell date +%Y%m%d_%H%M%S)
 PORT = 5166
 
 # Docker Variables
-IMAGE_NAME ?= fema-webserver
+IMAGE_NAME ?= fmea-webserver
 IMAGE_TAG ?= latest
 REGISTRY ?= docker.io
 FULL_IMAGE_NAME = $(REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG)
@@ -27,7 +27,7 @@ NC := \033[0m # No Color
 .PHONY: help install-ef restore build clean db-init db-migrate db-update db-reset run dev watch setup all deploy-package docker-build docker-build-no-cache docker-run docker-stop docker-inspect docker-logs docker-push docker-tag docker-images docker-clean docker-export docker-import docker-login publish package deploy-local docker-clean-all docker-test docker-config ci ci-docker
 
 help: ## Show this help message
-	@echo "$(GREEN)FEMA Web Server Makefile$(NC)"
+	@echo "$(GREEN)FMEA Web Server Makefile$(NC)"
 	@echo "Available commands:"
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  $(YELLOW)%-15s$(NC) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
@@ -115,15 +115,15 @@ db-info: install-ef ## Show database information
 	dotnet ef dbcontext info --context $(DB_CONTEXT)
 
 run: build ## Run the application
-	@echo "$(GREEN)Starting FEMA Web Server on port $(PORT)...$(NC)"
+	@echo "$(GREEN)Starting FMEA Web Server on port $(PORT)...$(NC)"
 	dotnet run --project $(PROJECT_FILE) --urls "http://localhost:$(PORT)"
 
 dev: build ## Run the application in development mode with hot reload
-	@echo "$(GREEN)Starting FEMA Web Server in development mode...$(NC)"
+	@echo "$(GREEN)Starting FMEA Web Server in development mode...$(NC)"
 	dotnet run --project $(PROJECT_FILE) --environment Development --urls "http://localhost:$(PORT)"
 
 watch: ## Run the application with file watching (auto-restart on changes)
-	@echo "$(GREEN)Starting FEMA Web Server with file watching...$(NC)"
+	@echo "$(GREEN)Starting FMEA Web Server with file watching...$(NC)"
 	dotnet watch --project $(PROJECT_FILE) --urls "http://localhost:$(PORT)"
 
 test: build ## Run tests
@@ -191,16 +191,16 @@ deploy-package: build db-update ## Create complete deployment package with binar
 	
 	# Create archive for easy transfer
 	@echo "$(YELLOW)Creating deployment archive...$(NC)"
-	@cd deploy && zip -r ../fema-webserver-deploy-$(shell date +%Y%m%d-%H%M%S).zip .
+	@cd deploy && zip -r ../fmea-webserver-deploy-$(shell date +%Y%m%d-%H%M%S).zip .
 	
 	@echo "$(GREEN)Deployment package created successfully!$(NC)"
 	@echo "$(YELLOW)Files created:$(NC)"
 	@echo "  - ./deploy/ - Deployment directory"
-	@echo "  - ./fema-webserver-deploy-*.zip - Deployment archive"
+	@echo "  - ./fmea-webserver-deploy-*.zip - Deployment archive"
 	@echo ""
 	@echo "$(YELLOW)To deploy on Linux:$(NC)"
 	@echo "  1. Transfer the .zip file to your target server"
-	@echo "  2. Extract: unzip fema-webserver-deploy-*.zip"
+	@echo "  2. Extract: unzip fmea-webserver-deploy-*.zip"
 	@echo "  3. Run: ./install.sh"
 	@echo "  4. Start: ./start.sh"
 	@echo ""
@@ -228,31 +228,31 @@ docker-build-no-cache: ## Build Docker image without cache
 # Run Docker container locally
 docker-run: ## Run Docker container locally on port 5166
 	@echo "$(GREEN)Running Docker container: $(FULL_IMAGE_NAME)$(NC)"
-	docker run -d -p $(PORT):80 --name fema-webserver-container $(FULL_IMAGE_NAME)
+	docker run -d -p $(PORT):80 --name fmea-webserver-container $(FULL_IMAGE_NAME)
 	@echo "$(GREEN)✅ Container started at http://localhost:$(PORT)$(NC)"
 
 # Stop and remove Docker container
 docker-stop: ## Stop and remove Docker container
 	@echo "$(YELLOW)Stopping Docker container...$(NC)"
-	-docker stop fema-webserver-container
-	-docker rm fema-webserver-container
+	-docker stop fmea-webserver-container
+	-docker rm fmea-webserver-container
 	@echo "$(GREEN)✅ Container stopped and removed$(NC)"
 
 # Check what files are in the running container
 docker-inspect: ## Inspect files inside the running Docker container
 	@echo "$(GREEN)Inspecting files in the container...$(NC)"
-	docker exec fema-webserver-container ls -la /app/
+	docker exec fmea-webserver-container ls -la /app/
 	@echo ""
 	@echo "$(YELLOW)Checking application files...$(NC)"
-	docker exec fema-webserver-container ls -la /app/bin/ || echo "No bin directory found"
+	docker exec fmea-webserver-container ls -la /app/bin/ || echo "No bin directory found"
 	@echo ""
 	@echo "$(YELLOW)Checking configuration files...$(NC)"
-	docker exec fema-webserver-container ls -la /app/appsettings*.json || echo "No appsettings files found"
+	docker exec fmea-webserver-container ls -la /app/appsettings*.json || echo "No appsettings files found"
 
 # Check container logs
 docker-logs: ## Show Docker container logs
 	@echo "$(GREEN)Docker container logs:$(NC)"
-	docker logs fema-webserver-container
+	docker logs fmea-webserver-container
 
 # Test Docker container health
 docker-test: ## Test if Docker container is responding
@@ -373,4 +373,4 @@ status: ## Show project status
 	@docker images | grep $(IMAGE_NAME) 2>/dev/null || echo "No Docker images found for $(IMAGE_NAME)"
 	@echo ""
 	@echo "$(YELLOW)Running containers:$(NC)"
-	@docker ps | grep fema-webserver-container 2>/dev/null || echo "No running containers found"
+	@docker ps | grep fmea-webserver-container 2>/dev/null || echo "No running containers found"

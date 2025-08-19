@@ -1,11 +1,11 @@
 @echo off
-REM This script installs the FEMA Web Server as a Windows Service
+REM This script installs the FMEA Web Server as a Windows Service
 REM Run this script as Administrator
-echo Installing FEMA Web Server as Windows Service...
-set SERVICE_NAME=FEMAWebServer
-set SERVICE_DISPLAY_NAME=FEMA Web Server
+echo Installing FMEA Web Server as Windows Service...
+set SERVICE_NAME=FMEAWebServer
+set SERVICE_DISPLAY_NAME=FMEA Web Server
 set SERVICE_DESCRIPTION=FMEA Web Application Server
-set APP_PATH=%~dp0app\rongke.fema.exe
+set APP_PATH=%~dp0app\rongke.fmea.exe
 
 REM Check if running as administrator
 net session >nul 2>&1
@@ -38,5 +38,5 @@ sc start "%SERVICE_NAME%"
 
 echo Service installation completed!
 echo Service Name: %SERVICE_NAME%
-echo The FEMA Web Server is now running as a Windows Service on port 5000
+echo The FMEA Web Server is now running as a Windows Service on port 5000
 pause

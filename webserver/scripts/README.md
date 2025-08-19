@@ -1,6 +1,6 @@
 # Scripts Directory
 
-This directory contains all deployment and utility scripts for the FEMA Web Server project.
+This directory contains all deployment and utility scripts for the FMEA Web Server project.
 
 ## Deployment Scripts
 
@@ -14,7 +14,7 @@ Main script generator that copies all deployment scripts to a target directory.
 ### Linux Scripts
 
 #### `start.sh`
-Starts the FEMA Web Server application on Linux systems.
+Starts the FMEA Web Server application on Linux systems.
 - **Environment**: Production
 - **Port**: 5000
 - **Usage**: `./start.sh`
@@ -27,7 +27,7 @@ Installs .NET Runtime on Linux systems if not already present.
 ### Windows Scripts
 
 #### `start.bat`
-Starts the FEMA Web Server application on Windows systems.
+Starts the FMEA Web Server application on Windows systems.
 - **Environment**: Production
 - **Port**: 5000
 - **Usage**: Double-click or run from command prompt
@@ -37,13 +37,13 @@ Verifies .NET Runtime installation on Windows systems.
 - **Usage**: Double-click or run from command prompt
 
 #### `install-service.bat`
-Installs the FEMA Web Server as a Windows Service.
+Installs the FMEA Web Server as a Windows Service.
 - **Requirements**: Must be run as Administrator
-- **Service Name**: FEMAWebServer
+- **Service Name**: FMEAWebServer
 - **Usage**: Right-click -> "Run as administrator"
 
 #### `uninstall-service.bat`
-Uninstalls the FEMA Web Server Windows Service.
+Uninstalls the FMEA Web Server Windows Service.
 - **Requirements**: Must be run as Administrator
 - **Usage**: Right-click -> "Run as administrator"
 

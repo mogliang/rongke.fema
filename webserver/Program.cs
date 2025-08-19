@@ -1,4 +1,4 @@
-using Rongke.Fema.Data;
+using Rongke.Fmea.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -23,7 +23,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // setup swagger
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "Fema API", Version = "v1" });
+    c.SwaggerDoc("v1", new() { Title = "Fmea API", Version = "v1" });
 });
 
 // setup CORS - allow all domains
@@ -57,7 +57,7 @@ app.UseSwagger();
 
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Fema API V1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Fmea API V1");
     c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
 });
 

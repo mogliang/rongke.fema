@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script to generate deployment scripts for FEMA Web Server
+# Script to generate deployment scripts for FMEA Web Server
 
 DEPLOY_DIR="$1"
 SCRIPTS_DIR="$(dirname "$0")"

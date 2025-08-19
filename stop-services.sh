@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# FEMA Services Shutdown Script
+# FMEA Services Shutdown Script
 # This script stops both the webserver and client background processes
 
 set -e  # Exit on any error
@@ -31,7 +31,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 WEBSERVER_PID_FILE="$SCRIPT_DIR/webserver.pid"
 CLIENT_PID_FILE="$SCRIPT_DIR/client.pid"
 
-print_status "Stopping FEMA Services..."
+print_status "Stopping FMEA Services..."
 
 # Function to stop a service
 stop_service() {
@@ -87,7 +87,7 @@ stop_service "Client" "$CLIENT_PID_FILE"
 print_status "Cleaning up any remaining processes..."
 
 # Kill any remaining dotnet processes running the webserver
-pkill -f "dotnet.*rongke.fema" 2>/dev/null && print_status "Killed remaining webserver processes" || true
+pkill -f "dotnet.*rongke.fmea" 2>/dev/null && print_status "Killed remaining webserver processes" || true
 
 # Kill any remaining ng serve processes for the client
 pkill -f "ng serve" 2>/dev/null && print_status "Killed remaining client processes" || true

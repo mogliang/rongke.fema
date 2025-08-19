@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# FEMA Services Status Script
+# FMEA Services Status Script
 # This script checks the status of both the webserver and client services
 
 # Colors for output
@@ -34,7 +34,7 @@ WEBSERVER_LOG="$SCRIPT_DIR/webserver.log"
 CLIENT_LOG="$SCRIPT_DIR/client.log"
 
 echo "========================================="
-echo "FEMA Services Status"
+echo "FMEA Services Status"
 echo "========================================="
 
 # Function to check service status

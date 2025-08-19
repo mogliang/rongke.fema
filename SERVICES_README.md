@@ -1,4 +1,4 @@
-# FEMA Services Management Scripts
+# FMEA Services Management Scripts
 
 This directory contains shell scripts to manage both the webserver and client services as background processes.
 

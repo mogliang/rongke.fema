@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Rongke.Fema.Data
+namespace Rongke.Fmea.Data
 {
     public class AppDbContext : DbContext
     {

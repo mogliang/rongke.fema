@@ -3,19 +3,19 @@
 ## Changes Made
 
 ### 1. **Makefile Updates**
-Modified `/home/seed/repo/personal/rongke.fema/webserver/Makefile`:
+Modified `/home/seed/repo/personal/rongke.fmea/webserver/Makefile`:
 
 ```diff
-- @cd deploy && tar -czf ../fema-webserver-deploy-$(shell date +%Y%m%d-%H%M%S).tar.gz .
-+ @cd deploy && zip -r ../fema-webserver-deploy-$(shell date +%Y%m%d-%H%M%S).zip .
+- @cd deploy && tar -czf ../fmea-webserver-deploy-$(shell date +%Y%m%d-%H%M%S).tar.gz .
++ @cd deploy && zip -r ../fmea-webserver-deploy-$(shell date +%Y%m%d-%H%M%S).zip .
 
-- @echo "  - ./fema-webserver-deploy-*.tar.gz - Deployment archive"
-+ @echo "  - ./fema-webserver-deploy-*.zip - Deployment archive"
+- @echo "  - ./fmea-webserver-deploy-*.tar.gz - Deployment archive"
++ @echo "  - ./fmea-webserver-deploy-*.zip - Deployment archive"
 
 - @echo "  1. Transfer the .tar.gz file to your target server"
-- @echo "  2. Extract: tar -xzf fema-webserver-deploy-*.tar.gz"
+- @echo "  2. Extract: tar -xzf fmea-webserver-deploy-*.tar.gz"
 + @echo "  1. Transfer the .zip file to your target server" 
-+ @echo "  2. Extract: unzip fema-webserver-deploy-*.zip"
++ @echo "  2. Extract: unzip fmea-webserver-deploy-*.zip"
 
 - @echo "  1. Transfer and extract the .tar.gz file (or copy the deploy/ folder)"
 + @echo "  1. Transfer and extract the .zip file (or copy the deploy/ folder)"

@@ -1,6 +1,6 @@
-# FEMA Web Server Deployment Package
+# FMEA Web Server Deployment Package
 
-This package contains everything needed to deploy the FEMA Web Server on both Linux and Windows.
+This package contains everything needed to deploy the FMEA Web Server on both Linux and Windows.
 
 ## Linux Installation
 
@@ -47,8 +47,8 @@ SQLite database file is included at `app/bin/app.db`
 
 If installed as a Windows Service, you can manage it using:
 - Services.msc (GUI)
-- Command line: `sc start FEMAWebServer`, `sc stop FEMAWebServer`
-- PowerShell: `Start-Service FEMAWebServer`, `Stop-Service FEMAWebServer`
+- Command line: `sc start FMEAWebServer`, `sc stop FMEAWebServer`
+- PowerShell: `Start-Service FMEAWebServer`, `Stop-Service FMEAWebServer`
 
 ## Firewall Configuration
 

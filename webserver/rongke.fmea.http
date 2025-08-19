@@ -1,0 +1,6 @@
+@rongke.fmea_HostAddress = http://localhost:5166
+
+GET {{rongke.fmea_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

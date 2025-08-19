@@ -1,4 +1,4 @@
-namespace Rongke.Fema.Dto
+namespace Rongke.Fmea.Dto
 {
     using System.ComponentModel.DataAnnotations;
     using AutoMapper;

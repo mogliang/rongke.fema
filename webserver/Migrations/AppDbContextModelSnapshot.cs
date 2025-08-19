@@ -3,11 +3,11 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Rongke.Fema.Data;
+using Rongke.Fmea.Data;
 
 #nullable disable
 
-namespace rongke.fema.Migrations
+namespace rongke.fmea.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -17,7 +17,7 @@ namespace rongke.fema.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
 
-            modelBuilder.Entity("Rongke.Fema.Data.FMEA", b =>
+            modelBuilder.Entity("Rongke.Fmea.Data.FMEA", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -119,7 +119,7 @@ namespace rongke.fema.Migrations
                     b.ToTable("FMEAs");
                 });
 
-            modelBuilder.Entity("Rongke.Fema.Data.FMFault", b =>
+            modelBuilder.Entity("Rongke.Fmea.Data.FMFault", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -162,7 +162,7 @@ namespace rongke.fema.Migrations
                     b.ToTable("FMFaults");
                 });
 
-            modelBuilder.Entity("Rongke.Fema.Data.FMFunction", b =>
+            modelBuilder.Entity("Rongke.Fmea.Data.FMFunction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -203,7 +203,7 @@ namespace rongke.fema.Migrations
                     b.ToTable("FMFunctions");
                 });
 
-            modelBuilder.Entity("Rongke.Fema.Data.FMStructure", b =>
+            modelBuilder.Entity("Rongke.Fmea.Data.FMStructure", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -251,7 +251,7 @@ namespace rongke.fema.Migrations
                     b.ToTable("FMStructures");
                 });
 
-            modelBuilder.Entity("Rongke.Fema.Data.Product", b =>
+            modelBuilder.Entity("Rongke.Fmea.Data.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

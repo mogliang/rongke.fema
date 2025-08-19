@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Rongke.Fema.Data;
-using Rongke.Fema.Dto;
-using Rongke.Fema.Domain;
+using Rongke.Fmea.Data;
+using Rongke.Fmea.Dto;
+using Rongke.Fmea.Domain;
 
-namespace Rongke.Fema.Controllers
+namespace Rongke.Fmea.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

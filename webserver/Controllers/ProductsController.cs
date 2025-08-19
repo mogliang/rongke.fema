@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Rongke.Fema.Data;
+using Rongke.Fmea.Data;
 using SQLitePCL;
 
-namespace Rongke.Fema.Controllers
+namespace Rongke.Fmea.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

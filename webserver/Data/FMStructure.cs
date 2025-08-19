@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Rongke.Fema.Data
+namespace Rongke.Fmea.Data
 {
     [Index(nameof(Code), IsUnique = true)]
     public class FMStructure

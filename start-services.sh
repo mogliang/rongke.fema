@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# FEMA Services Startup Script
+# FMEA Services Startup Script
 # This script starts both the webserver and client as background processes using nohup
 
 set -e  # Exit on any error
@@ -27,7 +27,7 @@ print_error() {
 # Get the directory where the script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 WEBSERVER_DIR="$SCRIPT_DIR/webserver"
-CLIENT_DIR="$SCRIPT_DIR/fema-web-client"
+CLIENT_DIR="$SCRIPT_DIR/fmea-web-client"
 
 # PID file locations
 WEBSERVER_PID_FILE="$SCRIPT_DIR/webserver.pid"
@@ -37,7 +37,7 @@ CLIENT_PID_FILE="$SCRIPT_DIR/client.pid"
 WEBSERVER_LOG="$SCRIPT_DIR/webserver.log"
 CLIENT_LOG="$SCRIPT_DIR/client.log"
 
-print_status "Starting FEMA Services..."
+print_status "Starting FMEA Services..."
 
 # Check if services are already running
 if [ -f "$WEBSERVER_PID_FILE" ] && kill -0 $(cat "$WEBSERVER_PID_FILE") 2>/dev/null; then
@@ -55,7 +55,7 @@ else
     
     # Build the webserver if needed
     print_status "Building webserver..."
-    if ! dotnet build rongke.fema.csproj --configuration Release; then
+    if ! dotnet build rongke.fmea.csproj --configuration Release; then
         print_error "Failed to build webserver"
         exit 1
     fi
@@ -64,7 +64,7 @@ else
     export ASPNETCORE_ENVIRONMENT=Production
     export ASPNETCORE_URLS=http://0.0.0.0:5166
     
-    nohup dotnet run --project rongke.fema.csproj --configuration Release --urls "http://0.0.0.0:5166" > "$WEBSERVER_LOG" 2>&1 &
+    nohup dotnet run --project rongke.fmea.csproj --configuration Release --urls "http://0.0.0.0:5166" > "$WEBSERVER_LOG" 2>&1 &
     WEBSERVER_PID=$!
     echo $WEBSERVER_PID > "$WEBSERVER_PID_FILE"
     

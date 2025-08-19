@@ -1,9 +1,9 @@
-namespace Rongke.Fema.Dto
+namespace Rongke.Fmea.Dto
 {
     using System.ComponentModel.DataAnnotations;
     using AutoMapper;
     using Data;
-    using Rongke.Fema.Domain;
+    using Rongke.Fmea.Domain;
 
     public class FMProfile2 : Profile
     {

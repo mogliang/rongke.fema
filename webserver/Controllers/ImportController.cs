@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Abstractions;
-using Rongke.Fema.Data;
-using Rongke.Fema.Domain;
-using Rongke.Fema.Dto;
+using Rongke.Fmea.Data;
+using Rongke.Fmea.Domain;
+using Rongke.Fmea.Dto;
 
-namespace Rongke.Fema.Controllers
+namespace Rongke.Fmea.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace rongke.fema.Migrations
+namespace rongke.fmea.Migrations
 {
     /// <inheritdoc />
     public partial class fmeareschema : Migration

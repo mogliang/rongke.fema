@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Rongke.Fema.Data;
-using Rongke.Fema.Dto;
+using Rongke.Fmea.Data;
+using Rongke.Fmea.Dto;
 
-namespace Rongke.Fema.Controllers
+namespace Rongke.Fmea.Controllers
 {
     [ApiController]
     [ApiExplorerSettings(IgnoreApi = true)]

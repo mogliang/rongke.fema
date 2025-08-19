@@ -1,7 +1,7 @@
 @echo off
-REM This script uninstalls the FEMA Web Server Windows Service
+REM This script uninstalls the FMEA Web Server Windows Service
 REM Run this script as Administrator
-set SERVICE_NAME=FEMAWebServer
+set SERVICE_NAME=FMEAWebServer
 
 REM Check if running as administrator
 net session >nul 2>&1
@@ -11,7 +11,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-echo Stopping and removing FEMA Web Server service...
+echo Stopping and removing FMEA Web Server service...
 sc stop "%SERVICE_NAME%"
 timeout /t 5 /nobreak
 sc delete "%SERVICE_NAME%"

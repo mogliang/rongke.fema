@@ -1,4 +1,4 @@
-namespace Rongke.Fema.Domain
+namespace Rongke.Fmea.Domain
 {
     using System.ComponentModel.DataAnnotations;
     using System.Text.RegularExpressions;
@@ -6,10 +6,10 @@ namespace Rongke.Fema.Domain
     using Data;
 
     // Fmea code: F{id}, e.g. F1, F31, F377
-    // Fmea structure code: {FemaCode}S{id}, e.g. F1S1, F31S12, F377S123
-    // Fmea function code: {FemaCode}F{id}
-    // Fmea Fault code: {FemaCode}T{id}
-    // Fmea Action code: {FemaCode}A{id}
+    // Fmea structure code: {FmeaCode}S{id}, e.g. F1S1, F31S12, F377S123
+    // Fmea function code: {FmeaCode}F{id}
+    // Fmea Fault code: {FmeaCode}T{id}
+    // Fmea Action code: {FmeaCode}A{id}
     public class FmeaCodeGenerator
     {
         private int fmeaCode;
