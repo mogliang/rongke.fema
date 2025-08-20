@@ -34,7 +34,6 @@ namespace Rongke.Fmea.Controllers
             // hardcoded, TODO
             fmeaDto.Code = "FMEA-0001";
             domain.SetupLevels(fmeaDto);
-            SetFaultType(fmeaDto);
             var failedRules = domain.Verify(fmeaDto);
             if (failedRules.Count > 0)
             {
@@ -44,25 +43,6 @@ namespace Rongke.Fmea.Controllers
             await domain.UpdateToDatabase(fmeaDto);
 
             return Ok("FMEA imported successfully.");
-        }
-
-        private void SetFaultType(FMEADto2 fmeaDto)
-        {
-            foreach (var fault in fmeaDto.FMFaults)
-            {
-                if (fault.Level == 1)
-                {
-                    fault.FaultType = FaultType.FE;
-                }
-                else if (fault.Level == 2)
-                {
-                    fault.FaultType = FaultType.FM;
-                }
-                else if (fault.Level == 3)
-                {
-                    fault.FaultType = FaultType.FC;
-                }
-            }
         }
 
         private FMEADto2 ConvertXmlToDto2(string fmeaXml)

@@ -36,7 +36,6 @@ namespace Rongke.Fmea.Domain
             return int.Parse(strId);
         }
 
-
         public (int, string) GenerateFmStructureCode()
         {
             fmeaStructureStartCode++;

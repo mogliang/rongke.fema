@@ -472,6 +472,203 @@ export class HelperService {
     return causes;
   }
 
+  public getFaultParentFunction(doc: FMEADto2, fault: FMFaultDto2): FMFunctionDto2 | null {
+    if (!doc || !fault) {
+      return null;
+    }
+    return doc.fmFunctions.find(f => f.faultRefs.includes(fault.code)) || null;
+  }
+
+  public getFaultParentFaults(doc: FMEADto2, fault: FMFaultDto2): FMFaultDto2[] {
+    if (!doc || !fault) {
+      return [];
+    }
+    return doc.fmFaults.filter(f => f.causes.includes(fault.code)).sort((a, b) => a.seq - b.seq);
+  }
+
+  public generateNextFaultCode(doc: FMEADto2): string {
+    if (!doc || !doc.fmFaults || doc.fmFaults.length === 0) {
+      return 'T001-001';
+    }
+
+    let maxCode = '';
+    let maxNumber = 0;
+
+    // Find the biggest fault code
+    for (const fault of doc.fmFaults) {
+      if (fault.code) {
+        const code = fault.code;
+
+        // Extract the numeric part from codes like "T001-003"
+        const match = code.match(/^(T\d{3}-?)(\d{3})$/);
+        if (match) {
+          const prefix = match[1];
+          const number = parseInt(match[2], 10);
+
+          if (number > maxNumber) {
+            maxNumber = number;
+            maxCode = code;
+          }
+        }
+      }
+    }
+
+    // Generate next code
+    if (maxCode) {
+      const match = maxCode.match(/^(T\d{3}-?)(\d{3})$/);
+      if (match) {
+        const prefix = match[1];
+        const nextNumber = maxNumber + 1;
+        return `${prefix}${nextNumber.toString().padStart(3, '0')}`;
+      }
+    }
+
+    // Fallback if no valid codes found
+    return 'T001-001';
+  }
+
+  // Fault - Add operations (public)
+  public createChildFault(doc: FMEADto2, parentFunc: FMFunctionDto2, child: FMFaultDto2) {
+    if (!doc || !parentFunc) {
+      throw new Error('Invalid document or parent function');
+    }
+
+    // Fault level is determined by function level
+    child.level = parentFunc.level;
+    
+    // Add fault to parent function's fault references
+    parentFunc.faultRefs.push(child.code);
+    
+    // Add fault to document
+    doc.fmFaults.push(child);
+    
+    this.resortFaultSequence(doc, parentFunc);
+  }
+
+  public addFaultCause(doc: FMEADto2, fault: FMFaultDto2, causeFault: FMFaultDto2) {
+    if (!doc || !fault || !causeFault) {
+      throw new Error('Invalid document, fault or cause fault');
+    }
+
+    // Validate that cause fault exists in document
+    const causeExists = doc.fmFaults.some(f => f.code === causeFault.code);
+    if (!causeExists) {
+      throw new Error('Cause fault not found in document');
+    }
+
+    // Get parent functions for both faults
+    const faultParentFunc = this.getFaultParentFunction(doc, fault);
+    const causeFaultParentFunc = this.getFaultParentFunction(doc, causeFault);
+
+    if (!faultParentFunc) {
+      throw new Error('Parent function not found for fault');
+    }
+
+    if (!causeFaultParentFunc) {
+      throw new Error('Parent function not found for cause fault');
+    }
+
+    // Check if causeFault's parent function is a prerequisite of fault's parent function
+    if (!faultParentFunc.prerequisites.includes(causeFaultParentFunc.code)) {
+      throw new Error('Cause fault\'s parent function must be a prerequisite of fault\'s parent function');
+    }
+
+    // Add cause relationship
+    if (!fault.causes.includes(causeFault.code)) {
+      fault.causes.push(causeFault.code);
+    }
+  }
+
+  // Fault - Update operations (public)
+  public removeFaultCause(doc: FMEADto2, fault: FMFaultDto2, causeFault: FMFaultDto2) {
+    if (!doc || !fault || !causeFault) {
+      throw new Error('Invalid document, fault or cause fault');
+    }
+    
+    fault.causes = fault.causes.filter(code => code !== causeFault.code);
+  }
+
+  // Fault - Move operations (public)
+  public moveFault(doc: FMEADto2, fault: FMFaultDto2, isUp: boolean) {
+    if (!doc || !fault) {
+      throw new Error('Invalid document or fault');
+    }
+
+    var parentFunc = this.getFaultParentFunction(doc, fault);
+    if (!parentFunc) {
+      throw new Error('Parent function not found');
+    }
+
+    const currentIndex = parentFunc.faultRefs.indexOf(fault.code);
+    var newIndex = isUp ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0) {
+      newIndex = 0;
+    }
+    if (newIndex >= parentFunc.faultRefs.length) {
+      newIndex = parentFunc.faultRefs.length - 1;
+    }
+
+    var tmp = parentFunc.faultRefs[newIndex];
+    parentFunc.faultRefs[newIndex] = parentFunc.faultRefs[currentIndex];
+    parentFunc.faultRefs[currentIndex] = tmp;
+
+    this.resortFaultSequence(doc, parentFunc);
+  }
+
+  // Fault - Delete operations (public)
+  public deleteFault(doc: FMEADto2, fault: FMFaultDto2, removeCauses: boolean, dryRun: boolean) {
+    if (!doc || !fault) {
+      throw new Error('Invalid document or fault');
+    }
+
+    // Check if fault has dependent faults (faults that have this as a cause)
+    var dependentFaults = this.getFaultParentFaults(doc, fault);
+    if (dependentFaults.length > 0 && !removeCauses) {
+      throw new Error('Cannot delete fault that is referenced as a cause by other faults');
+    }
+
+    if (fault.causes.length > 0 && !removeCauses) {
+      throw new Error('Cannot delete fault that has causes');
+    }
+
+    var parentFunc = this.getFaultParentFunction(doc, fault);
+    if (!parentFunc) {
+      throw new Error('Parent function not found');
+    }
+
+    if (!dryRun) {
+      // Remove this fault as a cause from all dependent faults
+      for (let i = 0; i < dependentFaults.length; i++) {
+        var dependentFault = dependentFaults[i];
+        dependentFault.causes = dependentFault.causes.filter(code => code !== fault.code);
+      }
+
+      // Clear fault's own causes
+      fault.causes = [];
+
+      // Remove from document
+      doc.fmFaults = doc.fmFaults.filter(f => f.code !== fault.code);
+
+      // Remove from parent function's fault references
+      parentFunc.faultRefs = parentFunc.faultRefs.filter(code => code !== fault.code);
+
+      // Re-sequence siblings
+      this.resortFaultSequence(doc, parentFunc);
+    }
+  }
+
+  // Fault - Private helper methods
+  private resortFaultSequence(doc: FMEADto2, parentFunction: FMFunctionDto2) {
+    for (let i = 0; i < parentFunction.faultRefs.length; i++) {
+      var childCode = parentFunction.faultRefs[i];
+      var child = doc.fmFaults.find(f => f.code === childCode);
+      if (!child) {
+        throw new Error(`Child fault not found: ${childCode}`);
+      }
+      child.seq = i + 1;
+    }
+  }
+
   // ========================================
   // UTILITY OPERATIONS
   // ========================================

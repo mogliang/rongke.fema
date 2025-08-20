@@ -38,7 +38,7 @@ export interface FMEADto2 {
     designOwner?: string | null;
     coreMembers?: Array<TeamMemberDto> | null;
     extendedMembers?: Array<TeamMemberDto> | null;
-    rootStructureCode?: string | null;
+    rootStructureCode: string;
     fmStructures: Array<FMStructureDto2>;
     fmFunctions: Array<FMFunctionDto2>;
     fmFaults: Array<FMFaultDto2>;

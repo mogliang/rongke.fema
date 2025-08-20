@@ -120,7 +120,6 @@ CREATE TABLE "FMFaults" (
     "ShortName" TEXT NULL,
     "Level" INTEGER NOT NULL,
     "RiskPriorityFactor" INTEGER NOT NULL DEFAULT 0,
-    "FaultType" INTEGER NOT NULL DEFAULT 0,
     "Causes" TEXT NULL
 );
 ```
@@ -129,7 +128,6 @@ CREATE TABLE "FMFaults" (
 ```sql
 CREATE UNIQUE INDEX "IX_FMFaults_Code" ON "FMFaults" ("Code");
 CREATE INDEX "IX_FMFaults_Level" ON "FMFaults" ("Level");
-CREATE INDEX "IX_FMFaults_FaultType" ON "FMFaults" ("FaultType");
 CREATE INDEX "IX_FMFaults_RiskPriorityFactor" ON "FMFaults" ("RiskPriorityFactor");
 ```
 
@@ -137,7 +135,6 @@ CREATE INDEX "IX_FMFaults_RiskPriorityFactor" ON "FMFaults" ("RiskPriorityFactor
 - `Level` must be between 1 and 3
 - `Code` must be unique across all faults
 - `LongName` is required
-- `FaultType`: 0=FM, 1=FE, 2=FC
 
 ### Products Table
 Simplified FMEA listing for dashboard and navigation.
@@ -188,10 +185,6 @@ public class AppDbContext : DbContext
         // Configure enums
         modelBuilder.Entity<FMEA>()
             .Property(e => e.Type)
-            .HasConversion<int>();
-
-        modelBuilder.Entity<FMFault>()
-            .Property(e => e.FaultType)
             .HasConversion<int>();
 
         // Configure value constraints
@@ -384,9 +377,6 @@ CREATE UNIQUE INDEX IX_FMFaults_Code ON FMFaults (Code);
 
 -- Risk analysis
 CREATE INDEX IX_FMFaults_RiskPriorityFactor ON FMFaults (RiskPriorityFactor DESC);
-
--- Type filtering
-CREATE INDEX IX_FMFaults_FaultType ON FMFaults (FaultType);
 ```
 
 ## Data Seeding

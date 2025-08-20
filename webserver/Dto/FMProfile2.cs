@@ -114,7 +114,6 @@ namespace Rongke.Fmea.Dto
         public int Level { get; set; }
         public string? FMFunctionCode { get; set; }
         public string? FMFaultCode { get; set; }
-        public FaultType FaultType { get; set; }
         [Required]
         public virtual List<string> Causes { get; set; } = new List<string>();
 

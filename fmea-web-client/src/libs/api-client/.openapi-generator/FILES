@@ -15,7 +15,6 @@ model/fMEAType.ts
 model/fMFaultDto2.ts
 model/fMFunctionDto2.ts
 model/fMStructureDto2.ts
-model/faultType.ts
 model/models.ts
 model/teamMemberDto.ts
 param.ts

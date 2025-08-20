@@ -26,16 +26,14 @@ namespace Rongke.Fmea.Data
 
         public int RiskPriorityFactor { get; set; }
 
-        public FaultType FaultType { get; set; }
-
         public string Causes { get; set; }
     }
 
-    public enum FaultType
-    {
-        FM,
-        FE,
-        FC,
-    }
+    // public enum FaultType
+    // {
+    //     FM,
+    //     FE,
+    //     FC,
+    // }
 
 }

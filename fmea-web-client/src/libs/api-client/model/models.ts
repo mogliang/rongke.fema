@@ -3,5 +3,4 @@ export * from './fMEAType';
 export * from './fMFaultDto2';
 export * from './fMFunctionDto2';
 export * from './fMStructureDto2';
-export * from './faultType';
 export * from './teamMemberDto';
