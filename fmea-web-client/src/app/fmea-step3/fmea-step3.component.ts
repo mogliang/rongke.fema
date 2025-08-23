@@ -16,6 +16,7 @@ import { NzContextMenuService, NzDropdownMenuComponent, NzDropDownModule } from 
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { ViewChild, Output, EventEmitter } from '@angular/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { FunctionGraphComponent } from '../components/function-graph.component';
 
 import {
   NonNullableFormBuilder,
@@ -25,7 +26,7 @@ import {
 
 @Component({
   selector: 'app-fmea-step3',
-  imports: [CommonModule, NzFormModule, NzInputModule, ReactiveFormsModule, NzModalModule, NzButtonModule, NzIconModule, NzDropDownModule, NzTabsModule, NzTreeModule, NzTableModule, NzDividerModule, NzCardModule, NzSplitterModule],
+  imports: [CommonModule, FunctionGraphComponent, NzFormModule, NzInputModule, ReactiveFormsModule, NzModalModule, NzButtonModule, NzIconModule, NzDropDownModule, NzTabsModule, NzTreeModule, NzTableModule, NzDividerModule, NzCardModule, NzSplitterModule],
   providers: [FMEAService, HelperService],
   templateUrl: './fmea-step3.component.html',
   styleUrl: './fmea-step3.component.css'
@@ -118,10 +119,30 @@ export class FmeaStep3Component {
       
       var selectedStructure = this.currentFmeaDoc?.fmStructures.find(s=>s.code === selectedCode);
       if (selectedStructure) {
-        // This is a structure node - show context menu
+        // This is a structure node - show context menu and update function graph
         this.selectStructureNode(selectedStructure);
         this.nzContextMenuService.create($event.event!, this.treeMenu1);
         return;
+      }
+    }
+  }
+
+  // Add click handler for structure selection (non-context menu)
+  onTreeClick($event: NzFormatEmitEvent): void {
+    if ($event.node) {
+      const selectedCode = $event.node?.key!;
+      
+      // Check if this is a structure node
+      var selectedStructure = this.currentFmeaDoc?.fmStructures.find(s=>s.code === selectedCode);
+      if (selectedStructure) {
+        // Update the selected structure for the function graph
+        this.selectStructureNode(selectedStructure);
+      }
+      
+      // Check if this is a function node
+      var selectedFunction = this.currentFmeaDoc?.fmFunctions.find(func => func.code === selectedCode);
+      if (selectedFunction) {
+        this.selectFunctionNode(selectedFunction);
       }
     }
   }

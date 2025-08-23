@@ -6,7 +6,7 @@
                     <!--tree buttons-->
                 </ng-template>
                 <nz-tree [nzData]="structureTreeNodes" nzShowIcon [nzTreeTemplate]="nzTreeNodeTemplate"
-                    nzMultiple="false" (nzContextMenu)="onTreeContextMenu($event)">
+                    nzMultiple="false" (nzContextMenu)="onTreeContextMenu($event)" (nzClick)="onTreeClick($event)">
                     <ng-template #nzTreeNodeTemplate let-node>
                         <div>
                             <nz-icon [nzType]="node.icon" nzTheme="outline" class="tree-icon" />
@@ -30,6 +30,14 @@
                 <nz-tab nzTitle="表单">
                 </nz-tab>
                 <nz-tab nzTitle="功能网">
+                </nz-tab>
+                <nz-tab nzTitle="功能关系图">
+                    <div style="height: 600px; margin-top: 16px;">
+                        <app-function-graph 
+                            [fmeaDoc]="currentFmeaDoc" 
+                            [structure]="currentSelectedStructure">
+                        </app-function-graph>
+                    </div>
                 </nz-tab>
                 <nz-tab nzTitle="参数图">
                 </nz-tab>
