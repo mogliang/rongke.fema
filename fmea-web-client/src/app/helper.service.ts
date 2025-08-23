@@ -312,7 +312,7 @@ export class HelperService {
     }
 
     child.level = parent.level;
-    parent.decomposition.push(child.code);
+    parent.functions.push(child.code);
     doc.fmFunctions.push(child);
 
     if (parentFunc) {

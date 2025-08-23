@@ -5,10 +5,9 @@
                 <div class="box">
                     <nz-card nzTitle="结构与功能树" nzSize="small" [nzExtra]="extraTemplate">
                         <ng-template #extraTemplate>
-                            <button nz-button nzSize="small" nzType="default"
-                                (click)="toggleRootTreeDisplay()">{{showRootInTree? "隐藏根结构" : "显示根结构"}}</button>
+                            <!--tree buttons-->
                         </ng-template>
-                        <nz-tree [nzData]="showRootInTree ? fullTreeNodes : childTreeNodes" nzShowIcon
+                        <nz-tree [nzData]="structureTreeNodes" nzShowIcon
                             [nzTreeTemplate]="nzTreeNodeTemplate" nzMultiple="false"
                             (nzContextMenu)="onTreeContextMenu($event)">
                             <ng-template #nzTreeNodeTemplate let-node>

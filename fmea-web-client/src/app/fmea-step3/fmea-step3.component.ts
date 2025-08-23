@@ -64,15 +64,12 @@ export class FmeaStep3Component {
     seq: 0,
     level: 0,
     fmStructureCode: '',
-    parentFMFunctionCode: '',
     prerequisites: [],
     faultRefs: [],
   };
 
   // Tree display properties
-  public childTreeNodes: NzTreeNodeOptions[] = [];
-  public fullTreeNodes: NzTreeNodeOptions[] = [];
-  public showRootInTree: boolean = false;
+  public structureTreeNodes: NzTreeNodeOptions[] = [];
 
   // Form builders
   private fb = inject(NonNullableFormBuilder);
@@ -93,13 +90,9 @@ export class FmeaStep3Component {
 
     var root = this.currentFmeaDoc?.fmStructures.find(f => f.code === this.currentFmeaDoc?.rootStructureCode);
     var rootNode = this.helper.generateTreeNodes(this.currentFmeaDoc!, root!, true, false);
-    this.childTreeNodes = rootNode.children || [];
+    this.structureTreeNodes = rootNode.children || [];
 
     this.fmFunctions = this.currentFmeaDoc!.fmFunctions;
-  }
-
-  toggleRootTreeDisplay(): void {
-    this.showRootInTree = !this.showRootInTree;
   }
 
   selectStructureNode(fmStructure: FMStructureDto2): void {
@@ -179,12 +172,11 @@ export class FmeaStep3Component {
         longName: this.addForm.value.longName!,
         shortName: this.addForm.value.shortName!,
         fmStructureCode: this.addForm.value.fmStructureCode!,
-        parentFMFunctionCode: this.currentSelectedFunction.code || undefined,
         prerequisites: [],
         faultRefs: [],
       };
 
-      this.helper.createChildFunction(this.currentFmeaDoc!, this.currentSelectedStructure!, this.currentSelectedFunction, newFunction);
+      this.helper.createChildFunction(this.currentFmeaDoc!, this.currentSelectedStructure!, null, newFunction);
 
       // Refresh view and emit update
       this.refreshView();
@@ -201,8 +193,7 @@ export class FmeaStep3Component {
   public editForm = this.fb.group({
     code: ['', [Validators.required]],
     longName: ['', [Validators.required, Validators.maxLength(100)]],
-    shortName: ['', [Validators.required, Validators.maxLength(10)]],
-    fmStructureCode: ['', [Validators.required]],
+    shortName: ['', [Validators.required, Validators.maxLength(10)]]
   });
 
   // Edit methods
@@ -214,8 +205,7 @@ export class FmeaStep3Component {
     this.editForm.setValue({
       code: this.currentSelectedFunction.code,
       longName: this.currentSelectedFunction.longName,
-      shortName: this.currentSelectedFunction.shortName,
-      fmStructureCode: this.currentSelectedFunction.fmStructureCode || '',
+      shortName: this.currentSelectedFunction.shortName
     });
 
     this.isEditMode = true;
@@ -231,7 +221,6 @@ export class FmeaStep3Component {
       this.isEditMode = false;
       this.currentSelectedFunction.longName = this.editForm.value.longName!;
       this.currentSelectedFunction.shortName = this.editForm.value.shortName!;
-      this.currentSelectedFunction.fmStructureCode = this.editForm.value.fmStructureCode!;
 
       this.refreshView();
       this.fmeaDocUpdated.emit(this.currentFmeaDoc!);
@@ -244,7 +233,7 @@ export class FmeaStep3Component {
       this.selectFunctionNode(fmFunction);
     }
 
-    // TODO: implement
+    this.helper.moveFunction(this.currentFmeaDoc!, this.currentSelectedFunction, isUp);
 
     this.refreshView();
     this.fmeaDocUpdated.emit(this.currentFmeaDoc!);
@@ -256,7 +245,7 @@ export class FmeaStep3Component {
       this.selectFunctionNode(fmFunction);
     }
 
-    // TODO: implement
+    this.helper.deleteFunction(this.currentFmeaDoc!, this.currentSelectedFunction, true, false, false);
 
     this.refreshView();
     this.fmeaDocUpdated.emit(this.currentFmeaDoc!);

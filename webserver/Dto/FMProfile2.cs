@@ -89,7 +89,6 @@ namespace Rongke.Fmea.Dto
         [Required]
         public int Level { get; set; }
         public string? FMStructureCode { get; set; }
-        public string? ParentFMFunctionCode { get; set; }
 
         [Required]
         public List<string> Prerequisites { get; set; } = new List<string>();

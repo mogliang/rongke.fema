@@ -16,7 +16,6 @@ export interface FMFunctionDto2 {
     seq: number;
     level: number;
     fmStructureCode?: string | null;
-    parentFMFunctionCode?: string | null;
     prerequisites: Array<string>;
     faultRefs: Array<string>;
 }
