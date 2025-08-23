@@ -4,17 +4,28 @@ import { NodeEditor, GetSchemes, ClassicPreset } from 'rete';
 import { AreaPlugin, AreaExtensions } from 'rete-area-plugin';
 import { ConnectionPlugin, Presets as ConnectionPresets } from 'rete-connection-plugin';
 import { AngularPlugin, Presets, AngularArea2D } from 'rete-angular-plugin/19';
+import { AutoArrangePlugin, Presets as ArrangePresets } from 'rete-auto-arrange-plugin';
 import { FMEADto2, FMStructureDto2, FMFunctionDto2 } from '../../libs/api-client/model/models';
 import { HelperService } from '../helper.service';
 
-// Define the schemes for our function graph editor
-type FunctionNode = ClassicPreset.Node & { functionData?: FMFunctionDto2 };
-type Schemes = GetSchemes<
-  FunctionNode,
-  ClassicPreset.Connection<FunctionNode, FunctionNode>
->;
+// Custom node class with width and height for auto-arrange
+class FunctionNode extends ClassicPreset.Node {
+  width = 220;
+  height = 140;
+  functionData?: FMFunctionDto2;
 
-type AreaExtra = AngularArea2D<Schemes>;
+  constructor(label: string) {
+    super(label);
+  }
+}
+
+// Custom connection class
+class Connection extends ClassicPreset.Connection<FunctionNode, FunctionNode> {}
+
+// Define the schemes for our function graph editor
+type Schemes = GetSchemes<FunctionNode, Connection>;
+
+type AreaExtra = any;
 
 @Component({
   selector: 'app-function-graph',
@@ -104,8 +115,9 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
 
   private editor!: NodeEditor<Schemes>;
   private area!: AreaPlugin<Schemes, AreaExtra>;
-  private connection!: ConnectionPlugin<Schemes, AreaExtra>;
+  private connection!: any;
   private render!: AngularPlugin<Schemes, AreaExtra>;
+  private arrange!: AutoArrangePlugin<Schemes>;
   
   loading = false;
   private initialized = false;
@@ -127,8 +139,10 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
       try {
         this.editor = new NodeEditor<Schemes>();
         this.area = new AreaPlugin<Schemes, AreaExtra>(this.container.nativeElement);
-        this.connection = new ConnectionPlugin<Schemes, AreaExtra>();
+        // Removed connection plugin to disable user interaction with connections
+        // this.connection = new ConnectionPlugin() as any;
         this.render = new AngularPlugin<Schemes, AreaExtra>({ injector: this.injector });
+        this.arrange = new AutoArrangePlugin<Schemes>();
 
         // Enable node selection and dragging
         AreaExtensions.selectableNodes(this.area, AreaExtensions.selector(), {
@@ -137,14 +151,19 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
 
         // Set up presets
         // Set up presets with default styling
-        this.render.addPreset(Presets.classic.setup());
+        this.render.addPreset(Presets.classic.setup() as any);
         
-        this.connection.addPreset(ConnectionPresets.classic.setup());
+        // Removed connection preset since connection plugin is disabled
+        // this.connection.addPreset(ConnectionPresets.classic.setup() as any);
 
-        // Set up the plugin chain
+        // Set up auto-arrange plugin
+        this.arrange.addPreset(ArrangePresets.classic.setup());
+
+        // Set up the plugin chain (without connection plugin)
         this.editor.use(this.area);
-        this.area.use(this.connection);
+        // this.area.use(this.connection); // Commented out to disable connection interactions
         this.area.use(this.render);
+        this.area.use(this.arrange);
 
         this.initialized = true;
         await this.updateGraph();
@@ -280,19 +299,29 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
   private async createFunctionNode(func: FMFunctionDto2): Promise<FunctionNode> {
     const socket = new ClassicPreset.Socket('function');
     
-    const node = new ClassicPreset.Node(func.code + " " + func.longName) as FunctionNode;
+    const node = new FunctionNode(func.code + " " + func.longName);
     node.functionData = func;
+
+    // Calculate node height based on text length
+    // Optimized for Chinese characters - approximately 11 characters per line
+    const displayText = func.code + " " + (func.longName || '');
+    const charsPerLine = 11;
+    const baseHeight = 80; // Base height for node structure (header, inputs, outputs, padding)
+    const lineHeight = 24; // Height per text line
+    const minLines = 1;
+    
+    // Count characters more accurately for mixed Chinese/English text
+    const textLength = displayText.length;
+    const textLines = Math.max(minLines, Math.ceil(textLength / charsPerLine));
+    const calculatedHeight = baseHeight + (textLines * lineHeight);
+    
+    // Set reasonable bounds for node height
+    const minHeight = 120; // Minimum height to accommodate basic node structure
+    const maxHeight = 280; // Maximum height to prevent overly tall nodes
+    node.height = Math.max(minHeight, Math.min(maxHeight, calculatedHeight));
 
     node.addInput('target', new ClassicPreset.Input(socket, ''));
     node.addOutput('prerequisites', new ClassicPreset.Output(socket, '前置条件'));
-
-    // Add function name if different from title
-    // if (func.longName && func.longName !== (func.shortName || func.code)) {
-    //   node.addControl('longName', new ClassicPreset.InputControl('text', {
-    //     initial: `名称: ${func.longName}`,
-    //     readonly: true
-    //   }));
-    // }
 
     return node;
   }
@@ -309,7 +338,7 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
         for (const prerequisiteCode of func.prerequisites) {
           const rightNode = nodeMap.get(prerequisiteCode);
           if (rightNode) {
-            const connectionObj = new ClassicPreset.Connection(leftNode, 'prerequisites', rightNode, 'target');
+            const connectionObj = new Connection(leftNode, 'prerequisites', rightNode, 'target');
             await this.editor.addConnection(connectionObj);
           }
         }
@@ -321,43 +350,14 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
     functions: FMFunctionDto2[], 
     nodeMap: Map<string, FunctionNode>
   ) {
-    // Group functions by level
-    const functionsByLevel = new Map<number, FMFunctionDto2[]>();
-    
-    for (const func of functions) {
-      if (!functionsByLevel.has(func.level)) {
-        functionsByLevel.set(func.level, []);
+    // Use auto-arrange plugin instead of manual layout
+    await this.arrange.layout({
+      options: {
+        'elk.algorithm': 'layered',
+        'elk.direction': 'RIGHT',
+        'elk.spacing.nodeNode': '80',
+        'elk.layered.spacing.nodeNodeBetweenLayers': '120'
       }
-      functionsByLevel.get(func.level)!.push(func);
-    }
-
-    // Layout configuration
-    const columnSpacing = 600; // Horizontal spacing between levels/columns
-    const rowSpacing = 200;    // Vertical spacing between nodes in same level
-    
-    // Sort levels to ensure proper order (low to high, left to right)
-    const sortedLevels = Array.from(functionsByLevel.keys()).sort((a, b) => a - b);
-
-    for (let i = 0; i < sortedLevels.length; i++) {
-      const level = sortedLevels[i];
-      const levelFunctions = functionsByLevel.get(level)!;
-      
-      // Calculate column position (X coordinate)
-      // Lower levels are on the left, higher levels on the right
-      const columnX = i * columnSpacing;
-      
-      // Calculate vertical positions for functions in this level
-      const totalHeight = (levelFunctions.length - 1) * rowSpacing;
-      let startY = -totalHeight / 2; // Center the column vertically
-      
-      for (let j = 0; j < levelFunctions.length; j++) {
-        const func = levelFunctions[j];
-        const node = nodeMap.get(func.code);
-        if (node) {
-          const nodeY = startY + (j * rowSpacing);
-          await this.area.translate(node.id, { x: columnX, y: nodeY });
-        }
-      }
-    }
+    });
   }
 }

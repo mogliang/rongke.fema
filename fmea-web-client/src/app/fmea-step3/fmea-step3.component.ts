@@ -143,6 +143,11 @@ export class FmeaStep3Component {
       var selectedFunction = this.currentFmeaDoc?.fmFunctions.find(func => func.code === selectedCode);
       if (selectedFunction) {
         this.selectFunctionNode(selectedFunction);
+
+        var parentStructure = this.helper.getFunctionParentStructure(this.currentFmeaDoc!, selectedFunction);
+        if (parentStructure) {
+          this.selectStructureNode(parentStructure);
+        }
       }
     }
   }
