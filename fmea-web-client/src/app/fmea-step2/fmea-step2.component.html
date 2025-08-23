@@ -1,30 +1,33 @@
-<nz-tabset>
-    <nz-tab nzTitle="结构">
-        <nz-splitter>
-            <nz-splitter-panel nzDefaultSize="30%" nzMin="20%" nzMax="70%">
-                <div class="box">
-                    <nz-card nzTitle="结构分析" nzSize="small" [nzExtra]="extraTemplate">
-                        <ng-template #extraTemplate>
-                            <button nz-button nzSize="small" nzType="default" (click)="toggleRootTreeDisplay()">{{showRootInTree? "隐藏根结构" : "显示根结构"}}</button>
-                        </ng-template>
-                        <nz-tree [nzData]="showRootInTree ? fullTreeNodes : childTreeNodes" nzShowIcon [nzTreeTemplate]="nzTreeNodeTemplate" nzMultiple="false" (nzContextMenu)="onTreeContextMenu($event, menu)">
-                            <ng-template #nzTreeNodeTemplate let-node>
-                                <div>
-                                    <nz-icon [nzType]="node.icon" nzTheme="outline" class="tree-icon" />
-                                    <span [ngClass]="{
+<nz-splitter>
+    <nz-splitter-panel nzDefaultSize="30%" nzMin="20%" nzMax="70%">
+        <div>
+            <nz-card nzTitle="结构分析" nzSize="small" [nzExtra]="extraTemplate">
+                <ng-template #extraTemplate>
+                    <button nz-button nzSize="small" nzType="default"
+                        (click)="toggleRootTreeDisplay()">{{showRootInTree? "隐藏根结构" : "显示根结构"}}</button>
+                </ng-template>
+                <nz-tree [nzData]="showRootInTree ? fullTreeNodes : childTreeNodes" nzShowIcon
+                    [nzTreeTemplate]="nzTreeNodeTemplate" nzMultiple="false"
+                    (nzContextMenu)="onTreeContextMenu($event, menu)">
+                    <ng-template #nzTreeNodeTemplate let-node>
+                        <div>
+                            <nz-icon [nzType]="node.icon" nzTheme="outline" class="tree-icon" />
+                            <span [ngClass]="{
                                         'function-node': node.icon === 'aim', 
                                         'structure-node': node.icon === 'setting',
                                         'fault-node': node.icon === 'warning'
                                     }">{{ node.title }}</span>
-                                </div>
-                            </ng-template>
-                        </nz-tree>
-                    </nz-card>
-                </div>
-            </nz-splitter-panel>
-            <nz-splitter-panel>
-                <div class="box">
-                    <nz-card nzTitle="表单" nzSize="small">
+                        </div>
+                    </ng-template>
+                </nz-tree>
+            </nz-card>
+        </div>
+    </nz-splitter-panel>
+    <nz-splitter-panel>
+        <nz-card nzSize="small">
+            <nz-tabset>
+                <nz-tab nzTitle="结构">
+                    <!-- <div>
                         <nz-table #basicTable nzSize="small" [nzData]="flattenedStructures" [nzPageSize]="50">
                             <thead>
                                 <tr>
@@ -49,13 +52,20 @@
                                         </button>
                                         <nz-dropdown-menu #menu2="nzDropdownMenu">
                                             <ul nz-menu>
-                                                <li nz-menu-item (click)="openEditStructureModal($event, data)">编辑结构</li>
-                                                <li nz-menu-item (click)="openAddStructureModal($event, data)">添加子结构</li>
-                                                <li nz-menu-item (click)="moveStructureNode($event, data, true)">上移结构</li>
-                                                <li nz-menu-item (click)="moveStructureNode($event, data, false)">下移结构</li>
+                                                <li nz-menu-item (click)="openEditStructureModal($event, data)">编辑结构
+                                                </li>
+                                                <li nz-menu-item (click)="openAddStructureModal($event, data)">添加子结构
+                                                </li>
+                                                <li nz-menu-item (click)="moveStructureNode($event, data, true)">
+                                                    上移结构
+                                                </li>
+                                                <li nz-menu-item (click)="moveStructureNode($event, data, false)">
+                                                    下移结构
+                                                </li>
                                                 <li nz-submenu nzTitle="删除">
                                                     <ul>
-                                                        <li nz-menu-item (click)="deleteStructureNode($event, data)">删除结构</li>
+                                                        <li nz-menu-item (click)="deleteStructureNode($event, data)">
+                                                            删除结构</li>
                                                     </ul>
                                                 </li>
                                             </ul>
@@ -66,18 +76,21 @@
                                 }
                             </tbody>
                         </nz-table>
-                    </nz-card>
-                </div>
-            </nz-splitter-panel>
-        </nz-splitter>
-    </nz-tab>
-    <nz-tab nzTitle="表单">
-    </nz-tab>
-    <nz-tab nzTitle="结构树">
-    </nz-tab>
-    <nz-tab nzTitle="边界图">
-    </nz-tab>
-</nz-tabset>
+                    </div> -->
+                </nz-tab>
+                <nz-tab nzTitle="表单">
+                </nz-tab>
+                <nz-tab nzTitle="结构树">
+                </nz-tab>
+                <nz-tab nzTitle="边界图">
+                </nz-tab>
+            </nz-tabset>
+        </nz-card>
+
+    </nz-splitter-panel>
+</nz-splitter>
+
+
 
 <nz-dropdown-menu #menu="nzDropdownMenu">
     <ul nz-menu>
@@ -93,7 +106,9 @@
     </ul>
 </nz-dropdown-menu>
 
-<nz-modal [(nzVisible)]="isEditMode" nzTitle="编辑 {{currentSelectedStructure.code}}/{{currentSelectedStructure.longName}}" nzClosable="false" nzMaskClosable="false" (nzOnCancel)="cancelEditStructure()" (nzOnOk)="confirmEditStructure()">
+<nz-modal [(nzVisible)]="isEditMode"
+    nzTitle="编辑 {{currentSelectedStructure.code}}/{{currentSelectedStructure.longName}}" nzClosable="false"
+    nzMaskClosable="false" (nzOnCancel)="cancelEditStructure()" (nzOnOk)="confirmEditStructure()">
     <ng-container *nzModalContent>
         <form nz-form [formGroup]="editForm">
             <nz-form-item>
@@ -124,7 +139,8 @@
     </ng-container>
 </nz-modal>
 
-<nz-modal [(nzVisible)]="isAddMode" nzTitle="添加FMEAStructure" nzClosable="false" nzMaskClosable="false" (nzOnCancel)="cancelAddStructure()" (nzOnOk)="confirmAddStructure()">
+<nz-modal [(nzVisible)]="isAddMode" nzTitle="添加FMEAStructure" nzClosable="false" nzMaskClosable="false"
+    (nzOnCancel)="cancelAddStructure()" (nzOnOk)="confirmAddStructure()">
     <ng-container *nzModalContent>
         <form nz-form [formGroup]="addForm">
             <nz-form-item>
