@@ -37,7 +37,10 @@
             <app-fmea-step2 [fmeaDoc]="fmeaDoc" (fmeaDocUpdated)="onFmeaDocUpdated($event)"></app-fmea-step2>
         </div>
         <div id="fmFunction" *ngIf="step === 2">
-            <app-fmea-step3 [fmeaDoc]="fmeaDoc"></app-fmea-step3>
+            <app-fmea-step3 [fmeaDoc]="fmeaDoc" (fmeaDocUpdated)="onFmeaDocUpdated($event)"></app-fmea-step3>
+        </div>
+        <div id="fmFault" *ngIf="step === 3">
+            <app-fmea-step4 [fmeaDoc]="fmeaDoc" (fmeaDocUpdated)="onFmeaDocUpdated($event)"></app-fmea-step4>
         </div>
     </nz-content>
     <nz-footer>footer</nz-footer>

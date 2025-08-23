@@ -1,0 +1,30 @@
+.tree-icon {
+  margin-right: 8px;
+}
+
+.function-node {
+  color: #1890ff;
+  font-weight: 500;
+}
+
+.structure-node {
+  color: #52c41a;
+  font-weight: 500;
+}
+
+.fault-node {
+  color: #ff4d4f;
+  font-weight: 500;
+}
+
+nz-card {
+  height: 100%;
+}
+
+nz-splitter {
+  height: calc(100vh - 200px);
+}
+
+.header-btn {
+  margin-left: 8px;
+}

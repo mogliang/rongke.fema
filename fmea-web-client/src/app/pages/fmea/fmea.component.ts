@@ -18,10 +18,11 @@ import { HelperService } from '../../helper.service';
 import { FmeaStep1Component } from '../../fmea-step1/fmea-step1.component';
 import { FmeaStep2Component } from '../../fmea-step2/fmea-step2.component';
 import { FmeaStep3Component } from '../../fmea-step3/fmea-step3.component';
+import { FmeaStep4Component } from '../../fmea-step4/fmea-step4.component';
 
 @Component({
   selector: 'app-fmea',
-  imports: [CommonModule, NzLayoutModule, NzGridModule, NzStepsModule, NzCardModule, NzFlexModule, NzButtonModule, NzTabsModule, NzRadioModule, NzTreeModule, NzTableModule, NzDividerModule, FmeaStep1Component, FmeaStep2Component, FmeaStep3Component],
+  imports: [CommonModule, NzLayoutModule, NzGridModule, NzStepsModule, NzCardModule, NzFlexModule, NzButtonModule, NzTabsModule, NzRadioModule, NzTreeModule, NzTableModule, NzDividerModule, FmeaStep1Component, FmeaStep2Component, FmeaStep3Component, FmeaStep4Component],
   providers: [ HelperService, NzMessageService],
   templateUrl: './fmea.component.html',
   styleUrl: './fmea.component.css'

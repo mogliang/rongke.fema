@@ -1,0 +1,129 @@
+<nz-splitter>
+    <nz-splitter-panel nzDefaultSize="30%" nzMin="20%" nzMax="70%">
+        <div>
+            <nz-card nzTitle="故障树" nzSize="small" [nzExtra]="extraTemplate">
+                <ng-template #extraTemplate>
+                    <!--tree buttons-->
+                </ng-template>
+                <nz-tree [nzData]="structureTreeNodes" nzShowIcon [nzTreeTemplate]="nzTreeNodeTemplate"
+                    nzMultiple="false" (nzContextMenu)="onTreeContextMenu($event)">
+                    <ng-template #nzTreeNodeTemplate let-node>
+                        <div>
+                            <nz-icon [nzType]="node.icon" nzTheme="outline" class="tree-icon" />
+                            <span [ngClass]="{
+                                        'function-node': node.icon === 'aim', 
+                                        'structure-node': node.icon === 'setting',
+                                        'fault-node': node.icon === 'warning'
+                                    }">{{ node.title }}</span>
+                        </div>
+                    </ng-template>
+                </nz-tree>
+            </nz-card>
+        </div>
+    </nz-splitter-panel>
+    <nz-splitter-panel>
+        <nz-card nzSize="small">
+            <nz-tabset>
+                <nz-tab nzTitle="故障">
+
+                </nz-tab>
+                <nz-tab nzTitle="表单">
+                </nz-tab>
+                <nz-tab nzTitle="故障网">
+                </nz-tab>
+                <nz-tab nzTitle="因果图">
+                </nz-tab>
+                <nz-tab nzTitle="故障矩阵">
+                </nz-tab>
+                <nz-tab nzTitle="风险清单">
+                </nz-tab>
+            </nz-tabset>
+        </nz-card>
+
+    </nz-splitter-panel>
+</nz-splitter>
+
+
+<nz-dropdown-menu #treeMenu1="nzDropdownMenu">
+    <ul nz-menu>
+        <li nz-menu-item (click)="openAddFaultModal($event, null)">添加子故障</li>
+    </ul>
+</nz-dropdown-menu>
+<nz-dropdown-menu #treeMenu2="nzDropdownMenu">
+    <ul nz-menu>
+        <li nz-menu-item (click)="openEditFaultModal($event, null)">编辑故障</li>
+        <li nz-menu-item (click)="moveFaultNode($event, null, true)">上移故障</li>
+        <li nz-menu-item (click)="moveFaultNode($event, null, false)">下移故障</li>
+        <li nz-menu-item (click)="deleteFaultNode($event, null)">删除故障</li>
+    </ul>
+</nz-dropdown-menu>
+
+<nz-modal [(nzVisible)]="isEditMode" nzTitle="编辑 {{currentSelectedFault?.code}}" nzClosable="false"
+    nzMaskClosable="false" (nzOnCancel)="cancelEditFault()" (nzOnOk)="confirmEditFault()">
+    <ng-container *nzModalContent>
+        <form nz-form [formGroup]="editForm">
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>故障编号</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input value="{{currentSelectedFault?.code}}" readonly name="code" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>故障名称</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input formControlName="longName" name="longName" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>短名</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input formControlName="shortName" name="shortName" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>风险优先因子</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <nz-input-number nz-input formControlName="riskPriorityFactor" name="riskPriorityFactor" [nzMin]="1" [nzMax]="1000"></nz-input-number>
+                </nz-form-control>
+            </nz-form-item>
+        </form>
+    </ng-container>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isAddMode" nzTitle="添加FMFault" nzClosable="false" nzMaskClosable="false"
+    (nzOnCancel)="cancelAddFault()" (nzOnOk)="confirmAddFault()">
+    <ng-container *nzModalContent>
+        <form nz-form [formGroup]="addForm">
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>父功能编号</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input formControlName="fmFunctionCode" readonly name="fmFunctionCode" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>故障编号</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input formControlName="code" readonly name="code" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>故障名称</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input formControlName="longName" name="longName" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>短名</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <input nz-input formControlName="shortName" name="shortName" />
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-label [nzSpan]="6" nzRequired>风险优先因子</nz-form-label>
+                <nz-form-control [nzSpan]="14">
+                    <nz-input-number nz-input formControlName="riskPriorityFactor" name="riskPriorityFactor" [nzMin]="1" [nzMax]="1000"></nz-input-number>
+                </nz-form-control>
+            </nz-form-item>
+        </form>
+    </ng-container>
+</nz-modal>
