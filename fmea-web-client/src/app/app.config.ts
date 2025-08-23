@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';

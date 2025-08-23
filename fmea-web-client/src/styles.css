@@ -26,3 +26,58 @@
 .tree-icon {
   margin-right: 4px;
 }
+
+/* Rete.js Styles */
+.rete-node {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  min-width: 150px;
+}
+
+.rete-node .title {
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-align: center;
+  background: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.rete-node .input, .rete-node .output {
+  margin: 4px 0;
+  display: flex;
+  align-items: center;
+}
+
+.rete-node .input {
+  justify-content: flex-start;
+}
+
+.rete-node .output {
+  justify-content: flex-end;
+}
+
+.rete-socket {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #1890ff;
+  margin: 0 8px;
+  cursor: pointer;
+}
+
+.rete-connection {
+  stroke: #1890ff;
+  stroke-width: 2;
+  fill: none;
+}
+
+.rete-control input {
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+}
