@@ -12,6 +12,7 @@ import { HelperService } from '../helper.service';
 class FunctionNode extends ClassicPreset.Node {
   width = 220;
   height = 140;
+  layer = 0;
   functionData?: FMFunctionDto2;
 
   constructor(label: string) {
@@ -237,63 +238,45 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
     }
 
     try {
-      // Get functions directly from this structure using helper service
-      const directFunctions = this.helper.getFunctions(this.fmeaDoc, this.structure);
-      
       // Also get functions from child structures recursively
-      const allFunctions = new Set<FMFunctionDto2>(directFunctions);
-      
-      // Get child structures and their functions
-      if (this.structure.decomposition && this.structure.decomposition.length > 0) {
-        const childStructures = this.helper.getDecomposition(this.fmeaDoc, this.structure);
-        
-        for (const childStructure of childStructures) {
-          try {
-            const childFunctions = this.helper.getFunctions(this.fmeaDoc, childStructure);
-            childFunctions.forEach(func => allFunctions.add(func));
-            
-            // Recursively get functions from deeper levels
-            this.addFunctionsRecursively(childStructure, allFunctions);
-          } catch (error) {
-            console.warn(`Failed to get functions for child structure ${childStructure.code}:`, error);
-          }
-        }
-      }
-      
+      const allFunctions = new Set<FMFunctionDto2>();
+
+      // include all isolated func
+      this.addFunctionsImpl2(this.fmeaDoc, this.structure, allFunctions);
+
+      // only include connected func
+      // const directFunctions = this.helper.getFunctions(this.fmeaDoc, this.structure);
+      // for (const func of directFunctions) {
+      //   this.addFunctionsImpl(this.fmeaDoc, func, allFunctions);
+      // }
+
       return Array.from(allFunctions);
     } catch (error) {
       console.warn(`Failed to get functions for structure ${this.structure.code}, falling back to direct filtering:`, error);
-      
+
       // Fallback to the original implementation if helper service fails
       const structureCodes = [this.structure.code, ...this.structure.decomposition];
-      return (this.fmeaDoc.fmFunctions || []).filter((func: FMFunctionDto2) => 
+      return (this.fmeaDoc.fmFunctions || []).filter((func: FMFunctionDto2) =>
         func.fmStructureCode && structureCodes.includes(func.fmStructureCode)
       );
     }
   }
 
-  private addFunctionsRecursively(structure: FMStructureDto2, functionSet: Set<FMFunctionDto2>): void {
-    if (!this.fmeaDoc || !structure.decomposition || structure.decomposition.length === 0) {
-      return;
-    }
-
-    try {
-      const childStructures = this.helper.getDecomposition(this.fmeaDoc, structure);
-      
-      for (const childStructure of childStructures) {
-        try {
-          const childFunctions = this.helper.getFunctions(this.fmeaDoc, childStructure);
-          childFunctions.forEach(func => functionSet.add(func));
-          
-          // Recursively get functions from even deeper levels
-          this.addFunctionsRecursively(childStructure, functionSet);
-        } catch (error) {
-          console.warn(`Failed to get functions for nested child structure ${childStructure.code}:`, error);
-        }
+  private addFunctionsImpl(doc:FMEADto2 ,parentFunc: FMFunctionDto2, functionSet: Set<FMFunctionDto2>): void {
+    functionSet.add(parentFunc);
+    this.helper.getPrerequisites(doc, parentFunc).forEach(prerequisite => {
+      if (!functionSet.has(prerequisite)) {
+        this.addFunctionsImpl(doc, prerequisite, functionSet);
       }
-    } catch (error) {
-      console.warn(`Failed to get decomposition for structure ${structure.code}:`, error);
-    }
+    });
+  }
+
+  private addFunctionsImpl2(doc:FMEADto2 ,structure: FMStructureDto2, functionSet: Set<FMFunctionDto2>): void {
+    var funcs = this.helper.getFunctions(doc, structure);
+    funcs.forEach(func => functionSet.add(func));
+    this.helper.getDecomposition(doc, structure).forEach(child => {
+      this.addFunctionsImpl2(doc, child, functionSet);
+    });
   }
 
   private async createFunctionNode(func: FMFunctionDto2): Promise<FunctionNode> {
@@ -319,7 +302,7 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
     const minHeight = 120; // Minimum height to accommodate basic node structure
     const maxHeight = 280; // Maximum height to prevent overly tall nodes
     node.height = Math.max(minHeight, Math.min(maxHeight, calculatedHeight));
-
+    node.layer = func.level || 0;
     node.addInput('target', new ClassicPreset.Input(socket, ''));
     node.addOutput('prerequisites', new ClassicPreset.Output(socket, '前置条件'));
 
@@ -356,7 +339,7 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
         'elk.algorithm': 'layered',
         'elk.direction': 'RIGHT',
         'elk.spacing.nodeNode': '80',
-        'elk.layered.spacing.nodeNodeBetweenLayers': '120'
+        'elk.layered.spacing.nodeNodeBetweenLayers': '200'
       }
     });
   }
