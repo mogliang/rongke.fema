@@ -48,6 +48,7 @@ export class FmeaStep3Component {
   // Data properties
   currentFmeaDoc: FMEADto2 | null = null;
   public fmFunctions: FMFunctionDto2[] = [];
+  public currentSelectedObject: FMFunctionDto2 | FMStructureDto2|null = null;
   public currentSelectedStructure: FMStructureDto2 = {
     code: '',
     longName: '',
@@ -137,17 +138,14 @@ export class FmeaStep3Component {
       if (selectedStructure) {
         // Update the selected structure for the function graph
         this.selectStructureNode(selectedStructure);
+        this.currentSelectedObject = selectedStructure;
       }
       
       // Check if this is a function node
       var selectedFunction = this.currentFmeaDoc?.fmFunctions.find(func => func.code === selectedCode);
       if (selectedFunction) {
         this.selectFunctionNode(selectedFunction);
-
-        var parentStructure = this.helper.getFunctionParentStructure(this.currentFmeaDoc!, selectedFunction);
-        if (parentStructure) {
-          this.selectStructureNode(parentStructure);
-        }
+        this.currentSelectedObject = selectedFunction;
       }
     }
   }

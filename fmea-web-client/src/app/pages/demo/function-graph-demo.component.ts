@@ -29,7 +29,7 @@ import { FormsModule } from '@angular/forms';
       <div class="demo-content">
         <app-function-graph 
           [fmeaDoc]="mockFmea" 
-          [structure]="selectedStructure">
+          [selectedObject]="selectedStructure">
         </app-function-graph>
       </div>
     </div>

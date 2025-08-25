@@ -5,6 +5,9 @@ import { AreaPlugin, AreaExtensions } from 'rete-area-plugin';
 import { ConnectionPlugin, Presets as ConnectionPresets } from 'rete-connection-plugin';
 import { AngularPlugin, Presets, AngularArea2D } from 'rete-angular-plugin/19';
 import { AutoArrangePlugin, Presets as ArrangePresets } from 'rete-auto-arrange-plugin';
+import { ScopesPlugin, Presets as ScopesPresets } from 'rete-scopes-plugin';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { FMEADto2, FMStructureDto2, FMFunctionDto2 } from '../../libs/api-client/model/models';
 import { HelperService } from '../helper.service';
 
@@ -13,6 +16,7 @@ class FunctionNode extends ClassicPreset.Node {
   width = 220;
   height = 140;
   layer = 0;
+  parent?: string; // Parent node ID for nested structure
   functionData?: FMFunctionDto2;
 
   constructor(label: string) {
@@ -20,25 +24,48 @@ class FunctionNode extends ClassicPreset.Node {
   }
 }
 
+// Custom structure node class for parent nodes
+class StructureNode extends ClassicPreset.Node {
+  width = 300;
+  height = 200;
+  structureData?: FMStructureDto2;
+
+  constructor(label: string) {
+    super(label);
+  }
+}
+
 // Custom connection class
-class Connection extends ClassicPreset.Connection<FunctionNode, FunctionNode> {}
+class Connection extends ClassicPreset.Connection<FunctionNode | StructureNode, FunctionNode | StructureNode> {}
 
 // Define the schemes for our function graph editor
-type Schemes = GetSchemes<FunctionNode, Connection>;
+type Schemes = GetSchemes<FunctionNode | StructureNode, Connection>;
 
 type AreaExtra = any;
 
 @Component({
   selector: 'app-function-graph',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NzButtonModule, NzIconModule],
   template: `
     <div class="function-graph-container">
       <div class="graph-header">
-        <h3>功能关系图</h3>
-        <div class="structure-info" *ngIf="structure">
-          <span class="structure-code">{{ structure.code }}</span>
-          <span class="structure-name">{{ structure.longName }}</span>
+        <div class="header-left">
+          <h3>功能关系图</h3>
+          <div class="structure-info" *ngIf="selectedObject">
+            <span class="structure-code">{{ selectedObject.code }}</span>
+            <span class="structure-name">{{ selectedObject.longName }}</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button nz-button 
+                  nzType="default" 
+                  nzSize="small"
+                  (click)="toggleStructureVisibility()"
+                  [title]="showStructure ? '隐藏结构节点' : '显示结构节点'">
+            <span nz-icon [nzType]="showStructure ? 'eye-invisible' : 'eye'"></span>
+            {{ showStructure ? '隐藏结构' : '显示结构' }}
+          </button>
         </div>
       </div>
       <div #reteContainer class="graph-content" [class.loading]="loading">
@@ -64,6 +91,17 @@ type AreaExtra = any;
       background: #fafafa;
       display: flex;
       justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-right {
+      display: flex;
       align-items: center;
     }
 
@@ -107,11 +145,31 @@ type AreaExtra = any;
       color: #8c8c8c;
       font-size: 14px;
     }
+
+    /* Custom styles for Rete.js function nodes */
+    ::ng-deep .rete-node {
+      background: #52c41a !important;
+      border: 1px solid #389e0d !important;
+    }
+
+    ::ng-deep .rete-node .title {
+      color: rgba(0, 0, 0, 0.85) !important;
+      background: #52c41a !important;
+    }
+
+    ::ng-deep .rete-node .output-title,
+    ::ng-deep .rete-node .input-title {
+      color: rgba(0, 0, 0, 0.65) !important;
+    }
+
+    ::ng-deep .rete-node .control {
+      color: rgba(0, 0, 0, 0.85) !important;
+    }
   `]
 })
 export class FunctionGraphComponent implements OnInit, OnChanges {
   @Input() fmeaDoc: FMEADto2 | null = null;
-  @Input() structure: FMStructureDto2 | null = null;
+  @Input() selectedObject: FMStructureDto2 | FMFunctionDto2 | null = null;
   @ViewChild('reteContainer', { static: true }) container!: ElementRef<HTMLElement>;
 
   private editor!: NodeEditor<Schemes>;
@@ -119,8 +177,10 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
   private connection!: any;
   private render!: AngularPlugin<Schemes, AreaExtra>;
   private arrange!: AutoArrangePlugin<Schemes>;
+  private scopes!: ScopesPlugin<Schemes>;
   
   loading = false;
+  showStructure = true; // Toggle state for structure visibility
   private initialized = false;
 
   constructor(private injector: Injector, private ngZone: NgZone, private helper: HelperService) {}
@@ -130,7 +190,7 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
   }
 
   async ngOnChanges(changes: SimpleChanges) {
-    if ((changes['fmeaDoc'] || changes['structure']) && this.initialized) {
+    if ((changes['fmeaDoc'] || changes['selectedObject']) && this.initialized) {
       await this.updateGraph();
     }
   }
@@ -144,13 +204,13 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
         // this.connection = new ConnectionPlugin() as any;
         this.render = new AngularPlugin<Schemes, AreaExtra>({ injector: this.injector });
         this.arrange = new AutoArrangePlugin<Schemes>();
+        this.scopes = new ScopesPlugin<Schemes>();
 
         // Enable node selection and dragging
         AreaExtensions.selectableNodes(this.area, AreaExtensions.selector(), {
           accumulating: AreaExtensions.accumulateOnCtrl()
         });
 
-        // Set up presets
         // Set up presets with default styling
         this.render.addPreset(Presets.classic.setup() as any);
         
@@ -159,12 +219,16 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
 
         // Set up auto-arrange plugin
         this.arrange.addPreset(ArrangePresets.classic.setup());
+        
+        // Set up scopes plugin for nested nodes
+        this.scopes.addPreset(ScopesPresets.classic.setup());
 
         // Set up the plugin chain (without connection plugin)
         this.editor.use(this.area);
         // this.area.use(this.connection); // Commented out to disable connection interactions
         this.area.use(this.render);
         this.area.use(this.arrange);
+        this.area.use(this.scopes);
 
         this.initialized = true;
         await this.updateGraph();
@@ -175,7 +239,7 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
   }
 
   private async updateGraph() {
-    if (!this.initialized || !this.fmeaDoc || !this.structure) {
+    if (!this.initialized || !this.fmeaDoc || !this.selectedObject) {
       return;
     }
 
@@ -185,28 +249,32 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
       // Clear existing nodes and connections
       await this.clearGraph();
 
-      // Get all functions for this structure
-      const functions = this.getFunctionsForStructure();
-      
-      if (functions.length === 0) {
-        this.loading = false;
-        return;
+      var functions = new Set<FMFunctionDto2>();
+      var structureNodes = new Map<string, StructureNode>();
+      var funcNodes = new Map<string, FunctionNode>();
+
+
+      if (this.selectedObject && 'prerequisites' in this.selectedObject) {
+        // Selected object is a function
+        await this.addFunctionNodesImpl(this.fmeaDoc, this.selectedObject as FMFunctionDto2, this.showStructure, functions, structureNodes, funcNodes);
+      } else if (this.selectedObject && 'decomposition' in this.selectedObject) {
+        // Selected object is a structure
+        await this.addNodesImpl(this.fmeaDoc, this.selectedObject as FMStructureDto2, this.showStructure, functions, structureNodes, funcNodes);
       }
 
-      // Create nodes for each function
-      const nodeMap = new Map<string, FunctionNode>();
-      
-      for (const func of functions) {
-        const node = await this.createFunctionNode(func);
-        nodeMap.set(func.code, node);
+      for (const node of Array.from(structureNodes.values())) {
+        await this.editor.addNode(node);
+      }
+
+      for (const node of Array.from(funcNodes.values())) {
         await this.editor.addNode(node);
       }
 
       // Create connections based on prerequisites
-      await this.createFunctionConnections(functions, nodeMap);
+      await this.createFunctionConnections(functions, funcNodes);
 
       // Position nodes in a hierarchical layout
-      await this.layoutNodes(functions, nodeMap);
+      await this.layoutNodes();
 
       // Fit view to show all nodes
       AreaExtensions.zoomAt(this.area, this.editor.getNodes());
@@ -228,55 +296,63 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
     // Remove all nodes
     const nodes = this.editor.getNodes();
     for (const node of nodes) {
-      await this.editor.removeNode(node.id);
-    }
-  }
-
-  private getFunctionsForStructure(): FMFunctionDto2[] {
-    if (!this.fmeaDoc || !this.structure) {
-      return [];
-    }
-
-    try {
-      // Also get functions from child structures recursively
-      const allFunctions = new Set<FMFunctionDto2>();
-
-      // include all isolated func
-      this.addFunctionsImpl2(this.fmeaDoc, this.structure, allFunctions);
-
-      // only include connected func
-      // const directFunctions = this.helper.getFunctions(this.fmeaDoc, this.structure);
-      // for (const func of directFunctions) {
-      //   this.addFunctionsImpl(this.fmeaDoc, func, allFunctions);
-      // }
-
-      return Array.from(allFunctions);
-    } catch (error) {
-      console.warn(`Failed to get functions for structure ${this.structure.code}, falling back to direct filtering:`, error);
-
-      // Fallback to the original implementation if helper service fails
-      const structureCodes = [this.structure.code, ...this.structure.decomposition];
-      return (this.fmeaDoc.fmFunctions || []).filter((func: FMFunctionDto2) =>
-        func.fmStructureCode && structureCodes.includes(func.fmStructureCode)
-      );
-    }
-  }
-
-  private addFunctionsImpl(doc:FMEADto2 ,parentFunc: FMFunctionDto2, functionSet: Set<FMFunctionDto2>): void {
-    functionSet.add(parentFunc);
-    this.helper.getPrerequisites(doc, parentFunc).forEach(prerequisite => {
-      if (!functionSet.has(prerequisite)) {
-        this.addFunctionsImpl(doc, prerequisite, functionSet);
+      if (node instanceof FunctionNode) {
+        await this.editor.removeNode(node.id);
       }
-    });
+    }
+    for (const node of nodes) {
+      if (node instanceof StructureNode) {
+        await this.editor.removeNode(node.id);
+      }
+    }
   }
 
-  private addFunctionsImpl2(doc:FMEADto2 ,structure: FMStructureDto2, functionSet: Set<FMFunctionDto2>): void {
+  private async addFunctionNodesImpl(doc: FMEADto2, targetFunc:FMFunctionDto2, showStructure:boolean, functionSet: Set<FMFunctionDto2>, structureNodeMap: Map<string, StructureNode>, funcNodeMap: Map<string, FunctionNode>): Promise<void> {
+    const node = await this.createFunctionNode(targetFunc);
+    functionSet.add(targetFunc);
+    funcNodeMap.set(targetFunc.code, node);
+
+    if (showStructure){
+      var structure = this.helper.getFunctionParentStructure(doc, targetFunc)
+      if (structure ){
+        if (!structureNodeMap.has(structure.code)) {
+          var structureNode = await this.createStructureNode(structure);
+          structureNodeMap.set(structure.code, structureNode);
+          node.parent = structureNode.id;
+        } else{
+          node.parent = structureNodeMap.get(structure.code)?.id;
+        }
+      }
+    }
+
+    var prerequisites = this.helper.getPrerequisites(doc, targetFunc);
+    for (const preFunc of prerequisites) {
+      if (!functionSet.has(preFunc)) {
+        await this.addFunctionNodesImpl(doc, preFunc, showStructure, functionSet, structureNodeMap, funcNodeMap);
+      }
+    }
+  }
+
+
+  private async addNodesImpl(doc: FMEADto2, structure: FMStructureDto2, showStructure:boolean, functionSet: Set<FMFunctionDto2>, structureNodeMap: Map<string, StructureNode>, funcNodeMap: Map<string, FunctionNode>): Promise<void> {
+    var parentId: string|undefined = undefined;
+    if (showStructure) {
+      var structureNode = await this.createStructureNode(structure);
+      parentId= structureNode.id;
+      structureNodeMap.set(structure.code, structureNode);
+    }
+
     var funcs = this.helper.getFunctions(doc, structure);
-    funcs.forEach(func => functionSet.add(func));
-    this.helper.getDecomposition(doc, structure).forEach(child => {
-      this.addFunctionsImpl2(doc, child, functionSet);
-    });
+    for (const func of funcs) {
+      functionSet.add(func);
+      const node = await this.createFunctionNode(func);
+      node.parent = parentId;
+      funcNodeMap.set(func.code, node);
+    }
+
+    for (const child of this.helper.getDecomposition(doc, structure)) {
+      await this.addNodesImpl(doc, child, showStructure, functionSet, structureNodeMap, funcNodeMap);
+    }
   }
 
   private async createFunctionNode(func: FMFunctionDto2): Promise<FunctionNode> {
@@ -309,11 +385,22 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
     return node;
   }
 
+  private async createStructureNode(structure: FMStructureDto2): Promise<StructureNode> {
+    const node = new StructureNode(`${structure.code} ${structure.longName || ''}`);
+    node.structureData = structure;
+    
+    // Structure nodes are larger to accommodate their child function nodes
+    node.width = 400;
+    node.height = 300;
+    
+    return node;
+  }
+
   private async createFunctionConnections(
-    functions: FMFunctionDto2[], 
+    functions: Set<FMFunctionDto2>, 
     nodeMap: Map<string, FunctionNode>
   ) {
-    for (const func of functions) {
+    for (const func of Array.from(functions)) {
       if (func.prerequisites && func.prerequisites.length > 0) {
         const leftNode = nodeMap.get(func.code);
         if (!leftNode) continue;
@@ -329,10 +416,7 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
     }
   }
 
-  private async layoutNodes(
-    functions: FMFunctionDto2[], 
-    nodeMap: Map<string, FunctionNode>
-  ) {
+  private async layoutNodes() {
     // Use auto-arrange plugin instead of manual layout
     await this.arrange.layout({
       options: {
@@ -342,5 +426,11 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
         'elk.layered.spacing.nodeNodeBetweenLayers': '200'
       }
     });
+  }
+
+  toggleStructureVisibility() {
+    this.showStructure = !this.showStructure;
+    // Regenerate the entire graph with the new structure visibility setting
+    this.updateGraph();
   }
 }
