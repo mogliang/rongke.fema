@@ -145,26 +145,6 @@ type AreaExtra = any;
       color: #8c8c8c;
       font-size: 14px;
     }
-
-    /* Custom styles for Rete.js function nodes */
-    ::ng-deep .rete-node {
-      background: #52c41a !important;
-      border: 1px solid #389e0d !important;
-    }
-
-    ::ng-deep .rete-node .title {
-      color: rgba(0, 0, 0, 0.85) !important;
-      background: #52c41a !important;
-    }
-
-    ::ng-deep .rete-node .output-title,
-    ::ng-deep .rete-node .input-title {
-      color: rgba(0, 0, 0, 0.65) !important;
-    }
-
-    ::ng-deep .rete-node .control {
-      color: rgba(0, 0, 0, 0.85) !important;
-    }
   `]
 })
 export class FunctionGraphComponent implements OnInit, OnChanges {
