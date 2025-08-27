@@ -56,6 +56,7 @@ namespace Rongke.Fmea.Dto
     {
         [Required]
         public string Code { get; set; }
+        public string FMEACode { get; set; } 
         [Required]
         public string LongName { get; set; }
         [Required]
@@ -80,6 +81,7 @@ namespace Rongke.Fmea.Dto
 
         [Required]
         public string Code { get; set; }
+        public string FMEACode { get; set; } 
         [Required]
         public string LongName { get; set; }
         [Required]
@@ -101,6 +103,7 @@ namespace Rongke.Fmea.Dto
     {
         [Required]
         public string Code { get; set; }
+        public string FMEACode { get; set; } 
         [Required]
         public string LongName { get; set; }
         [Required]

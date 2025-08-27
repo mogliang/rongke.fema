@@ -8,12 +8,12 @@ namespace Rongke.Fmea.Data
     {
         public int Id { get; set; }
 
+        public string FMEACode { get; set; } = string.Empty;
+
         public int Seq { get; set; }
 
         [Required]
         public string Code { get; set; }
-
-        public string ImportCode { get; set; } = string.Empty;
 
         [Required]
         public string LongName { get; set; }

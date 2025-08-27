@@ -118,9 +118,17 @@ public class FMEADomain
 
     public async Task UpdateToDatabase(FMEADto2 fmeaDto)
     {
-        var fmeaDoc = await _context.FMEAs.SingleAsync(d=>d.Code==fmeaDto.Code);
-        fmeaDoc.RootStructureCode = fmeaDto.RootStructureCode;
-        _context.Update(fmeaDoc);
+        if (_context.FMEAs.Count(d => d.Code == fmeaDto.Code) == 0)
+        {
+            var fmeaDoc = _mapper.Map<FMEA>(fmeaDto);
+            _context.FMEAs.Add(fmeaDoc);
+        }
+        else
+        {
+            var fmeaDoc = await _context.FMEAs.SingleAsync(d=>d.Code==fmeaDto.Code);
+            fmeaDoc.RootStructureCode = fmeaDto.RootStructureCode;
+            _context.Update(fmeaDoc);
+        }
 
         // Get existing data
         var existingStructures = await _context.FMStructures.ToListAsync();

@@ -49,16 +49,16 @@ namespace Rongke.Fmea.Controllers
             var fmeaDto = _mapper.Map<FMEADto2>(fmea);
 
             // Get all structures with their relationships
-            var structures = await _context.FMStructures.ToListAsync();
+            var structures = await _context.FMStructures.Where(s=>s.FMEACode==code).ToListAsync();
             fmeaDto.FMStructures = _mapper.Map<List<FMStructureDto2>>(structures);
             fmeaDto.RootStructureCode = fmea.RootStructureCode;
 
             // Get all functions with their relationships
-            var functions = await _context.FMFunctions.ToListAsync();
+            var functions = await _context.FMFunctions.Where(f=>f.FMEACode==code).ToListAsync();
             fmeaDto.FMFunctions = _mapper.Map<List<FMFunctionDto2>>(functions);
 
             // Get all faults with their relationships
-            var faults = await _context.FMFaults.ToListAsync();
+            var faults = await _context.FMFaults.Where(f=>f.FMEACode==code).ToListAsync();
             fmeaDto.FMFaults = _mapper.Map<List<FMFaultDto2>>(faults);
 
             return Ok(fmeaDto);

@@ -26,13 +26,12 @@ namespace Rongke.Fmea.Controllers
 
         [HttpPost("fmea-xml")]
         [RequestSizeLimit(10 * 1024 * 1024)] // 10 MB
-        public async Task<IActionResult> FmeaXml([FromForm] string fmeaXml)
+        public async Task<IActionResult> FmeaXml(string docCode, [FromForm] string fmeaXml)
         {
             var domain = new FMEADomain(_dbContext, _mapper);
-            var fmeaDto = ConvertXmlToDto2(fmeaXml);
+            var fmeaDto = ConvertXmlToDto2(docCode, fmeaXml);
 
             // hardcoded, TODO
-            fmeaDto.Code = "FMEA-0001";
             domain.SetupLevels(fmeaDto);
             var failedRules = domain.Verify(fmeaDto);
             if (failedRules.Count > 0)
@@ -45,9 +44,12 @@ namespace Rongke.Fmea.Controllers
             return Ok("FMEA imported successfully.");
         }
 
-        private FMEADto2 ConvertXmlToDto2(string fmeaXml)
+        private FMEADto2 ConvertXmlToDto2(string fmeaCode, string fmeaXml)
         {
-            var fmeaDto = new FMEADto2();
+            var fmeaDto = new FMEADto2
+            {
+                Code = fmeaCode
+            };
             var doc = XDocument.Parse(fmeaXml);
 
             //FM-STRUCTURE-ROOT
@@ -62,6 +64,7 @@ namespace Rongke.Fmea.Controllers
             {
                 var structureDto = new FMStructureDto2
                 {
+                    FMEACode = fmeaCode,
                     Code = structureEle.Attribute("ID").Value,
                     LongName = structureEle.Element("LONG-NAME").Element("L-4").Value,
                     ShortName = structureEle.Element("SHORT-NAME").Value,
@@ -77,6 +80,7 @@ namespace Rongke.Fmea.Controllers
             {
                 var functionDto = new FMFunctionDto2
                 {
+                    FMEACode = fmeaCode,
                     Code = functionEle.Attribute("ID").Value,
                     LongName = functionEle.Element("LONG-NAME").Element("L-4").Value,
                     ShortName = functionEle.Element("SHORT-NAME").Value,
@@ -91,6 +95,7 @@ namespace Rongke.Fmea.Controllers
             {
                 var faultDto = new FMFaultDto2
                 {
+                    FMEACode = fmeaCode,
                     Code = faultEle.Attribute("ID").Value,
                     LongName = faultEle.Element("LONG-NAME").Element("L-4").Value,
                     ShortName = faultEle.Element("SHORT-NAME").Value,
