@@ -11,7 +11,7 @@ import { FMEADto2, FMEAService, FMStructureDto2 } from '../../libs/api-client';
 import { NzSplitterModule } from 'ng-zorro-antd/splitter';
 import { NzFormModule, NzFormTooltipIcon } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
-import { HelperService } from '../helper.service';
+import { CrossSpanTable, HelperService } from '../helper.service';
 import { NzContextMenuService, NzDropdownMenuComponent, NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { Output, EventEmitter } from '@angular/core';
@@ -46,6 +46,7 @@ export class FmeaStep2Component {
   // Data properties
   currentFmeaDoc: FMEADto2 | null = null;
   public flattenedStructures: FMStructureDto2[] = [];
+  public currentTable: CrossSpanTable = { rows: [] };
   public currentSelectedStructure: FMStructureDto2 = {
     code: '',
     longName: '',
@@ -92,8 +93,22 @@ export class FmeaStep2Component {
     this.showRootInTree = !this.showRootInTree;
   }
 
+  onTreeClick($event: NzFormatEmitEvent): void {
+    if ($event.node) {
+      const selectedCode = $event.node?.key!;
+
+      var selectedStructure = this.currentFmeaDoc?.fmStructures.find(s => s.code === selectedCode);
+      if (selectedStructure) {
+        this.selectStructureNode(selectedStructure);
+      }
+    }
+  }
+
   selectStructureNode(fmStructure: FMStructureDto2): void {
     this.currentSelectedStructure = fmStructure;
+    var currentParentStructure = this.helper.getParentStructure(this.currentFmeaDoc!, fmStructure)?.longName ?? ""
+    var currentDecomposition = this.helper.getDecomposition(this.currentFmeaDoc!, fmStructure).map(s => s.longName);
+    this.currentTable = this.helper.generateCrossSpanTable([currentParentStructure], fmStructure.longName, currentDecomposition);
   }
 
   onTreeContextMenu($event: NzFormatEmitEvent, menu: NzDropdownMenuComponent): void {

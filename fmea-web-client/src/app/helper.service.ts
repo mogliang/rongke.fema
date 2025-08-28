@@ -673,6 +673,64 @@ export class HelperService {
   // UTILITY OPERATIONS
   // ========================================
 
+  public generateCrossSpanTable(left: string[], middle: string, right: string[]): CrossSpanTable {
+    var middleSpan = 1;
+    if (left.length > middleSpan) {
+      middleSpan = left.length;
+    }
+    if (right.length > middleSpan) {
+      middleSpan = right.length;
+    }
+
+    var leftSpan = null;
+    if (left.length <= 1) {
+      leftSpan = middleSpan;
+    }
+
+    var line1Left: CrossSpanCell = {
+      content: left.length > 0 ? left[0] : "",
+      rowSpan: leftSpan
+    };
+
+    var line1Middle: CrossSpanCell = {
+      content: middle,
+      rowSpan: middleSpan
+    };
+
+    var line1Right: CrossSpanCell = {
+      content: right.length > 0 ? right[0] : "",
+    };
+
+    var firstRow: CrossSpanRow = {
+      cells: [line1Left, line1Middle, line1Right]
+    };
+
+    var table: CrossSpanTable = {
+      rows: [firstRow]
+    };
+
+    for (var i = 1; i < middleSpan; i++) {
+      var cells = []
+
+      if (leftSpan == null) {
+        if (i < left.length) {
+          cells.push({ content: left[i] });
+        } else {
+          cells.push({ content: "" });
+        }
+      }
+
+      if (i<right.length) {
+        cells.push({ content: right[i]});
+      } else {
+        cells.push({ content: ""});
+      }
+      table.rows.push({ cells });
+    }
+
+    return table;
+  }
+
   public generateTreeNodes(doc: FMEADto2, data: FMStructureDto2, includesFunc: boolean, includesFault: boolean): NzTreeNodeOptions {
     if (!data) {
       return {
@@ -734,4 +792,17 @@ export class HelperService {
 
     return node
   }
+}
+
+export interface CrossSpanCell {
+  content: string
+  rowSpan?: number|null
+}
+
+export interface CrossSpanRow {
+  cells: CrossSpanCell[];
+}
+
+export interface CrossSpanTable {
+  rows: CrossSpanRow[];
 }

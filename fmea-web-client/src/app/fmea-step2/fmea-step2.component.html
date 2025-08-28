@@ -8,6 +8,7 @@
                 </ng-template>
                 <nz-tree [nzData]="showRootInTree ? fullTreeNodes : childTreeNodes" nzShowIcon
                     [nzTreeTemplate]="nzTreeNodeTemplate" nzMultiple="false"
+                    (nzClick)="onTreeClick($event)"
                     (nzContextMenu)="onTreeContextMenu($event, menu)">
                     <ng-template #nzTreeNodeTemplate let-node>
                         <div>
@@ -26,59 +27,22 @@
     <nz-splitter-panel>
         <nz-card nzSize="small">
             <nz-tabset>
-                <nz-tab nzTitle="结构">
-                    <!-- <div>
-                        <nz-table #basicTable nzSize="small" [nzData]="flattenedStructures" [nzPageSize]="50">
-                            <thead>
-                                <tr>
-                                    <th nzWidth="100px">结构编号</th>
-                                    <th nzWidth="100px">短名</th>
-                                    <th>结构名称</th>
-                                    <th nzWidth="100px">分类</th>
-                                    <th nzWidth="120px">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @for (data of basicTable.data; track data) {
-                                <tr>
-                                    <td>{{ data.code }}</td>
-                                    <td>{{ data.shortName }}</td>
-                                    <td>{{ data.longName }}</td>
-                                    <td>{{ data.category }}</td>
-                                    <td>
-                                        <button nzSize="small" nz-button nz-dropdown [nzDropdownMenu]="menu2" [nzPlacement]="'bottomLeft'">
-                                            编辑
-                                            <nz-icon nzType="down" />
-                                        </button>
-                                        <nz-dropdown-menu #menu2="nzDropdownMenu">
-                                            <ul nz-menu>
-                                                <li nz-menu-item (click)="openEditStructureModal($event, data)">编辑结构
-                                                </li>
-                                                <li nz-menu-item (click)="openAddStructureModal($event, data)">添加子结构
-                                                </li>
-                                                <li nz-menu-item (click)="moveStructureNode($event, data, true)">
-                                                    上移结构
-                                                </li>
-                                                <li nz-menu-item (click)="moveStructureNode($event, data, false)">
-                                                    下移结构
-                                                </li>
-                                                <li nz-submenu nzTitle="删除">
-                                                    <ul>
-                                                        <li nz-menu-item (click)="deleteStructureNode($event, data)">
-                                                            删除结构</li>
-                                                    </ul>
-                                                </li>
-                                            </ul>
-                                        </nz-dropdown-menu>
-                                        <nz-divider nzType="vertical"></nz-divider>
-                                    </td>
-                                </tr>
-                                }
-                            </tbody>
-                        </nz-table>
-                    </div> -->
-                </nz-tab>
                 <nz-tab nzTitle="表单">
+                    <nz-table nzBordered>
+                        <thead>
+                            <tr>
+                                <th>上一较高级别</th>
+                                <th>关注要素</th>
+                                <th>下一较低级别或特性</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of currentTable.rows">
+                                <td *ngFor="let cell of row.cells" [rowSpan]="cell.rowSpan??1">{{ cell.content }}</td>
+                            </tr>
+                        </tbody>
+                    </nz-table>
+
                 </nz-tab>
                 <nz-tab nzTitle="结构树">
                 </nz-tab>

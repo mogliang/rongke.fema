@@ -24,22 +24,30 @@
     <nz-splitter-panel>
         <nz-card nzSize="small">
             <nz-tabset>
-                <nz-tab nzTitle="功能">
-
-                </nz-tab>
                 <nz-tab nzTitle="表单">
+                    <nz-table nzBordered>
+                        <thead>
+                            <tr>
+                                <th>上一较高级别功能及要求</th>
+                                <th>关注要素功能及要求</th>
+                                <th>下一较低级别功能及要求或特性</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of currentTable.rows">
+                                <td *ngFor="let cell of row.cells" [rowSpan]="cell.rowSpan??1">{{ cell.content }}</td>
+                            </tr>
+                        </tbody>
+                    </nz-table>
+                </nz-tab>
+                <nz-tab nzTitle="功能分析">
+                    
                 </nz-tab>
                 <nz-tab nzTitle="功能网">
                     <div style="height: 800px;">
                         <app-function-graph [fmeaDoc]="currentFmeaDoc" [selectedObject]="currentSelectedObject">
                         </app-function-graph>
                     </div>
-                </nz-tab>
-                <nz-tab nzTitle="参数图">
-                </nz-tab>
-                <nz-tab nzTitle="功能矩阵">
-                </nz-tab>
-                <nz-tab nzTitle="特性清单">
                 </nz-tab>
             </nz-tabset>
         </nz-card>

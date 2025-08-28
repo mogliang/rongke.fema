@@ -11,7 +11,7 @@ import { FMFunctionDto2, FMEADto2, FMEAService, FMStructureDto2 } from '../../li
 import { NzSplitterModule } from 'ng-zorro-antd/splitter';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
-import { HelperService } from '../helper.service';
+import { CrossSpanTable, HelperService } from '../helper.service';
 import { NzContextMenuService, NzDropdownMenuComponent, NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { ViewChild, Output, EventEmitter } from '@angular/core';
@@ -37,7 +37,7 @@ export class FmeaStep3Component {
   // ========================================
   // INITIALIZATION SECTION
   // ========================================
-  
+
   // Input/Output
   @Output() fmeaDocUpdated = new EventEmitter<FMEADto2>();
   fmeaDoc = input.required<FMEADto2 | null>();
@@ -48,7 +48,7 @@ export class FmeaStep3Component {
   // Data properties
   currentFmeaDoc: FMEADto2 | null = null;
   public fmFunctions: FMFunctionDto2[] = [];
-  public currentSelectedObject: FMFunctionDto2 | FMStructureDto2|null = null;
+  public currentSelectedObject: FMFunctionDto2 | FMStructureDto2 | null = null;
   public currentSelectedStructure: FMStructureDto2 = {
     code: '',
     longName: '',
@@ -69,6 +69,7 @@ export class FmeaStep3Component {
     prerequisites: [],
     faultRefs: [],
   };
+  public currentTable: CrossSpanTable = { rows: [] };
 
   // Tree display properties
   public structureTreeNodes: NzTreeNodeOptions[] = [];
@@ -103,12 +104,16 @@ export class FmeaStep3Component {
 
   selectFunctionNode(fmFunction: FMFunctionDto2): void {
     this.currentSelectedFunction = fmFunction;
+
+    var parentFuncs = this.helper.getFunctionParentFunctions(this.currentFmeaDoc!, this.currentSelectedFunction).map(f=>f.longName);
+    var prerequisites = this.helper.getPrerequisites(this.currentFmeaDoc!, this.currentSelectedFunction).map(f=>f.longName);
+    this.currentTable = this.helper.generateCrossSpanTable(parentFuncs,fmFunction.longName,prerequisites);
   }
 
   onTreeContextMenu($event: NzFormatEmitEvent): void {
     if ($event.node) {
       const selectedCode = $event.node?.key!;
-      
+
       // Check if this is a function node (functions should be in the fmFunctions array)
       var selectedFunction = this.currentFmeaDoc?.fmFunctions.find(func => func.code === selectedCode);
       if (selectedFunction) {
@@ -117,8 +122,8 @@ export class FmeaStep3Component {
         this.nzContextMenuService.create($event.event!, this.treeMenu2);
         return
       }
-      
-      var selectedStructure = this.currentFmeaDoc?.fmStructures.find(s=>s.code === selectedCode);
+
+      var selectedStructure = this.currentFmeaDoc?.fmStructures.find(s => s.code === selectedCode);
       if (selectedStructure) {
         // This is a structure node - show context menu and update function graph
         this.selectStructureNode(selectedStructure);
@@ -132,15 +137,15 @@ export class FmeaStep3Component {
   onTreeClick($event: NzFormatEmitEvent): void {
     if ($event.node) {
       const selectedCode = $event.node?.key!;
-      
+
       // Check if this is a structure node
-      var selectedStructure = this.currentFmeaDoc?.fmStructures.find(s=>s.code === selectedCode);
+      var selectedStructure = this.currentFmeaDoc?.fmStructures.find(s => s.code === selectedCode);
       if (selectedStructure) {
         // Update the selected structure for the function graph
         this.selectStructureNode(selectedStructure);
         this.currentSelectedObject = selectedStructure;
       }
-      
+
       // Check if this is a function node
       var selectedFunction = this.currentFmeaDoc?.fmFunctions.find(func => func.code === selectedCode);
       if (selectedFunction) {
@@ -153,7 +158,7 @@ export class FmeaStep3Component {
   // ========================================
   // ADD SECTION
   // ========================================
-  
+
   // Add-related properties
   public isAddMode: boolean = false;
   public addForm = this.fb.group({
@@ -172,8 +177,8 @@ export class FmeaStep3Component {
     this.isAddMode = true;
     this.addForm.reset();
     var newCode = this.helper.generateNextFunctionCode(this.currentFmeaDoc!)
-    
-    this.addForm.patchValue({ 
+
+    this.addForm.patchValue({
       code: newCode,
       fmStructureCode: this.currentSelectedStructure.code
     });
@@ -192,7 +197,7 @@ export class FmeaStep3Component {
       const newFunction: FMFunctionDto2 = {
         code: this.addForm.value.code!,
         seq: 0,
-        level:0,
+        level: 0,
         longName: this.addForm.value.longName!,
         shortName: this.addForm.value.shortName!,
         fmStructureCode: this.addForm.value.fmStructureCode!,
@@ -211,7 +216,7 @@ export class FmeaStep3Component {
   // ========================================
   // EDIT SECTION
   // ========================================
-  
+
   // Edit-related properties
   public isEditMode: boolean = false;
   public editForm = this.fb.group({
