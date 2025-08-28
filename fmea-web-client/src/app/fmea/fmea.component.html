@@ -9,10 +9,10 @@
             </div>
         </div>
         <div class="header-row" nz-flex>
-            <div class="title-attribute">FMEA编号： 213123123123132</div>
-            <div class="title-attribute">名称：FMEA名称</div>
-            <div class="title-attribute">状态：草稿</div>
-            <div class="title-attribute">截止时间：2024/12/12</div>
+            <div class="title-attribute">FMEA编号： {{fmeaDoc?.code}}</div>
+            <div class="title-attribute">名称：{{fmeaDoc?.name}}</div>
+            <div class="title-attribute">状态：{{fmeaDoc?.stage}}</div>
+            <div class="title-attribute">截止时间：{{fmeaDoc?.planDeadline | date:'yyyy-MM-dd'}}</div>
         </div>
         <div>
             <nz-card>
