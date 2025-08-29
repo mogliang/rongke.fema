@@ -66,14 +66,14 @@
     </ul>
 </nz-dropdown-menu>
 
-<nz-modal [(nzVisible)]="isEditMode" nzTitle="编辑 {{currentSelectedFault?.code}}" nzClosable="false"
+<nz-modal [(nzVisible)]="isEditMode" nzTitle="编辑 {{currentSelectedFault.code}}" nzClosable="false"
     nzMaskClosable="false" (nzOnCancel)="cancelEditFault()" (nzOnOk)="confirmEditFault()">
     <ng-container *nzModalContent>
         <form nz-form [formGroup]="editForm">
             <nz-form-item>
                 <nz-form-label [nzSpan]="6" nzRequired>故障编号</nz-form-label>
                 <nz-form-control [nzSpan]="14">
-                    <input nz-input value="{{currentSelectedFault?.code}}" readonly name="code" />
+                    <input nz-input value="{{currentSelectedFault.code}}" readonly name="code" />
                 </nz-form-control>
             </nz-form-item>
             <nz-form-item>
