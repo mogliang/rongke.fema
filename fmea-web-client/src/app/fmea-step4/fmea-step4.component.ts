@@ -12,7 +12,7 @@ import { NzSplitterModule } from 'ng-zorro-antd/splitter';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
-import { HelperService } from '../helper.service';
+import { CrossSpanTable, HelperService } from '../helper.service';
 import { NzContextMenuService, NzDropdownMenuComponent, NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { ViewChild, Output, EventEmitter } from '@angular/core';
@@ -69,6 +69,7 @@ export class FmeaStep4Component {
     fmFaultCode: '',
     causes: [],
   };
+  public currentTable: CrossSpanTable = { rows: [] };
 
   // Tree display properties
   public structureTreeNodes: NzTreeNodeOptions[] = [];
@@ -103,6 +104,9 @@ export class FmeaStep4Component {
 
   selectFaultNode(fmFault: FMFaultDto2): void {
     this.currentSelectedFault = fmFault;
+    var parentFaults = this.helper.getFaultParentFaults(this.currentFmeaDoc!, fmFault).map(f=>f.longName);
+    var causes = this.helper.getCauses(this.currentFmeaDoc!, fmFault).map(f=>f.longName);
+    this.currentTable = this.helper.generateCrossSpanTable(parentFaults,fmFault.longName,causes);
   }
 
   onTreeContextMenu($event: NzFormatEmitEvent): void {
@@ -128,6 +132,19 @@ export class FmeaStep4Component {
       }
     }
   }
+
+    onTreeClick($event: NzFormatEmitEvent): void {
+    if ($event.node) {
+      const selectedCode = $event.node?.key!;
+
+      // Check if this is a structure node
+      var selectedFault = this.currentFmeaDoc?.fmFaults.find(f => f.code === selectedCode);
+      if (selectedFault) {
+        this.selectFaultNode(selectedFault);
+      }
+    }
+  }
+
 
   // ========================================
   // ADD SECTION

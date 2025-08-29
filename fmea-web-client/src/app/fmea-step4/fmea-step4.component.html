@@ -6,7 +6,7 @@
                     <!--tree buttons-->
                 </ng-template>
                 <nz-tree [nzData]="structureTreeNodes" nzShowIcon [nzTreeTemplate]="nzTreeNodeTemplate"
-                    nzMultiple="false" (nzContextMenu)="onTreeContextMenu($event)">
+                    nzMultiple="false" (nzContextMenu)="onTreeContextMenu($event)" (nzClick)="onTreeClick($event)">
                     <ng-template #nzTreeNodeTemplate let-node>
                         <div>
                             <nz-icon [nzType]="node.icon" nzTheme="outline" class="tree-icon" />
@@ -25,6 +25,20 @@
         <nz-card nzSize="small">
             <nz-tabset>
                 <nz-tab nzTitle="表单">
+                    <nz-table nzBordered>
+                        <thead>
+                            <tr>
+                                <th>对于上一较高级别要素和/或最终用户的失效影响(FE)</th>
+                                <th>关注要素的失效模式(FM)</th>
+                                <th>下一较低级别要素或特性的失效起因(FC)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of currentTable.rows">
+                                <td *ngFor="let cell of row.cells" [rowSpan]="cell.rowSpan??1">{{ cell.content }}</td>
+                            </tr>
+                        </tbody>
+                    </nz-table>
                 </nz-tab>
                 <nz-tab nzTitle="故障分析">
 
