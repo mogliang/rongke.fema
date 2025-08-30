@@ -41,11 +41,14 @@
                     </nz-table>
                 </nz-tab>
                 <nz-tab nzTitle="功能分析">
-                    
-                </nz-tab>
-                <nz-tab nzTitle="功能网">
                     <div style="height: 800px;">
-                        <app-function-graph [fmeaDoc]="currentFmeaDoc" [selectedObject]="currentSelectedObject">
+                        <app-edit-function-graph [fmeaDoc]="currentFmeaDoc" [selectedObject]="currentSelectedFunction" (functionRelationshipChanged)="onFunctionRelationshipChanged($event)">
+                        </app-edit-function-graph>
+                    </div>
+                </nz-tab>
+                <nz-tab nzTitle="功能网" (nzSelect)="onFunctionGraphTabClick()">
+                    <div style="height: 800px;">
+                        <app-function-graph #functionGraph [fmeaDoc]="currentFmeaDoc" [selectedObject]="currentSelectedObject">
                         </app-function-graph>
                     </div>
                 </nz-tab>
@@ -74,14 +77,14 @@
     </ul>
 </nz-dropdown-menu>
 
-<nz-modal [(nzVisible)]="isEditMode" nzTitle="编辑 {{currentSelectedFunction.code}}" nzClosable="false"
+<nz-modal [(nzVisible)]="isEditMode" nzTitle="编辑 {{currentSelectedFunction?.code}}" nzClosable="false"
     nzMaskClosable="false" (nzOnCancel)="cancelEditFunction()" (nzOnOk)="confirmEditFunction()">
     <ng-container *nzModalContent>
         <form nz-form [formGroup]="editForm">
             <nz-form-item>
                 <nz-form-label [nzSpan]="6" nzRequired>功能编号</nz-form-label>
                 <nz-form-control [nzSpan]="14">
-                    <input nz-input value="{{currentSelectedFunction.code}}" readonly name="code" />
+                    <input nz-input value="{{currentSelectedFunction?.code}}" readonly name="code" />
                 </nz-form-control>
             </nz-form-item>
             <nz-form-item>
@@ -113,7 +116,7 @@
             <nz-form-item>
                 <nz-form-label [nzSpan]="6">父功能</nz-form-label>
                 <nz-form-control [nzSpan]="14">
-                    <input nz-input value="{{currentSelectedFunction.code || '(根功能)'}}" readonly name="parentCode" />
+                    <input nz-input value="{{currentSelectedFunction?.code || '(根功能)'}}" readonly name="parentCode" />
                 </nz-form-control>
             </nz-form-item>
             <nz-form-item>

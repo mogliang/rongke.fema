@@ -731,7 +731,16 @@ export class HelperService {
     return table;
   }
 
-  public generateTreeNodes(doc: FMEADto2, data: FMStructureDto2, includesFunc: boolean, includesFault: boolean): NzTreeNodeOptions {
+  public traverseTreeNodes(node: NzTreeNodeOptions, callback: (node: NzTreeNodeOptions) => void) {
+    callback(node);
+    if (node.children) {
+      for (const child of node.children) {
+        this.traverseTreeNodes(child, callback);
+      }
+    }
+  }
+
+  public generateTreeNodes(doc: FMEADto2, data: FMStructureDto2, includesFunc: boolean, includesFault: boolean, depth: number): NzTreeNodeOptions {
     if (!data) {
       return {
         title: '',
@@ -784,10 +793,12 @@ export class HelperService {
       }
     }
 
-    var decomposition = this.getDecomposition(doc, data);
-    for (let i = 0; i < decomposition.length; i++) {
-      var childNode = this.generateTreeNodes(doc, decomposition[i], includesFunc, includesFault);
-      node.children!.push(childNode);
+    if (depth != 0) {
+      var decomposition = this.getDecomposition(doc, data);
+      for (let i = 0; i < decomposition.length; i++) {
+        var childNode = this.generateTreeNodes(doc, decomposition[i], includesFunc, includesFault, depth - 1);
+        node.children!.push(childNode);
+      }
     }
 
     return node

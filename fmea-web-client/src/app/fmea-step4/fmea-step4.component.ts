@@ -92,7 +92,7 @@ export class FmeaStep4Component {
     }
 
     var root = this.currentFmeaDoc?.fmStructures.find(f => f.code === this.currentFmeaDoc?.rootStructureCode);
-    var rootNode = this.helper.generateTreeNodes(this.currentFmeaDoc!, root!, true, true);
+    var rootNode = this.helper.generateTreeNodes(this.currentFmeaDoc!, root!, true, true, -1);
     this.structureTreeNodes = rootNode.children || [];
 
     this.fmFaults = this.currentFmeaDoc!.fmFaults;

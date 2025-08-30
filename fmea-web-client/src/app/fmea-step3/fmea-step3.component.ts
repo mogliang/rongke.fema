@@ -17,6 +17,7 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { ViewChild, Output, EventEmitter } from '@angular/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { FunctionGraphComponent } from '../components/function-graph.component';
+import { EditFunctionGraphComponent } from '../components/edit-function-graph.component';
 
 import {
   NonNullableFormBuilder,
@@ -26,7 +27,7 @@ import {
 
 @Component({
   selector: 'app-fmea-step3',
-  imports: [CommonModule, FunctionGraphComponent, NzFormModule, NzInputModule, ReactiveFormsModule, NzModalModule, NzButtonModule, NzIconModule, NzDropDownModule, NzTabsModule, NzTreeModule, NzTableModule, NzDividerModule, NzCardModule, NzSplitterModule],
+  imports: [CommonModule, EditFunctionGraphComponent, FunctionGraphComponent, NzFormModule, NzInputModule, ReactiveFormsModule, NzModalModule, NzButtonModule, NzIconModule, NzDropDownModule, NzTabsModule, NzTreeModule, NzTableModule, NzDividerModule, NzCardModule, NzSplitterModule],
   providers: [FMEAService, HelperService],
   templateUrl: './fmea-step3.component.html',
   styleUrl: './fmea-step3.component.css'
@@ -44,6 +45,7 @@ export class FmeaStep3Component {
 
   @ViewChild('treeMenu1', { static: false }) treeMenu1!: NzDropdownMenuComponent;
   @ViewChild('treeMenu2', { static: false }) treeMenu2!: NzDropdownMenuComponent;
+  @ViewChild('functionGraph', { static: false }) functionGraph!: FunctionGraphComponent;
 
   // Data properties
   currentFmeaDoc: FMEADto2 | null = null;
@@ -59,16 +61,7 @@ export class FmeaStep3Component {
     functions: [],
     level: 0
   };
-  public currentSelectedFunction: FMFunctionDto2 = {
-    code: '',
-    longName: '',
-    shortName: '',
-    seq: 0,
-    level: 0,
-    fmStructureCode: '',
-    prerequisites: [],
-    faultRefs: [],
-  };
+  public currentSelectedFunction: FMFunctionDto2|null = null;
   public currentTable: CrossSpanTable = { rows: [] };
 
   // Tree display properties
@@ -92,7 +85,7 @@ export class FmeaStep3Component {
     }
 
     var root = this.currentFmeaDoc?.fmStructures.find(f => f.code === this.currentFmeaDoc?.rootStructureCode);
-    var rootNode = this.helper.generateTreeNodes(this.currentFmeaDoc!, root!, true, false);
+    var rootNode = this.helper.generateTreeNodes(this.currentFmeaDoc!, root!, true, false, -1);
     this.structureTreeNodes = rootNode.children || [];
 
     this.fmFunctions = this.currentFmeaDoc!.fmFunctions;
@@ -182,7 +175,6 @@ export class FmeaStep3Component {
       code: newCode,
       fmStructureCode: this.currentSelectedStructure.code
     });
-    console.log('Adding sub function for:', this.currentSelectedFunction.code);
   }
 
   cancelAddFunction(): void {
@@ -227,6 +219,10 @@ export class FmeaStep3Component {
 
   // Edit methods
   openEditFunctionModal($event: MouseEvent, fmFunction: FMFunctionDto2 | null): void {
+    if (!this.currentSelectedFunction) {
+      return
+    }
+
     if (fmFunction != null) {
       this.selectFunctionNode(fmFunction);
     }
@@ -248,8 +244,8 @@ export class FmeaStep3Component {
   confirmEditFunction(): void {
     if (this.editForm.valid) {
       this.isEditMode = false;
-      this.currentSelectedFunction.longName = this.editForm.value.longName!;
-      this.currentSelectedFunction.shortName = this.editForm.value.shortName!;
+      this.currentSelectedFunction!.longName = this.editForm.value.longName!;
+      this.currentSelectedFunction!.shortName = this.editForm.value.shortName!;
 
       this.refreshView();
       this.fmeaDocUpdated.emit(this.currentFmeaDoc!);
@@ -262,7 +258,7 @@ export class FmeaStep3Component {
       this.selectFunctionNode(fmFunction);
     }
 
-    this.helper.moveFunction(this.currentFmeaDoc!, this.currentSelectedFunction, isUp);
+    this.helper.moveFunction(this.currentFmeaDoc!, this.currentSelectedFunction!, isUp);
 
     this.refreshView();
     this.fmeaDocUpdated.emit(this.currentFmeaDoc!);
@@ -274,9 +270,19 @@ export class FmeaStep3Component {
       this.selectFunctionNode(fmFunction);
     }
 
-    this.helper.deleteFunction(this.currentFmeaDoc!, this.currentSelectedFunction, true, false, false);
+    this.helper.deleteFunction(this.currentFmeaDoc!, this.currentSelectedFunction!, true, false, false);
 
     this.refreshView();
     this.fmeaDocUpdated.emit(this.currentFmeaDoc!);
+  }
+
+  onFunctionRelationshipChanged(updatedFmeaDoc: FMEADto2): void {
+    this.currentFmeaDoc = updatedFmeaDoc;
+    this.refreshView();
+    this.fmeaDocUpdated.emit(this.currentFmeaDoc!);
+  }
+
+  onFunctionGraphTabClick(): void {
+    this.functionGraph.updateGraph();
   }
 }

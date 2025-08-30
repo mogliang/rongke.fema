@@ -49,7 +49,7 @@ type AreaExtra = any;
   imports: [CommonModule, NzButtonModule, NzIconModule],
   template: `
     <div class="function-graph-container">
-      <div class="graph-header">
+      <div class="graph-header" *ngIf="showHeader">
         <div class="header-left">
           <h3>功能关系图</h3>
           <div class="structure-info" *ngIf="selectedObject">
@@ -68,7 +68,7 @@ type AreaExtra = any;
           </button>
         </div>
       </div>
-      <div #reteContainer class="graph-content" [class.loading]="loading">
+      <div #reteContainer class="graph-content" [class.loading]="loading" [class.no-header]="!showHeader">
         <div class="loading-indicator" *ngIf="loading">
           <span>正在生成功能关系图...</span>
         </div>
@@ -141,6 +141,10 @@ type AreaExtra = any;
       justify-content: center;
     }
 
+    .graph-content.no-header {
+      border-radius: 0;
+    }
+
     .loading-indicator {
       color: #8c8c8c;
       font-size: 14px;
@@ -151,6 +155,8 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
   @Input() fmeaDoc: FMEADto2 | null = null;
   @Input() selectedObject: FMStructureDto2 | FMFunctionDto2 | null = null;
   @Input() focus: boolean | null = null;
+  @Input() showHeader: boolean = true; // Allow hiding header for wrapper components
+  @Input() showStructure: boolean = true; // Allow external control of structure visibility
   @ViewChild('reteContainer', { static: true }) container!: ElementRef<HTMLElement>;
 
   private editor!: NodeEditor<Schemes>;
@@ -162,7 +168,6 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
   private nodeSelector: ReturnType<typeof AreaExtensions.selectableNodes> | null = null;
 
   loading = false;
-  showStructure = true; // Toggle state for structure visibility
   private initialized = false;
 
   constructor(private injector: Injector, private ngZone: NgZone, private helper: HelperService) { }
@@ -172,7 +177,7 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
   }
 
   async ngOnChanges(changes: SimpleChanges) {
-    if ((changes['fmeaDoc'] || changes['selectedObject']) && this.initialized) {
+    if ((changes['fmeaDoc'] || changes['selectedObject'] || changes['showStructure']) && this.initialized) {
       await this.updateGraph();
     }
   }
@@ -220,7 +225,7 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
     });
   }
 
-  private async updateGraph() {
+  async updateGraph() {
     if (!this.initialized || !this.fmeaDoc || !this.selectedObject) {
       return;
     }
@@ -449,5 +454,26 @@ export class FunctionGraphComponent implements OnInit, OnChanges {
     this.showStructure = !this.showStructure;
     // Regenerate the entire graph with the new structure visibility setting
     this.updateGraph();
+  }
+
+  // Public methods for external components
+  public async refreshLayout() {
+    if (this.initialized && this.editor?.getNodes().length > 0) {
+      try {
+        await this.layoutNodes();
+        // Fit view to show all nodes after layout
+        AreaExtensions.zoomAt(this.area, this.editor.getNodes());
+      } catch (error) {
+        console.error('Error refreshing layout:', error);
+      }
+    }
+  }
+
+  public getSelectedObject() {
+    return this.selectedObject;
+  }
+
+  public isInitialized() {
+    return this.initialized;
   }
 }
